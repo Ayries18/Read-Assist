@@ -77,62 +77,19 @@
                         </form>
                     </div>
                 </div>
-            @endif
-        </div>
-
-        <!-- Right Side: QR Code & IP Selection -->
+                  <!-- Right Side: QR Code -->
         <div style="display: flex; flex-direction: column; gap: 1.8rem;">
-            <div class="card" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <div class="card" style="text-align: center; display: flex; flex-direction: column; align-items: center; padding: 2.5rem 1.8rem;">
                 <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">QR-Audio untuk Tunanetra</h3>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 2rem;">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
 
-                @if (!empty($tunnelUrl))
-                    <div style="width: 100%; text-align: left; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.9rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                        <span style="font-weight: 600; font-size: 0.85rem; color: #34d399; display: flex; align-items: center; gap: 0.4rem;">
-                            🌐 Mode Akses Publik Aktif
-                        </span>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.4rem;">
-                            Menggunakan terowongan internet lokal. Scan dari HP mana saja secara global tanpa kendala firewall Wi-Fi.
-                        </p>
-                    </div>
-                @else
-                    <div style="width: 100%; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                        <label for="laptop-ip" style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary);">IP Address Laptop Host:</label>
-                        <input type="text" id="laptop-ip" value="{{ $detectedIp }}" class="form-control" style="margin-top: 0.4rem; text-align: center; font-weight: bold; font-size: 0.95rem; font-family: monospace;">
-                        
-                        @if(count($localIps) > 1)
-                            <div style="font-size: 0.75rem; margin-top: 0.8rem; color: var(--text-muted);">
-                                Pilih IP Lain: 
-                                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.3rem;">
-                                    @foreach($localIps as $ip)
-                                        @if($ip !== $detectedIp)
-                                            <button type="button" onclick="changeIp('{{ $ip }}')" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: var(--accent-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer;">
-                                                {{ $ip }}
-                                            </button>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-                        <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.8rem; line-height: 1.4;">
-                            * HP Anda harus terhubung ke satu Wi-Fi yang sama dengan laptop.
-                        </p>
-                    </div>
-                @endif
-
-                <div class="qr-box" style="margin-bottom: 1.2rem;">
+                <div class="qr-box" style="background: #ffffff; padding: 1.2rem; border-radius: 12px; display: inline-block;">
                     <img
                         id="qr-code-img"
                         src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($qrUrl) }}"
                         alt="QR Code untuk membuka audio {{ $audioBook->judul }}"
                         style="display: block; margin: 0 auto; width: 170px; height: 170px;"
                     >
-                </div>
-
-                <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-glass); padding: 0.6rem 0.8rem; border-radius: 8px; width: 100%; word-break: break-all;">
-                    <a id="qr-code-link" href="{{ $qrUrl }}" target="_blank" style="color: var(--accent-primary); font-size: 0.8rem; font-family: monospace; font-weight: bold; text-decoration: underline;">
-                        {{ $qrUrl }}
-                    </a>
                 </div>
             </div>
         </div>
@@ -262,6 +219,7 @@
         const port = "8000";
 
         function updateQR() {
+            if (!ipInput || !qrLink) return;
             const ip = ipInput.value.trim();
             if (!ip) return;
             
@@ -273,6 +231,7 @@
         }
 
         function changeIp(newIp) {
+            if (!ipInput) return;
             ipInput.value = newIp;
             updateQR();
         }
