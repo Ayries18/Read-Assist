@@ -24,7 +24,7 @@
                     name="search"
                     class="form-control"
                     value="{{ $search ?? '' }}"
-                    placeholder="Cari berdasarkan judul, penulis, atau kategori..."
+                    placeholder="Cari berdasarkan judul..."
                     style="padding-left: 2.5rem;"
                 >
                 <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);">🔍</span>
