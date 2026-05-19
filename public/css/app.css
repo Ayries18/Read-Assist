@@ -1,20 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --bg-primary: #0b0f19;
-    --bg-secondary: #131b2e;
-    --bg-glass: rgba(20, 30, 55, 0.6);
-    --border-glass: rgba(255, 255, 255, 0.08);
-    --accent-primary: #6366f1;
-    --accent-secondary: #a855f7;
+    --bg-primary: #09090b;
+    --bg-secondary: #18181b;
+    --bg-glass: #18181b;
+    --border-glass: #27272a;
+    --accent-primary: #4f46e5;
+    --accent-secondary: #3b82f6;
     --accent-success: #10b981;
     --accent-danger: #ef4444;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -25,10 +25,6 @@
 
 body {
     background-color: var(--bg-primary);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
-    background-attachment: fixed;
     color: var(--text-primary);
     font-family: var(--font-sans);
     line-height: 1.6;
@@ -71,13 +67,11 @@ a {
 }
 
 .brand-accent {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--accent-primary);
 }
 
 .brand:hover img {
-    transform: scale(1.08) rotate(3deg);
+    transform: scale(1.05);
 }
 
 .nav-menu {
@@ -223,9 +217,7 @@ a {
     font-weight: 700;
     margin-bottom: 1.5rem;
     text-align: center;
-    background: linear-gradient(135deg, #fff, #94a3b8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
 }
 
 .form-group {
@@ -317,15 +309,14 @@ textarea.form-control {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    background: var(--accent-primary);
     color: #fff;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
 }
 
 .btn-primary:hover {
-    opacity: 0.95;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    background: #4338ca;
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
 }
 
 .btn-secondary {
@@ -364,7 +355,7 @@ textarea.form-control {
 .wave-bar {
     width: 4px;
     height: 10px;
-    background: linear-gradient(to top, var(--accent-primary), var(--accent-secondary));
+    background: var(--accent-primary);
     border-radius: 2px;
     animation: bounce 1.2s ease-in-out infinite alternate;
 }
@@ -393,10 +384,10 @@ textarea.form-control {
 .player-container {
     max-width: 800px;
     margin: 2rem auto;
-    background: var(--bg-glass);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-glass);
-    border-radius: 24px;
-    padding: 2.5rem;
+    border-radius: 12px;
+    padding: 2rem;
     text-align: center;
 }
 
@@ -463,9 +454,13 @@ textarea.form-control {
 .round-btn.play-btn {
     width: 65px;
     height: 65px;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    box-shadow: var(--shadow-glow);
+    background: var(--accent-primary);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
     font-size: 1.5rem;
+}
+.round-btn.play-btn:hover {
+    background: #4338ca;
 }
 
 /* Alert styles */
