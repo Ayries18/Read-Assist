@@ -17,8 +17,8 @@
             <div class="form-group">
                 <label for="role" class="form-label">Daftar sebagai</label>
                 <select id="role" name="role" class="form-control" required>
-                    <option value="user" @selected(old('role') === 'user')>User Biasa (Hanya Upload)</option>
-                    <option value="admin" @selected(old('role') === 'admin')>Admin Katalog (CRUD penuh)</option>
+                    <option value="user" @selected(old('role') === 'user')>User</option>
+                    <option value="admin" @selected(old('role') === 'admin')>Admin</option>
                 </select>
             </div>
 

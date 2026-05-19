@@ -12,6 +12,7 @@ class AudioBuku extends Model
         'user_id',
         'admin_id',
         'judul',
+        'cover',
         'penulis',
         'kategori',
         'deskripsi',

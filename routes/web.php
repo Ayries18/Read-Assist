@@ -5,9 +5,7 @@ use App\Http\Controllers\AudioBookController;
 use App\Http\Controllers\ReadAssistController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('audio-books.index');
-})->name('home');
+Route::get('/', [AudioBookController::class, 'landing'])->name('home');
 
 Route::post('/proses-teks', [ReadAssistController::class, 'process'])->name('read.process');
 

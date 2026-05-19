@@ -40,30 +40,46 @@
     <!-- Books Grid -->
     <div class="grid-layout">
         @forelse ($audioBooks as $book)
-            <div class="card">
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div class="card-content">
-                    <span class="user-role" style="font-size: 0.7rem; background: rgba(99, 102, 241, 0.15); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 0.8rem;">
-                        {{ $book->kategori ?: 'Tanpa Kategori' }}
-                    </span>
-                    <h3 class="card-title">{{ $book->judul }}</h3>
-                    
-                    <div class="card-meta">
-                        @if (!empty($book->penulis))
-                            <span>✍️ {{ $book->penulis }}</span>
+                    <!-- Book Cover -->
+                    <div class="book-cover-wrapper">
+                        @if ($book->cover)
+                            <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="book-cover-img">
                         @else
-                            <span>✍️ Penulis tidak diketahui</span>
+                            <div class="book-cover-placeholder">
+                                <span class="book-cover-placeholder-title">{{ $book->judul }}</span>
+                            </div>
                         @endif
                     </div>
+
+                    <h3 class="card-title" style="margin-top: 0.5rem; margin-bottom: 0.4rem; font-size: 1.15rem; line-height: 1.4;">{{ $book->judul }}</h3>
                     
-                    <p class="card-desc">
+                    <!-- Metadata Buku -->
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.8rem; display: flex; flex-direction: column; gap: 0.3rem;">
+                        <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                            <span title="Kategori">🏷️ {{ $book->kategori ?: 'Umum' }}</span>
+                        </div>
+                        <span class="card-update-time" data-utc-updated="{{ $book->updated_at->toIso8601String() }}" style="font-size: 0.75rem; color: var(--text-muted);">
+                            🔄 Diperbarui: <strong></strong>
+                        </span>
+                    </div>
+
+                    <p class="card-desc" style="margin-bottom: 1rem; font-size: 0.88rem; line-height: 1.6;">
                         {{ $book->deskripsi ?: 'Tidak ada deskripsi yang tersedia untuk buku ini.' }}
                     </p>
-                    
-                    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
-                        <a href="/katalog-audio/{{ $book->id }}" class="btn btn-secondary btn-inline" style="flex: 1; padding: 0.6rem 1rem; font-size: 0.9rem;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px solid var(--border-glass); padding-top: 0.8rem; margin-top: auto; z-index: 1;">
+                    <!-- Mini Player Trigger -->
+                    <button onclick="window.playMiniPlayer('{{ addslashes($book->judul) }}', '', '{{ addslashes($book->deskripsi) }}', '{{ $book->cover ? '/storage/'.$book->cover : '' }}')" class="btn btn-secondary" style="width: 100%; padding: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                        ⚡ Putar Instan
+                    </button>
+                    <div style="display: flex; gap: 0.5rem; width: 100%;">
+                        <a href="/katalog-audio/{{ $book->id }}" class="btn btn-secondary btn-inline" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; text-align: center;">
                             Detail
                         </a>
-                        <a href="/qr-audio/{{ $book->qr_token }}" class="btn btn-primary btn-inline" style="flex: 1.5; padding: 0.6rem 1rem; font-size: 0.9rem;">
+                        <a href="/qr-audio/{{ $book->qr_token }}" class="btn btn-primary btn-inline" style="flex: 1.2; padding: 0.5rem; font-size: 0.85rem; text-align: center;">
                             🔊 Dengar
                         </a>
                     </div>
@@ -80,4 +96,37 @@
     <div style="margin-top: 2rem;">
         {{ $audioBooks->links() }}
     </div>
+
+    <script>
+        function updateCardRelativeTimes() {
+            document.querySelectorAll('.card-update-time').forEach(el => {
+                const utcStr = el.getAttribute('data-utc-updated');
+                if (utcStr) {
+                    const diffMs = new Date() - new Date(utcStr);
+                    const diffMins = Math.floor(diffMs / 60000);
+                    let relativeText = '';
+                    
+                    if (diffMins < 1) {
+                        relativeText = 'baru saja';
+                    } else if (diffMins < 60) {
+                        relativeText = `${diffMins} menit yang lalu`;
+                    } else {
+                        const diffHours = Math.floor(diffMins / 60);
+                        if (diffHours < 24) {
+                            relativeText = `${diffHours} jam yang lalu`;
+                        } else {
+                            const diffDays = Math.floor(diffHours / 24);
+                            relativeText = `${diffDays} hari yang lalu`;
+                        }
+                    }
+                    el.querySelector('strong').innerText = relativeText;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCardRelativeTimes();
+            setInterval(updateCardRelativeTimes, 15000);
+        });
+    </script>
 @endsection

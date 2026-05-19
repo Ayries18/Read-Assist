@@ -16,7 +16,7 @@
             </div>
         @endif
 
-        <form method="POST" action="/katalog-audio/{{ $audioBook->id }}">
+        <form method="POST" action="/katalog-audio/{{ $audioBook->id }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -32,7 +32,7 @@
                 <label for="description_file" class="file-dropzone" id="dropzone" style="padding: 1.2rem;">
                     <span style="font-size: 1.5rem; margin-bottom: 0.4rem; display: inline-block;">📄</span>
                     <p style="font-weight: 600; font-size: 0.88rem; margin: 0;" id="file-status-title">Pilih file teks .txt jika ada</p>
-                    <input type="file" id="description_file" accept=".txt,text/plain">
+                    <input type="file" id="description_file" accept=".txt,text/plain" style="display: none;">
                 </label>
             </div>
 
@@ -85,7 +85,6 @@
                 dropzone.style.borderColor = 'var(--border-glass)';
             };
 
-            reader.readAsText(file);
         });
     </script>
 @endsection

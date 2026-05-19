@@ -9,6 +9,27 @@ use Illuminate\Support\Str;
 
 class AudioBookController extends Controller
 {
+    public function landing()
+    {
+        $bookCount = AudioBuku::count();
+        
+        $totalChars = AudioBuku::sum(\DB::raw('LENGTH(deskripsi)'));
+        if ($totalChars >= 1000000) {
+            $charCount = round($totalChars / 1000000, 1) . 'M+';
+        } elseif ($totalChars >= 1000) {
+            $charCount = round($totalChars / 1000, 1) . 'K+';
+        } else {
+            $charCount = $totalChars;
+        }
+
+        $totalWords = AudioBuku::all()->sum(function($b) {
+            return str_word_count($b->deskripsi);
+        });
+        $readDuration = ceil($totalWords / 150) . ' Mins';
+
+        return view('home', compact('bookCount', 'charCount', 'readDuration'));
+    }
+
     public function index(Request $request)
     {
         $search = $request->query('search');
@@ -70,14 +91,15 @@ class AudioBookController extends Controller
         }
 
         $description = $this->makeDescription($bookText);
-        $title = $validated['title'] ?: pathinfo($bookFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $title = ($validated['title'] ?? null) ?: pathinfo($bookFile->getClientOriginalName(), PATHINFO_FILENAME);
 
         $audioBook = AudioBuku::create([
             'user_id' => session('auth_role') === 'user' ? session('auth_id') : null,
             'admin_id' => session('auth_role') === 'admin' ? session('auth_id') : null,
             'judul' => $title,
-            'penulis' => null,
-            'kategori' => null,
+            'cover' => null,
+            'penulis' => 'Penulis Tidak Diketahui',
+            'kategori' => 'Umum',
             'deskripsi' => $description,
             'file_buku' => $bookPath,
             'file_audio' => 'tts',
@@ -94,26 +116,62 @@ class AudioBookController extends Controller
     {
         $localIps = $this->getLocalIps();
         
-        // Try to prioritize standard local ranges like 192.168.x.x
         $detectedIp = '127.0.0.1';
-        foreach ($localIps as $ip) {
-            if (str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
+        
+        // 1. Try to prioritize Wi-Fi or Wireless adapter
+        foreach ($localIps as $name => $ip) {
+            if (stripos($name, 'wi-fi') !== false || stripos($name, 'wireless') !== false) {
                 $detectedIp = $ip;
                 break;
             }
         }
         
+        // 2. Fallback to standard local ranges if Wi-Fi wasn't explicitly matched
+        if ($detectedIp === '127.0.0.1') {
+            foreach ($localIps as $name => $ip) {
+                if (str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
+                    $detectedIp = $ip;
+                    break;
+                }
+            }
+        }
+        
+        // 3. Fallback to the first detected IP
         if ($detectedIp === '127.0.0.1' && !empty($localIps)) {
-            $detectedIp = $localIps[0];
+            $detectedIp = reset($localIps);
         }
 
         // Try to read active tunnel URL (localtunnel, serveo, or localhost.run) if available
         $tunnelUrl = null;
         $tempPath = storage_path('app/localtunnel_temp.txt');
+        
+        // Check if ssh.exe process is running
+        $isSshRunning = false;
+        try {
+            $tasklist = shell_exec('tasklist /FI "IMAGENAME eq ssh.exe"');
+            $isSshRunning = $tasklist && stripos($tasklist, 'ssh.exe') !== false;
+        } catch (\Exception $e) {
+            // Fallback to true if we cannot execute shell_exec
+            $isSshRunning = true; 
+        }
+
         if (file_exists($tempPath)) {
-            $content = file_get_contents($tempPath);
-            if (preg_match_all('/https:\/\/[a-zA-Z0-9\-\.]+(\.loca\.lt|\.serveousercontent\.com|\.lhr\.life)/', $content, $matches)) {
-                $tunnelUrl = end($matches[0]);
+            if ($isSshRunning) {
+                $content = file_get_contents($tempPath);
+                
+                // Convert UTF-16/UTF-16LE redirection outputs from PowerShell to UTF-8
+                if (str_starts_with($content, "\xFF\xFE") || str_starts_with($content, "\xFE\xFF")) {
+                    $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
+                } elseif (str_contains($content, "\x00")) {
+                    $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16LE');
+                }
+                
+                if (preg_match_all('/https:\/\/[a-zA-Z0-9\-\.]+(\.loca\.lt|\.serveousercontent\.com|\.lhr\.life)/', $content, $matches)) {
+                    $tunnelUrl = end($matches[0]);
+                }
+            } else {
+                // Remove stale file if process is no longer running
+                @unlink($tempPath);
             }
         }
 
@@ -136,19 +194,32 @@ class AudioBookController extends Controller
         // 1. Try host name DNS lookup
         $hostIp = gethostbyname(gethostname());
         if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
-            $ips[] = $hostIp;
+            $ips['Host DNS'] = $hostIp;
         }
         
         // 2. Parse Windows ipconfig command output to find all physical IPv4s
         try {
             $output = shell_exec('ipconfig');
             if ($output) {
-                preg_match_all('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $output, $matches);
-                if (!empty($matches[1])) {
-                    foreach ($matches[1] as $ip) {
-                        $ip = trim($ip);
-                        if ($ip !== '127.0.0.1' && !in_array($ip, $ips, true)) {
-                            $ips[] = $ip;
+                // Normalize newlines
+                $output = str_replace("\r\n", "\n", $output);
+                // Split by double newline to get each adapter block
+                $blocks = explode("\n\n", $output);
+                foreach ($blocks as $block) {
+                    $lines = explode("\n", trim($block));
+                    if (empty($lines)) continue;
+                    
+                    $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
+                    if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
+                        continue;
+                    }
+                    
+                    foreach ($lines as $line) {
+                        if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
+                            $ip = trim($match[1]);
+                            if ($ip !== '127.0.0.1' && !in_array($ip, $ips, true)) {
+                                $ips[$adapterName] = $ip;
+                            }
                         }
                     }
                 }
@@ -158,7 +229,7 @@ class AudioBookController extends Controller
         }
         
         if (empty($ips)) {
-            $ips[] = '127.0.0.1';
+            $ips['Localhost'] = '127.0.0.1';
         }
         
         return $ips;
@@ -186,10 +257,12 @@ class AudioBookController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
-        $audioBook->update([
+        $updateData = [
             'judul' => $validated['title'],
             'deskripsi' => $validated['description'] ?? null,
-        ]);
+        ];
+
+        $audioBook->update($updateData);
 
         return redirect()
             ->route('audio-books.show', $audioBook)
@@ -201,6 +274,10 @@ class AudioBookController extends Controller
         if (! $this->canManageBook($audioBook)) {
             return redirect()->route('audio-books.show', $audioBook)
                 ->withErrors(['audio' => 'Hanya admin atau pemilik buku yang dapat menghapus buku.']);
+        }
+
+        if ($audioBook->cover) {
+            Storage::disk('public')->delete($audioBook->cover);
         }
 
         if ($audioBook->file_buku) {
@@ -221,6 +298,9 @@ class AudioBookController extends Controller
     public function play(string $token)
     {
         $audioBook = AudioBuku::where('qr_token', $token)->firstOrFail();
+
+        // Mark the current session as restricted to this QR token for guest users
+        session(['qr_restricted_token' => $token]);
 
         return view('audio-books.play', compact('audioBook'));
     }

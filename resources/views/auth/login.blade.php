@@ -17,8 +17,8 @@
             <div class="form-group">
                 <label for="role" class="form-label">Masuk sebagai</label>
                 <select id="role" name="role" class="form-control" required>
-                    <option value="user" @selected(old('role') === 'user')>User Biasa</option>
-                    <option value="admin" @selected(old('role') === 'admin')>Admin Katalog</option>
+                    <option value="user" @selected(old('role') === 'user')>User</option>
+                    <option value="admin" @selected(old('role') === 'admin')>Admin</option>
                 </select>
             </div>
 
