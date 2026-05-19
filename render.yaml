@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: read-assist
+    runtime: docker
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /var/www/html/database/database.sqlite
+      - key: APP_KEY
+        value: base64:YmI2bHptYmt1bXNocHZqNXR3dThjZ3o1eHdma3ZwbDA= # A default fallback key, can be rotated
