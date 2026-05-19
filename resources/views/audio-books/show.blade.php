@@ -77,7 +77,10 @@
                         </form>
                     </div>
                 </div>
-                  <!-- Right Side: QR Code -->
+            @endif
+        </div>
+
+        <!-- Right Side: QR Code -->
         <div style="display: flex; flex-direction: column; gap: 1.8rem;">
             <div class="card" style="text-align: center; display: flex; flex-direction: column; align-items: center; padding: 2.5rem 1.8rem;">
                 <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">QR-Audio untuk Tunanetra</h3>
