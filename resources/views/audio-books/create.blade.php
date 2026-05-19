@@ -25,7 +25,7 @@
                 <label for="book_file" class="file-dropzone" id="dropzone">
                     <span class="file-icon">📁</span>
                     <p style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;" id="file-status-title">Pilih file PDF atau EPUB</p>
-                    <p style="color: var(--text-muted); font-size: 0.78rem;">Maksimal file 10MB. Deskripsi akan diekstrak otomatis.</p>
+                    <p style="color: var(--text-muted); font-size: 0.78rem;">Deskripsi akan diekstrak otomatis.</p>
                     <input type="file" id="book_file" name="book_file" accept=".pdf,.epub,application/pdf,application/epub+zip" required>
                 </label>
             </div>
