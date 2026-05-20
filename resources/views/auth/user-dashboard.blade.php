@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $tunnelUrl = \App\Http\Controllers\AudioBookController::getTunnelUrl();
+    if ($tunnelUrl) {
+        $serverOrigin = $tunnelUrl;
+    } else {
+        $detectedIp = \App\Http\Controllers\AudioBookController::getDetectedIp();
+        $port = request()->getPort();
+        $serverOrigin = "http://" . $detectedIp . ($port && $port != 80 && $port != 443 ? ":" . $port : "");
+    }
+@endphp
     <div style="max-width: 800px; margin: 0 auto;">
         <!-- Welcome Card -->
         <div class="card" style="padding: 2.5rem; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(20, 30, 55, 0.7), rgba(99, 102, 241, 0.1)); border-color: rgba(255, 255, 255, 0.1);">
@@ -151,7 +161,7 @@
                 const title = selectedOpt.getAttribute('data-title');
                 
                 // Build the URL to qr-audio
-                const playUrl = `${window.location.origin}/qr-audio/${token}`;
+                const playUrl = `{{ $serverOrigin }}/qr-audio/${token}`;
                 const qrImg = document.getElementById('quick-qr-img');
                 if (qrImg) {
                     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(playUrl)}`;

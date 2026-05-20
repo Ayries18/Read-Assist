@@ -29,4 +29,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function audioBuku()
+    {
+        return $this->hasMany(AudioBuku::class, 'user_id');
+    }
 }

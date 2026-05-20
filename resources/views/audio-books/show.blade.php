@@ -137,11 +137,18 @@
                 <div class="qr-box" style="background: #ffffff; padding: 1.2rem; border-radius: 12px; display: inline-block; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
                     <img
                         id="qr-code-img"
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{ urlencode($qrUrl) }}"
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&ecc=M&data={{ urlencode($qrUrl) }}"
                         alt="QR Code untuk membuka audio {{ $audioBook->judul }}"
-                        style="display: block; margin: 0 auto; width: 190px; height: 190px;"
+                        style="display: block; margin: 0 auto; width: 260px; height: 260px;"
                     >
                 </div>
+
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 1rem; max-width: 320px;">
+                    Pastikan HP terhubung ke jaringan yang sama dengan komputer. Jika pemindaian belum berhasil, gunakan tombol di bawah untuk membuka buku langsung dari HP.
+                </p>
+                <a href="{{ $qrUrl }}" target="_blank" rel="noreferrer noopener" class="btn btn-primary btn-inline" style="width: 100%; margin-top: 0.6rem; font-size: 0.9rem;">
+                    Buka Buku Ini di HP
+                </a>
 
                 <!-- QR Action Buttons -->
                 <button onclick="printQR()" class="btn btn-secondary" style="width: 100%; margin-top: 1.8rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem;">
@@ -412,16 +419,16 @@
         }
 
         const basePlayUrlPath = "{{ route('audio-books.play', $audioBook->qr_token, false) }}";
-        const port = "8000";
+        const port = "{{ request()->getPort() }}";
 
         function updateSelectedIp(ip) {
             if (!ip) return;
             localStorage.setItem('selected_local_ip', ip);
             
-            const newUrl = `http://${ip}:${port}${basePlayUrlPath}`;
+            const newUrl = `${window.location.protocol}//${ip}${port ? ':' + port : ''}${basePlayUrlPath}`;
             const qrImage = document.getElementById('qr-code-img');
             if (qrImage) {
-                qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(newUrl)}`;
+                qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&ecc=M&data=${encodeURIComponent(newUrl)}`;
             }
         }
 

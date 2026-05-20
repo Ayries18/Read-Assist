@@ -18,4 +18,9 @@ class Admin extends Model
             'password' => 'hashed',
         ];
     }
+
+    public function audioBuku()
+    {
+        return $this->hasMany(AudioBuku::class, 'admin_id');
+    }
 }

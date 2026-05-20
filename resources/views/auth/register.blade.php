@@ -13,14 +13,8 @@
         <form method="POST" action="/register">
             @csrf
 
-            <!-- Role Selector -->
-            <div class="form-group">
-                <label for="role" class="form-label">Daftar sebagai</label>
-                <select id="role" name="role" class="form-control" required>
-                    <option value="user" @selected(old('role') === 'user')>User</option>
-                    <option value="admin" @selected(old('role') === 'admin')>Admin</option>
-                </select>
-            </div>
+            <!-- Register as User only -->
+            <input type="hidden" name="role" value="user">
 
             <!-- Name Field -->
             <div class="form-group">

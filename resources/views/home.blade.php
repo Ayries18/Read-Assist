@@ -8,14 +8,22 @@
                 <span class="user-role" style="font-size: 0.8rem; background: rgba(99, 102, 241, 0.15); padding: 5px 12px; border-radius: 20px; color: var(--accent-primary); width: fit-content; font-weight: 700; border: 1px solid rgba(99, 102, 241, 0.3);">
                     ⚡ SISTEM READ-ASSIST QR-AUDIO
                 </span>
-                <h1 class="hero-title text-gradient">Sistem Pendukung Belajar Mandiri untuk Tunanetra</h1>
+                <h1 class="hero-title text-gradient">Sistem Buku Audio QR untuk Tunanetra</h1>
                 <p class="hero-subtitle">
-                    Gabungan inovasi kode QR unik dan pemutar audio pintar berbasis web. Membantu rekan tunanetra membaca buku fisik secara mandiri melalui smartphone tanpa aplikasi tambahan.
+                    Tuna netra dapat membaca buku fisik melalui pemindaian QR di smartphone, tanpa perlu aplikasi tambahan atau proses rumit.
                 </p>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; align-items: center;">
                     <a href="{{ route('audio-books.index') }}" class="btn-cta">
                         📚 Mulai Belajar Mandiri
                     </a>
+                    @if (!session()->has('auth_role'))
+                        <a href="{{ route('login') }}" class="btn-cta" style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid var(--border-glass); color: #fff; text-shadow: none;">
+                            🔑 Masuk (Login)
+                        </a>
+                        <a href="{{ route('register') }}" class="btn-cta" style="background: rgba(99, 102, 241, 0.15); border: 1.5px solid rgba(99, 102, 241, 0.3); color: var(--accent-primary); text-shadow: none;">
+                            ✨ Daftar (Register)
+                        </a>
+                    @endif
                 </div>
 
                 <!-- 📊 Statistik Realtime -->

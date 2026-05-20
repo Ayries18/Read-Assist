@@ -22,9 +22,8 @@ class AudioBookController extends Controller
             $charCount = $totalChars;
         }
 
-        $totalWords = AudioBuku::all()->sum(function($b) {
-            return str_word_count($b->deskripsi);
-        });
+        // Optimasi: Gunakan estimasi panjang karakter dibagi 6 untuk menghindari pemuatan seluruh teks buku ke memori PHP yang dapat membuat server crash/hang.
+        $totalWords = (int) ($totalChars / 6);
         $readDuration = ceil($totalWords / 150) . ' Mins';
 
         return view('home', compact('bookCount', 'charCount', 'readDuration'));
@@ -114,7 +113,89 @@ class AudioBookController extends Controller
 
     public function show(AudioBuku $audioBook)
     {
-        $localIps = $this->getLocalIps();
+        $localIps = self::getLocalIps();
+        $detectedIp = self::getDetectedIp();
+        $tunnelUrl = self::getTunnelUrl();
+
+        $path = route('audio-books.play', $audioBook->qr_token, false);
+        if ($tunnelUrl) {
+            $qrUrl = rtrim($tunnelUrl, '/') . $path;
+        } else {
+            $scheme = request()->getScheme() ?: 'http';
+            $port = request()->getPort();
+            $host = $detectedIp && $detectedIp !== '127.0.0.1' ? $detectedIp : request()->getHost();
+            $portPart = in_array($port, [80, 443], true) ? '' : ':' . $port;
+            $qrUrl = "{$scheme}://{$host}{$portPart}{$path}";
+        }
+
+        return view('audio-books.show', compact('audioBook', 'qrUrl', 'detectedIp', 'localIps', 'tunnelUrl'));
+    }
+
+    public static function getLocalIps(): array
+    {
+        $ips = [];
+        
+        // 1. Parse Windows ipconfig command output to find all physical IPv4s
+        try {
+            $output = shell_exec('ipconfig');
+            if ($output) {
+                // Normalize newlines
+                $output = str_replace("\r\n", "\n", $output);
+                // Split by double newline to get each adapter block
+                $blocks = explode("\n\n", $output);
+                foreach ($blocks as $block) {
+                    $lines = explode("\n", trim($block));
+                    if (empty($lines)) continue;
+                    
+                    $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
+                    if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
+                        continue;
+                    }
+
+                    // Abaikan adapter virtual agar HP tidak salah membaca IP VirtualBox/VMware/WSL
+                    $lowerName = strtolower($adapterName);
+                    if (str_contains($lowerName, 'virtualbox') || 
+                        str_contains($lowerName, 'vmware') || 
+                        str_contains($lowerName, 'wsl') || 
+                        str_contains($lowerName, 'vethernet') || 
+                        str_contains($lowerName, 'host-only') ||
+                        str_contains($lowerName, 'loopback') ||
+                        str_contains($lowerName, 'hyper-v')) {
+                        continue;
+                    }
+                    
+                    foreach ($lines as $line) {
+                        if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
+                            $ip = trim($match[1]);
+                            if ($ip !== '127.0.0.1' && !in_array($ip, $ips, true)) {
+                                $ips[$adapterName] = $ip;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback
+        }
+        
+        // 2. DNS Hostname fallback (hanya jika IP fisik tidak ditemukan)
+        if (empty($ips)) {
+            $hostIp = gethostbyname(gethostname());
+            if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
+                $ips['Host DNS'] = $hostIp;
+            }
+        }
+        
+        if (empty($ips)) {
+            $ips['Localhost'] = '127.0.0.1';
+        }
+        
+        return $ips;
+    }
+
+    public static function getDetectedIp(): string
+    {
+        $localIps = self::getLocalIps();
         
         $detectedIp = '127.0.0.1';
         
@@ -141,98 +222,78 @@ class AudioBookController extends Controller
             $detectedIp = reset($localIps);
         }
 
-        // Try to read active tunnel URL (localtunnel, serveo, or localhost.run) if available
-        $tunnelUrl = null;
-        $tempPath = storage_path('app/localtunnel_temp.txt');
-        
-        // Check if ssh.exe process is running
-        $isSshRunning = false;
-        try {
-            $tasklist = shell_exec('tasklist /FI "IMAGENAME eq ssh.exe"');
-            $isSshRunning = $tasklist && stripos($tasklist, 'ssh.exe') !== false;
-        } catch (\Exception $e) {
-            // Fallback to true if we cannot execute shell_exec
-            $isSshRunning = true; 
-        }
-
-        if (file_exists($tempPath)) {
-            if ($isSshRunning) {
-                $content = file_get_contents($tempPath);
-                
-                // Convert UTF-16/UTF-16LE redirection outputs from PowerShell to UTF-8
-                if (str_starts_with($content, "\xFF\xFE") || str_starts_with($content, "\xFE\xFF")) {
-                    $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
-                } elseif (str_contains($content, "\x00")) {
-                    $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16LE');
-                }
-                
-                if (preg_match_all('/https:\/\/[a-zA-Z0-9\-\.]+(\.loca\.lt|\.serveousercontent\.com|\.lhr\.life)/', $content, $matches)) {
-                    $tunnelUrl = end($matches[0]);
-                }
-            } else {
-                // Remove stale file if process is no longer running
-                @unlink($tempPath);
-            }
-        }
-
-        $qrUrl = route('audio-books.play', $audioBook->qr_token);
-        
-        if ($tunnelUrl) {
-            $path = route('audio-books.play', $audioBook->qr_token, false);
-            $qrUrl = rtrim($tunnelUrl, '/') . $path;
-        } else {
-            $qrUrl = str_replace(['localhost', '127.0.0.1'], $detectedIp, $qrUrl);
-        }
-
-        return view('audio-books.show', compact('audioBook', 'qrUrl', 'detectedIp', 'localIps', 'tunnelUrl'));
+        return $detectedIp;
     }
 
-    private function getLocalIps(): array
+    public static function getTunnelUrl(): ?string
     {
-        $ips = [];
+        $tempPath = storage_path('app/localtunnel_temp.txt');
+        $errPath = storage_path('app/localtunnel_err.txt');
         
-        // 1. Try host name DNS lookup
-        $hostIp = gethostbyname(gethostname());
-        if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
-            $ips['Host DNS'] = $hostIp;
-        }
-        
-        // 2. Parse Windows ipconfig command output to find all physical IPv4s
+        $port = request()->getPort() ?: 8000;
+
+        // Check if ssh.exe is running in Windows tasklist
+        $isRunning = false;
         try {
-            $output = shell_exec('ipconfig');
-            if ($output) {
-                // Normalize newlines
-                $output = str_replace("\r\n", "\n", $output);
-                // Split by double newline to get each adapter block
-                $blocks = explode("\n\n", $output);
-                foreach ($blocks as $block) {
-                    $lines = explode("\n", trim($block));
-                    if (empty($lines)) continue;
-                    
-                    $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
-                    if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
-                        continue;
-                    }
-                    
-                    foreach ($lines as $line) {
-                        if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
-                            $ip = trim($match[1]);
-                            if ($ip !== '127.0.0.1' && !in_array($ip, $ips, true)) {
-                                $ips[$adapterName] = $ip;
-                            }
-                        }
-                    }
-                }
+            $tasklist = shell_exec('tasklist /NH /FI "IMAGENAME eq ssh.exe"');
+            if ($tasklist && stripos($tasklist, 'ssh.exe') !== false) {
+                $isRunning = true;
             }
         } catch (\Exception $e) {
             // Fallback
         }
-        
-        if (empty($ips)) {
-            $ips['Localhost'] = '127.0.0.1';
+
+        $hasUrl = false;
+        if (file_exists($tempPath)) {
+            $content = file_get_contents($tempPath);
+            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life)/', $content, $match)) {
+                $hasUrl = true;
+            }
         }
-        
-        return $ips;
+
+        // If not running or we don't have a valid tunnel URL file, kill existing ssh.exe and start a new one
+        if (!$isRunning || !$hasUrl) {
+            if ($isRunning) {
+                try {
+                    shell_exec('taskkill /F /IM ssh.exe');
+                } catch (\Exception $e) {}
+            }
+            
+            if (file_exists($tempPath)) {
+                @unlink($tempPath);
+            }
+            if (file_exists($errPath)) {
+                @unlink($errPath);
+            }
+
+            try {
+                $command = 'powershell -Command "Start-Process -NoNewWindow -FilePath \'ssh\' -ArgumentList \'-o\', \'StrictHostKeyChecking=no\', \'-R\', \'80:127.0.0.1:' . $port . '\', \'nokey@localhost.run\' -RedirectStandardOutput \'' . $tempPath . '\' -RedirectStandardError \'' . $errPath . '\'"';
+                pclose(popen($command, 'r'));
+                
+                // Wait briefly for the tunnel to initialize and write the URL
+                for ($i = 0; $i < 10; $i++) {
+                    usleep(200000); // 0.2 seconds
+                    if (file_exists($tempPath)) {
+                        $content = file_get_contents($tempPath);
+                        if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life)/', $content, $match)) {
+                            break;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // Failed to start
+            }
+        }
+
+        // Read active tunnel URL
+        if (file_exists($tempPath)) {
+            $content = file_get_contents($tempPath);
+            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life)/', $content, $match)) {
+                return $match[0];
+            }
+        }
+
+        return null;
     }
 
     public function edit(AudioBuku $audioBook)
