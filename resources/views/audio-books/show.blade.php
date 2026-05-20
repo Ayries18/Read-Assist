@@ -143,12 +143,6 @@
                     >
                 </div>
 
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 1rem; max-width: 320px;">
-                    Pastikan HP terhubung ke jaringan yang sama dengan komputer. Jika pemindaian belum berhasil, gunakan tombol di bawah untuk membuka buku langsung dari HP.
-                </p>
-                <a href="{{ $qrUrl }}" target="_blank" rel="noreferrer noopener" class="btn btn-primary btn-inline" style="width: 100%; margin-top: 0.6rem; font-size: 0.9rem;">
-                    Buka Buku Ini di HP
-                </a>
 
                 <!-- QR Action Buttons -->
                 <button onclick="printQR()" class="btn btn-secondary" style="width: 100%; margin-top: 1.8rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem;">

@@ -246,7 +246,10 @@ class AudioBookController extends Controller
         $hasUrl = false;
         if (file_exists($tempPath)) {
             $content = file_get_contents($tempPath);
-            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life)/', $content, $match)) {
+            if (str_contains($content, "\0")) {
+                $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
+            }
+            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life|\.localhost\.run)/', $content, $match)) {
                 $hasUrl = true;
             }
         }
@@ -275,7 +278,10 @@ class AudioBookController extends Controller
                     usleep(200000); // 0.2 seconds
                     if (file_exists($tempPath)) {
                         $content = file_get_contents($tempPath);
-                        if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life)/', $content, $match)) {
+                        if (str_contains($content, "\0")) {
+                            $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
+                        }
+                        if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life|\.localhost\.run)/', $content, $match)) {
                             break;
                         }
                     }
@@ -288,7 +294,10 @@ class AudioBookController extends Controller
         // Read active tunnel URL
         if (file_exists($tempPath)) {
             $content = file_get_contents($tempPath);
-            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life)/', $content, $match)) {
+            if (str_contains($content, "\0")) {
+                $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
+            }
+            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life|\.localhost\.run)/', $content, $match)) {
                 return $match[0];
             }
         }
