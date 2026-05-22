@@ -1,0 +1,21 @@
+{
+    "name": "Read Assist",
+    "short_name": "ReadAssist",
+    "description": "Platform aksesibilitas buku audio untuk tunanetra",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#09090b",
+    "theme_color": "#09090b",
+    "icons": [
+        {
+            "src": "/logo.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

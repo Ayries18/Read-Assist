@@ -1,161 +1,183 @@
 @extends('layouts.app')
 
 @section('content')
-    <div style="margin-bottom: 2rem;">
-        <a href="/katalog-audio" style="color: var(--text-muted); font-weight: 500; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+    @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
+    <div class="mb-8">
+        <a href="/katalog-audio" class="text-slate-400 font-medium text-sm inline-flex items-center gap-2">
             ← Kembali ke Katalog
         </a>
     </div>
+    @endif
 
-    <div class="detail-grid">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
         <!-- Left Side: Book Details & TTS Player -->
-        <div style="display: flex; flex-direction: column; gap: 1.8rem;">
-            <div class="card">
-                <div class="card-content">
+        <div class="flex flex-col gap-7">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md p-6">
+                <div>
                     <!-- Book Header with Cover and Metadata -->
-                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: flex-start;">
+                    <div class="flex gap-6 flex-wrap mb-6 items-start">
                         <!-- Book Cover -->
-                        <div style="width: 140px; height: 190px; border-radius: 10px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 1px solid var(--border-glass);">
+                        <div class="w-[140px] h-[190px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
                             @if ($audioBook->cover)
-                                <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover">
                             @else
                                 <div class="book-cover-placeholder">
-                                    <span class="book-cover-placeholder-title" style="font-size: 0.8rem;">{{ $audioBook->judul }}</span>
+                                    <span class="book-cover-placeholder-title text-sm">{{ $audioBook->judul }}</span>
                                 </div>
                             @endif
                         </div>
 
                         <!-- Title and Quick Stats -->
-                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                            <h2 id="book-title" class="text-gradient" style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.6rem; line-height: 1.3;">
+                        <div class="flex-1 flex flex-col justify-center">
+                            <h2 id="book-title" class="text-gradient text-3xl font-bold mb-2 leading-tight">
                                 {{ $audioBook->judul }}
                             </h2>
 
                             <!-- Metadata bar -->
-                            <div style="font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.4rem;">
-                                <span>🏷️ Kategori: <strong>{{ $audioBook->kategori ?: 'Umum' }}</strong></span>
-                                <span id="upload-time" data-utc="{{ $audioBook->created_at->toIso8601String() }}">📅 Diunggah: <strong>{{ $audioBook->created_at->format('d M Y, H:i') }}</strong></span>
-                                <span id="update-time-relative" data-utc-updated="{{ $audioBook->updated_at->toIso8601String() }}">🔄 Diperbarui: <strong></strong></span>
+                            <div class="text-sm text-slate-300 flex flex-col gap-1">
+                                <span>Kategori: <strong>{{ $audioBook->kategori ?: 'Umum' }}</strong></span>
+                                <span id="upload-time" data-utc="{{ $audioBook->created_at->toIso8601String() }}">Diunggah: <strong>{{ $audioBook->created_at->format('d M Y, H:i') }}</strong></span>
+                                <span id="update-time-relative" data-utc-updated="{{ $audioBook->updated_at->toIso8601String() }}">Diperbarui: <strong></strong></span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Metadata Buku Grid -->
-                    <h4 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600;">📊 Metadata Buku</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.8rem; text-align: center;">
-                            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 0.2rem;">Karakter</span>
-                            <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-secondary);">{{ strlen($audioBook->deskripsi) }}</span>
+                    <h4 class="text-base text-white font-semibold mb-3">Metadata Buku</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Karakter</span>
+                            <span class="text-lg font-bold text-blue-400">{{ strlen($audioBook->deskripsi) }}</span>
                         </div>
-                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.8rem; text-align: center;">
-                            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 0.2rem;">Jumlah Kata</span>
-                            <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-primary);">{{ str_word_count($audioBook->deskripsi) }}</span>
+                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Jumlah Kata</span>
+                            <span class="text-lg font-bold text-indigo-400">{{ str_word_count($audioBook->deskripsi) }}</span>
                         </div>
-                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.8rem; text-align: center;">
-                            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 0.2rem;">Estimasi Baca</span>
-                            <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-success);">{{ ceil(str_word_count($audioBook->deskripsi) / 150) }} Menit</span>
+                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Estimasi Baca</span>
+                            <span class="text-lg font-bold text-emerald-400">{{ ceil(str_word_count($audioBook->deskripsi) / 150) }} Menit</span>
                         </div>
-                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.8rem; text-align: center;">
-                            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 0.2rem;">Audio Engine</span>
-                            <span style="font-size: 0.9rem; font-weight: 700; color: #a855f7; display: block; margin-top: 0.2rem;">TTS id-ID</span>
+                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Status Audio</span>
+                            <span class="text-base font-bold text-emerald-400 block mt-1">Siap</span>
                         </div>
                     </div>
 
                     @if ($audioBook->user_id)
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="color: var(--text-muted);">Pengunggah ID: {{ $audioBook->user_id }}</span>
+                        <p class="text-slate-300 mb-6 text-sm flex items-center gap-2">
+                            <span class="text-slate-400">Pengunggah ID: {{ $audioBook->user_id }}</span>
                         </p>
                     @endif
 
-                    <h4 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.5rem; font-weight: 600;">Deskripsi Buku</h4>
-                    <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-glass); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-                        <p style="color: var(--text-secondary); line-height: 1.7; font-size: 0.98rem; white-space: pre-line;">
+                    <h4 class="text-base text-white font-semibold mb-2">Deskripsi Buku</h4>
+                    <div class="bg-slate-900/40 border border-white/10 rounded-xl p-5 mb-6">
+                        <p class="text-slate-300 leading-relaxed text-sm whitespace-pre-line">
                             {{ isset($audioBook->deskripsi) ? \Illuminate\Support\Str::limit($audioBook->deskripsi, 600) : 'Tidak ada deskripsi.' }}
                         </p>
-                        <div id="book-description" style="display: none;">{{ $audioBook->deskripsi }}</div>
+                        <div id="book-description" class="hidden">{{ $audioBook->deskripsi ?? 'Tidak ada deskripsi.' }}</div>
                     </div>
 
                     @if ($audioBook->file_buku)
-                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                            <span style="font-size: 0.9rem; color: var(--text-secondary);">📄 File PDF/EPUB Terlampir</span>
-                            <a href="/storage/{{ $audioBook->file_buku }}" target="_blank" class="btn btn-secondary btn-inline" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
+                        <div class="bg-white/[0.03] border border-white/10 rounded-lg p-3 px-4 flex justify-between items-center mb-8">
+                            <span class="text-sm text-slate-300">File PDF/EPUB Terlampir</span>
+                            <a href="/storage/{{ $audioBook->file_buku }}" target="_blank" class="btn btn-ghost btn-sm py-1 px-4 text-sm">
                                 Buka File
                             </a>
                         </div>
                     @endif
 
-                    <!-- Local Player Area -->
-                    <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 12px; padding: 1.5rem; text-align: center;">
-                        <h4 style="margin-bottom: 0.5rem; font-size: 1.05rem;">Dengarkan di Laptop Ini</h4>
-                        
-                        <!-- Dynamic Audio Status -->
-                        <div style="margin-bottom: 1.2rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Status Audio:</span>
-                            <span id="audio-status-badge" style="font-size: 0.8rem; font-weight: bold; padding: 3px 10px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border: 1px solid var(--border-glass);">
-                                Siap
-                            </span>
-                        </div>
-                        
-                        <div style="display: flex; gap: 1rem; justify-content: center;">
-                            <button id="btn-play-show" onclick="playTTS()" class="btn btn-primary btn-inline" style="padding: 0.8rem 1.8rem; font-size: 0.95rem;">
-                                🔊 Putar Suara (Play)
-                            </button>
-                            <button id="btn-stop-show" onclick="stopTTS()" class="btn btn-secondary btn-inline" style="padding: 0.8rem 1.8rem; font-size: 0.95rem;">
-                                ⏹️ Berhenti
-                            </button>
-                        </div>
+                    <!-- Audio Player Area -->
+                    <div class="bg-indigo-500/5 border border-indigo-500/15 rounded-xl p-6 text-center">
+                        <h4 class="mb-2 text-base">Dengarkan di Laptop Ini</h4>
+
+                        @if ($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
+                            <div class="mb-4">
+                                <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
+                                    <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
+                                    Browser Anda tidak mendukung pemutar audio.
+                                </audio>
+                                <div style="margin-top: 0.5rem;">
+                                    <a href="{{ route('audio.stream', $audioBook) }}" download class="btn btn-primary btn-sm px-7 py-3 text-sm">
+                                    Download MP3
+                                </a>
+                                <a href="{{ route('audio-books.play', $audioBook->qr_token) }}" class="btn btn-ghost btn-sm px-7 py-3 text-sm">
+                                    Buka Mode Tunanetra
+                                </a>
+                            </div>
+                        @else
+                            <div class="mb-5 flex justify-center items-center gap-2">
+                                <span class="text-sm text-slate-300">Status Audio:</span>
+                                <span id="audio-status-badge" class="badge badge-ghost badge-sm">Browser TTS</span>
+                            </div>
+                            <div class="flex gap-4 justify-center">
+                                <button id="btn-play-show" onclick="playTTS()" class="btn btn-primary btn-sm px-7 py-3 text-sm">
+                                    Putar Suara (Play)
+                                </button>
+                                <button id="btn-stop-show" onclick="stopTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm">
+                                    Berhenti
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
 
             <!-- Admin Action Panel -->
             @if (session('auth_role') === 'admin')
-                <div class="card" style="border-color: rgba(239, 68, 68, 0.15); background: rgba(239, 68, 68, 0.02); padding: 1.5rem;">
-                    <h4 style="font-size: 1rem; color: var(--accent-danger); margin-bottom: 0.8rem; font-weight: 600;">Panel Kelola Admin</h4>
-                    <div style="display: flex; gap: 1rem;">
-                        <a href="/katalog-audio/{{ $audioBook->id }}/edit" class="btn btn-secondary btn-inline" style="flex: 1; border-color: var(--text-muted); text-align: center; display: flex; align-items: center; justify-content: center;">
-                            ✏️ Edit Buku
+                <div class="card bg-base-300/50 border border-red-500/15 shadow-md p-6" style="background: rgba(239, 68, 68, 0.02);">
+                    <h4 class="text-base text-red-400 font-semibold mb-3">Panel Kelola Admin</h4>
+                    <div class="flex gap-4 flex-wrap">
+                        <a href="/katalog-audio/{{ $audioBook->id }}/edit" class="btn btn-ghost btn-sm flex-1 border-slate-400 text-center flex items-center justify-center">
+                            Edit Buku
                         </a>
-                        <form method="POST" action="/katalog-audio/{{ $audioBook->id }}" onsubmit="return confirm('Yakin ingin menghapus buku ini?')" style="flex: 1; margin: 0;">
+                        <form method="POST" action="/katalog-audio/{{ $audioBook->id }}" onsubmit="return confirm('Yakin ingin menghapus buku ini?')" class="flex-1 m-0">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger" style="width: 100%;">
-                                🗑️ Hapus Buku
+                            <button type="submit" class="btn btn-error w-full">
+                                Hapus Buku
                             </button>
                         </form>
+                        @if ($audioBook->audio_status === 'failed')
+                            <form method="POST" action="/katalog-audio/{{ $audioBook->id }}/retry-audio" class="w-full mt-2 m-0">
+                                @csrf
+                                <button type="submit" class="btn btn-ghost border-indigo-500/30 text-indigo-400 w-full">
+                                    Ulang Generate Audio
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             @endif
         </div>
 
+        @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
         <!-- Right Side: QR Code -->
-        <div style="display: flex; flex-direction: column; gap: 1.8rem;">
-            <div class="card" style="text-align: center; display: flex; flex-direction: column; align-items: center; padding: 2.5rem 1.8rem;">
-                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">QR-Audio untuk Tunanetra</h3>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 2rem;">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
+        <div class="flex flex-col gap-7">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md p-6 text-center flex flex-col items-center" style="padding: 2.5rem 1.8rem;">
+                <h3 class="text-xl font-bold mb-2 text-center">QR-Audio untuk Tunanetra</h3>
+                <p class="text-sm text-slate-300 mb-8">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
 
-                <div class="qr-box" style="background: #ffffff; padding: 1.2rem; border-radius: 12px; display: inline-block; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                <div class="bg-white p-5 rounded-xl inline-block shadow-xl">
                     <img
                         id="qr-code-img"
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&ecc=M&data={{ urlencode($qrUrl) }}"
+                        src="{{ route('qr-code.generate', ['data' => $qrUrl, 'size' => 320]) }}"
                         alt="QR Code untuk membuka audio {{ $audioBook->judul }}"
-                        style="display: block; margin: 0 auto; width: 260px; height: 260px;"
+                        class="block mx-auto w-[260px] h-[260px]"
                     >
                 </div>
 
-
                 <!-- QR Action Buttons -->
-                <button onclick="printQR()" class="btn btn-secondary" style="width: 100%; margin-top: 1.8rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem;">
-                    🖨️ Cetak QR Code
+                <button onclick="printQR()" class="btn btn-ghost w-full mt-7 flex items-center justify-center gap-2 text-sm">
+                    Cetak QR Code
                 </button>
-                <button onclick="downloadQR()" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem;">
-                    📥 Unduh QR Code
+                <button onclick="downloadQR()" class="btn btn-ghost w-full mt-2 flex items-center justify-center gap-2 text-sm">
+                    Unduh QR Code
                 </button>
 
                 @if (empty($tunnelUrl) && count($localIps) > 1)
-                    <div style="margin-top: 1.5rem; width: 100%; text-align: left; border-top: 1px solid var(--border-glass); padding-top: 1.2rem;">
-                        <label for="ip-selector" style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">🔗 Hubungkan Jaringan HP:</label>
-                        <select id="ip-selector" onchange="updateSelectedIp(this.value)" class="form-control" style="font-size: 0.85rem; padding: 0.5rem 0.8rem; margin-top: 0.3rem;">
+                    <div class="mt-6 w-full text-left border-t border-white/10 pt-5">
+                        <label for="ip-selector" class="text-xs font-bold text-slate-400 uppercase">Hubungkan Jaringan HP:</label>
+                        <select id="ip-selector" onchange="updateSelectedIp(this.value)" class="select select-bordered w-full bg-base-300/60 text-white text-sm mt-1">
                             @foreach ($localIps as $name => $ip)
                                 <option value="{{ $ip }}" {{ $ip === $detectedIp ? 'selected' : '' }}>
                                     {{ $name }} ({{ $ip }})
@@ -166,10 +188,12 @@
                 @endif
             </div>
         </div>
+        @endif
     </div>
 
+    @if (!($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts'))
     <script>
-        // ⏰ Realtime & Localized Upload Time Formatter
+        // Realtime & Localized Upload Time Formatter
         document.addEventListener('DOMContentLoaded', function () {
             const uploadTimeEl = document.getElementById('upload-time');
             if (uploadTimeEl) {
@@ -291,7 +315,7 @@
             if (currentChunkIndex >= chunks.length) {
                 isSpeaking = false;
                 currentChunkIndex = 0;
-                document.getElementById('btn-play-show').innerHTML = '🔊 Putar Suara (Play)';
+                document.getElementById('btn-play-show').innerHTML = 'Putar Suara (Play)';
                 
                 if (statusBadge) {
                     statusBadge.innerText = "Selesai";
@@ -303,7 +327,7 @@
             }
             
             const text = chunks[currentChunkIndex];
-            document.getElementById('btn-play-show').innerHTML = `🔊 Membaca Bagian ${currentChunkIndex + 1}...`;
+            document.getElementById('btn-play-show').innerHTML = `Membaca Bagian ${currentChunkIndex + 1}...`;
             
             if (statusBadge) {
                 statusBadge.innerText = `Memutar (${currentChunkIndex + 1}/${chunks.length})`;
@@ -332,13 +356,7 @@
                 console.error(e);
                 if (e.error === 'not-allowed' || e.error === 'interrupted' || e.error === 'canceled') {
                     isSpeaking = false;
-                    document.getElementById('btn-play-show').innerHTML = '🔊 Putar Suara (Play)';
-                    if (statusBadge) {
-                        statusBadge.innerText = "Siap";
-                        statusBadge.style.color = "var(--text-secondary)";
-                        statusBadge.style.borderColor = "var(--border-glass)";
-                        statusBadge.style.background = "rgba(255, 255, 255, 0.05)";
-                    }
+                    document.getElementById('btn-play-show').innerHTML = 'Putar Suara (Play)';
                     return;
                 }
                 if (isSpeaking) {
@@ -346,21 +364,8 @@
                     speakNext();
                 }
             };
-            
-            window.speechSynthesis.speak(currentUtterance);
-        }
 
-        function stopTTS() {
-            isSpeaking = false;
-            window.speechSynthesis.cancel();
-            document.getElementById('btn-play-show').innerHTML = '🔊 Putar Suara (Play)';
-            
-            if (statusBadge) {
-                statusBadge.innerText = "Berhenti";
-                statusBadge.style.color = "var(--accent-danger)";
-                statusBadge.style.borderColor = "var(--accent-danger)";
-                statusBadge.style.background = "rgba(239, 68, 68, 0.15)";
-            }
+            window.speechSynthesis.speak(currentUtterance);
         }
 
         function printQR() {
@@ -401,7 +406,7 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = "{{ \Illuminate\Support\Str::slug($audioBook->judul) }}_qr_code.png";
+                    a.download = "{{ \Illuminate\Support\Str::slug($audioBook->judul) }}_qr_code.svg";
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -422,7 +427,7 @@
             const newUrl = `${window.location.protocol}//${ip}${port ? ':' + port : ''}${basePlayUrlPath}`;
             const qrImage = document.getElementById('qr-code-img');
             if (qrImage) {
-                qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&ecc=M&data=${encodeURIComponent(newUrl)}`;
+                qrImage.src = `/qr-code?data=${encodeURIComponent(newUrl)}&size=320`;
             }
         }
 
@@ -492,4 +497,5 @@
             window.speechSynthesis.cancel();
         });
     </script>
+    @endif
 @endsection

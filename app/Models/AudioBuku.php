@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AudioBuku extends Model
 {
+    use HasFactory;
     protected $table = 'audio_buku';
 
     protected $fillable = [
@@ -18,6 +20,7 @@ class AudioBuku extends Model
         'deskripsi',
         'file_buku',
         'file_audio',
+        'audio_status',
         'qr_token',
     ];
 

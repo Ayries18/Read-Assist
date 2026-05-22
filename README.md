@@ -1,13 +1,13 @@
-# ♿ Read-Assist
+# Read-Assist
 
 Aplikasi layanan akses belajar mandiri berbasis web dengan fitur QR-Audio dan manajemen katalog audio buku untuk mendukung penyandang tunanetra.
 
-🎓 Mahasiswa Teknologi Informasi  
-👨‍💻 Muhammad Almuwarisin
+Mahasiswa Teknologi Informasi  
+Muhammad Almuwarisin
 
 ---
 
-# 📌 Gambaran Umum
+## Gambaran Umum
 
 Read-Assist merupakan aplikasi web berbasis Laravel yang dirancang untuk membantu penyandang tunanetra memperoleh akses belajar yang lebih mudah melalui teknologi audio digital dan QR Code.
 
@@ -17,7 +17,7 @@ Aplikasi dikembangkan dengan pendekatan antarmuka sederhana, responsif, dan foku
 
 ---
 
-# 🎯 Tujuan Pengembangan
+## Tujuan Pengembangan
 
 - Membangun sistem akses belajar berbasis web untuk tunanetra
 - Mengimplementasikan framework Laravel dalam pengembangan aplikasi
@@ -28,7 +28,7 @@ Aplikasi dikembangkan dengan pendekatan antarmuka sederhana, responsif, dan foku
 
 ---
 
-# 🛠️ Teknologi yang Digunakan
+## Teknologi yang Digunakan
 
 <p align="center">
 
@@ -45,21 +45,21 @@ Aplikasi dikembangkan dengan pendekatan antarmuka sederhana, responsif, dan foku
 
 ---
 
-# ⭐ Fitur Aplikasi
+## Fitur Aplikasi
 
-- 📚 Upload buku digital
-- 🔊 Upload audio buku
-- 📱 Generate QR Code otomatis
-- 🎧 Audio player terintegrasi
-- 🗂️ Manajemen katalog buku
-- 🛡️ Dashboard admin
-- 📲 Scan QR menggunakan smartphone
-- 📱 Desain responsif
-- 🧱 Arsitektur MVC Laravel
+- Upload buku digital
+- Upload audio buku
+- Generate QR Code otomatis
+- Audio player terintegrasi
+- Manajemen katalog buku
+- Dashboard admin
+- Scan QR menggunakan smartphone
+- Desain responsif
+- Arsitektur MVC Laravel
 
 ---
 
-# 🖥️ Antarmuka Aplikasi
+## Antarmuka Aplikasi
 
 Antarmuka aplikasi dirancang dengan fokus pada:
 
@@ -74,7 +74,7 @@ Aplikasi dapat diakses melalui route utama Laravel.
 
 ---
 
-# 🗂️ Struktur Proyek
+## Struktur Proyek
 
 ```bash
 Read-Assist/
@@ -92,7 +92,7 @@ Read-Assist/
 
 ---
 
-# 🧪 Cara Menjalankan Aplikasi
+## Cara Menjalankan Aplikasi
 
 ```bash
 git clone https://github.com/Ayries18/Read-Assist.git
@@ -114,7 +114,7 @@ http://127.0.0.1:8000
 
 ---
 
-# 📚 Catatan Akademik
+## Catatan Akademik
 
 Aplikasi ini dikembangkan sebagai proyek penelitian dan pembelajaran dengan fokus pada:
 
@@ -127,7 +127,7 @@ Aplikasi ini dikembangkan sebagai proyek penelitian dan pembelajaran dengan foku
 
 ---
 
-# 👤 Pengembang
+## Pengembang
 
 Nama: Muhammad Almuwarisin  
 Program Studi: Teknologi Informasi
@@ -136,4 +136,4 @@ GitHub: https://github.com/Ayries18
 
 ---
 
-# ✨ Dibangun sebagai proyek pembelajaran dan penelitian dengan pendekatan profesional
+Dibangun sebagai proyek pembelajaran dan penelitian dengan pendekatan profesional

@@ -14,9 +14,7 @@ class Admin extends Model
 
     protected function casts(): array
     {
-        return [
-            'password' => 'hashed',
-        ];
+        return [];
     }
 
     public function audioBuku()

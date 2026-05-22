@@ -9,6 +9,15 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class ServeCommand extends BaseServeCommand
 {
     /**
+     * Override host agar bind ke 0.0.0.0 supaya bisa diakses dari perangkat lain di jaringan LAN
+     * (misal HP saat scan QR code).
+     */
+    protected function host(): string
+    {
+        return '0.0.0.0';
+    }
+
+    /**
      * Execute the console command.
      */
     public function handle()
@@ -17,8 +26,8 @@ class ServeCommand extends BaseServeCommand
         $port = $this->port();
         $host = $this->host();
 
-        // Jika host adalah 0.0.0.0, ubah ke 127.0.0.1 agar browser lokal bisa membukanya dengan sukses
-        $displayHost = ($host === '0.0.0.0') ? '127.0.0.1' : $host;
+        // Tampilkan 127.0.0.1 di console agar user bisa klik link langsung
+        $displayHost = '127.0.0.1';
 
         $this->components->info("Menjadwalkan pembukaan browser otomatis ke http://{$displayHost}:{$port}...");
 

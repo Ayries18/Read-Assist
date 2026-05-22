@@ -2,79 +2,88 @@
 
 @section('content')
 @php
-    $tunnelUrl = \App\Http\Controllers\AudioBookController::getTunnelUrl();
+    $tunnelService = app(\App\Services\TunnelService::class);
+    $tunnelUrl = $tunnelService->getStoredUrl();
     if ($tunnelUrl) {
         $serverOrigin = $tunnelUrl;
     } else {
-        $detectedIp = \App\Http\Controllers\AudioBookController::getDetectedIp();
+        $detectedIp = $tunnelService->getLocalIp() ?? '127.0.0.1';
         $port = request()->getPort();
         $serverOrigin = "http://" . $detectedIp . ($port && $port != 80 && $port != 443 ? ":" . $port : "");
     }
 @endphp
     <div style="max-width: 800px; margin: 0 auto;">
         <!-- Welcome Card -->
-        <div class="card" style="padding: 2.5rem; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(20, 30, 55, 0.7), rgba(99, 102, 241, 0.1)); border-color: rgba(255, 255, 255, 0.1);">
-            <div class="card-content">
-                <span class="user-role" style="font-size: 0.8rem; background: rgba(99, 102, 241, 0.2); padding: 4px 12px; border-radius: 4px; display: inline-block; margin-bottom: 1rem;">
-                    👤 Member Area
+        <div class="card bg-base-300/50 border border-white/10 shadow-md" style="padding: 2.5rem; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(20, 30, 55, 0.7), rgba(99, 102, 241, 0.1)); border-color: rgba(255, 255, 255, 0.1);">
+            <div class="card-body p-0">
+                <span class="badge badge-outline badge-primary mb-4">
+                    Member Area
                 </span>
-                <h1 class="text-gradient" style="font-size: 2.4rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.8rem;">
+                <h1 class="text-gradient text-4xl font-extrabold leading-tight mb-3">
                     Selamat Datang, {{ session('auth_name') }}!
                 </h1>
-                <p style="color: var(--text-secondary); font-size: 1.05rem; max-width: 600px; line-height: 1.6;">
+                <p class="text-slate-300 max-w-lg" style="font-size: 1.05rem; line-height: 1.6;">
                     Anda masuk sebagai pengguna biasa. Anda dapat menelusuri katalog buku audio untuk didengarkan, serta menambahkan buku baru yang Anda miliki ke dalam sistem.
                 </p>
             </div>
         </div>
 
-        <!-- 📊 Statistik Dashboard -->
-        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>📊</span> Statistik Dashboard
+        <!-- Statistik Dashboard -->
+        <h3 class="text-xl font-bold mb-5 flex items-center gap-2">
+            Statistik Dashboard
         </h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1.2rem; margin-bottom: 2.5rem;">
             <!-- Stat 1 -->
-            <div class="card" style="padding: 1.25rem; text-align: center;">
-                <div class="card-content">
-                    <span style="font-size: 1.8rem; display: block; margin-bottom: 0.25rem;">📚</span>
-                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Buku Audio</span>
-                    <h2 style="font-size: 2rem; font-weight: 800; margin-top: 0.25rem; color: var(--accent-secondary);">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+                <div class="card-body">
+                    <span class="block mb-1 text-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
+                    </span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Buku Audio</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-blue-400">
                         {{ \App\Models\AudioBuku::count() }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 2 -->
-            <div class="card" style="padding: 1.25rem; text-align: center;">
-                <div class="card-content">
-                    <span style="font-size: 1.8rem; display: block; margin-bottom: 0.25rem;">📤</span>
-                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Unggahan Saya</span>
-                    <h2 style="font-size: 2rem; font-weight: 800; margin-top: 0.25rem; color: var(--accent-primary);">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+                <div class="card-body">
+                    <span class="block mb-1 text-indigo-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Unggahan Saya</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-indigo-400">
                         {{ \App\Models\AudioBuku::where('user_id', session('auth_id'))->count() }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 3 -->
-            <div class="card" style="padding: 1.25rem; text-align: center;">
-                <div class="card-content">
-                    <span style="font-size: 1.8rem; display: block; margin-bottom: 0.25rem;">👥</span>
-                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Total Anggota</span>
-                    <h2 style="font-size: 2rem; font-weight: 800; margin-top: 0.25rem; color: var(--accent-success);">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+                <div class="card-body">
+                    <span class="block mb-1 text-emerald-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Total Anggota</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-emerald-400">
                         {{ \App\Models\User::count() }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 4 -->
-            <div class="card" style="padding: 1.25rem; text-align: center;">
-                <div class="card-content">
-                    <span style="font-size: 1.8rem; display: block; margin-bottom: 0.25rem;">📱</span>
-                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">QR Code Terbit</span>
-                    <h2 style="font-size: 2rem; font-weight: 800; margin-top: 0.25rem; color: #a855f7;">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+                <div class="card-body">
+                    <span class="block mb-1 text-purple-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h3v3H7z"/><path d="M14 7h3v3h-3z"/><path d="M7 14h3v3H7z"/><path d="M14 14h3v3h-3z"/></svg>
+                    </span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">QR Code Terbit</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-purple-400">
                         {{ \App\Models\AudioBuku::count() }}
                     </h2>
                 </div>
             </div>
         </div>
 
-        <!-- 🛠️ Accessibility Guide & QR Quick Actions -->
+        <!-- Accessibility Guide & QR Quick Actions -->
         <style>
             .grid-innovative {
                 display: grid; 
@@ -91,30 +100,30 @@
 
         <div class="grid-innovative">
             <!-- Left Side: Keyboard Shortcuts Cheatsheet (Accessibility) -->
-            <div class="card" style="padding: 1.8rem; display: flex; flex-direction: column; justify-content: space-between;">
-                <div class="card-content" style="height: 100%; display: flex; flex-direction: column;">
-                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.6rem; color: var(--accent-primary);">
-                        ⌨️ Pintasan Keyboard Player (Aksesibilitas)
+            <div class="card bg-base-300/50 border border-white/10 shadow-md">
+                <div class="card-body">
+                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-indigo-400">
+                        Pintasan Keyboard Player (Aksesibilitas)
                     </h3>
-                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.5rem;">
+                    <p class="text-slate-300 text-sm mb-6">
                         Sistem pemutar audio pintar dilengkapi pintasan tombol keyboard untuk mempermudah rekan tunanetra bernavigasi secara mandiri:
                     </p>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; flex-grow: 1;">
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); padding: 0.8rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.8rem; justify-content: space-between;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Main / Jeda Suara</span>
+                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-400 font-medium">Main / Jeda Suara</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Spasi</kbd>
                         </div>
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); padding: 0.8rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.8rem; justify-content: space-between;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Kalimat Sebelumnya</span>
+                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-400 font-medium">Kalimat Sebelumnya</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">← Panah Kiri</kbd>
                         </div>
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); padding: 0.8rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.8rem; justify-content: space-between;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Kalimat Selanjutnya</span>
+                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-400 font-medium">Kalimat Selanjutnya</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Panah Kanan →</kbd>
                         </div>
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); padding: 0.8rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.8rem; justify-content: space-between;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Ulangi Kalimat Aktif</span>
+                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-400 font-medium">Ulangi Kalimat Aktif</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Tombol R</kbd>
                         </div>
                     </div>
@@ -122,14 +131,14 @@
             </div>
 
             <!-- Right Side: Quick QR Generator -->
-            <div class="card" style="padding: 1.8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-                <div class="card-content" style="width: 100%;">
-                    <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.8rem; text-align: left;">
-                        ⚡ Pintasan QR Code
+            <div class="card bg-base-300/50 border border-white/10 shadow-md" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                <div class="card-body w-full">
+                    <h3 class="text-lg font-bold mb-3 text-left">
+                        Pintasan QR Code
                     </h3>
-                    <div style="margin-bottom: 1rem; text-align: left;">
-                        <label for="quick-book-selector" style="font-size: 0.72rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">Pilih Buku:</label>
-                        <select id="quick-book-selector" onchange="updateQuickQR(this.value)" class="form-control" style="font-size: 0.85rem; padding: 0.5rem 0.8rem; margin-top: 0.3rem; width: 100%;">
+                    <div class="mb-4 text-left">
+                        <label for="quick-book-selector" class="text-xs font-bold text-slate-400 uppercase block mb-1">Pilih Buku:</label>
+                        <select id="quick-book-selector" onchange="updateQuickQR(this.value)" class="select select-bordered w-full bg-base-300/60 text-white text-sm mt-1">
                             @forelse (\App\Models\AudioBuku::all() as $b)
                                 <option value="{{ $b->qr_token }}" data-title="{{ $b->judul }}">
                                     {{ \Illuminate\Support\Str::limit($b->judul, 28) }}
@@ -140,13 +149,13 @@
                         </select>
                     </div>
 
-                    <div style="background: #ffffff; padding: 0.8rem; border-radius: 12px; display: inline-block; box-shadow: 0 4px 20px rgba(0,0,0,0.4); margin: 0.2rem 0;">
-                        <img id="quick-qr-img" src="" alt="Quick QR Preview" style="width: 110px; height: 110px; display: block; border-radius: 4px;">
+                    <div class="bg-white p-3 rounded-xl inline-block" style="box-shadow: 0 4px 20px rgba(0,0,0,0.4); margin: 0.2rem 0;">
+                        <img id="quick-qr-img" src="" alt="Quick QR Preview" class="w-[110px] h-[110px] block rounded">
                     </div>
                     
-                    <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 1rem;">
-                        <button onclick="printQuickQR()" class="btn btn-secondary" style="flex: 1; padding: 0.5rem; font-size: 0.78rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem;">🖨️ Cetak</button>
-                        <button onclick="downloadQuickQR()" class="btn btn-primary" style="flex: 1; padding: 0.5rem; font-size: 0.78rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem;">📥 Unduh</button>
+                    <div class="flex gap-2 w-full mt-4">
+                        <button onclick="printQuickQR()" class="btn btn-ghost flex-1 text-xs">Cetak</button>
+                        <button onclick="downloadQuickQR()" class="btn btn-primary flex-1 text-xs">Unduh</button>
                     </div>
                 </div>
             </div>
@@ -164,7 +173,7 @@
                 const playUrl = `{{ $serverOrigin }}/qr-audio/${token}`;
                 const qrImg = document.getElementById('quick-qr-img');
                 if (qrImg) {
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(playUrl)}`;
+                    qrImg.src = `/qr-code?data=${encodeURIComponent(playUrl)}&size=200`;
                 }
             }
 
@@ -213,7 +222,7 @@
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = `${slug}_qr_code.png`;
+                        a.download = `${slug}_qr_code.svg`;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
@@ -231,32 +240,36 @@
         </script>
 
         <!-- Quick Access Grid -->
-        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.2rem;">⚡ Akses Cepat</h3>
+        <h3 class="text-xl font-bold mb-5">Akses Cepat</h3>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
             <!-- Action 1: Browse Catalog -->
-            <div class="card" style="padding: 1.8rem;">
-                <div class="card-content">
-                    <span style="font-size: 2rem; display: block; margin-bottom: 0.8rem;">📖</span>
-                    <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem;">Buka Katalog Buku</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; min-height: 40px;">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md">
+                <div class="card-body">
+                    <span class="block mb-3 text-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
+                    </span>
+                    <h4 class="text-lg font-semibold mb-2">Buka Katalog Buku</h4>
+                    <p class="text-slate-400 text-sm mb-6" style="min-height: 40px;">
                         Cari buku audio favorit Anda dan mulai mendengarkan kalimat demi kalimat.
                     </p>
-                    <a href="{{ route('audio-books.index') }}" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">
+                    <a href="{{ route('audio-books.index') }}" class="btn btn-primary">
                         Telusuri Katalog
                     </a>
                 </div>
             </div>
 
             <!-- Action 2: Add My Book -->
-            <div class="card" style="padding: 1.8rem;">
-                <div class="card-content">
-                    <span style="font-size: 2rem; display: block; margin-bottom: 0.8rem;">📤</span>
-                    <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem;">Tambah Buku Baru</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; min-height: 40px;">
+            <div class="card bg-base-300/50 border border-white/10 shadow-md">
+                <div class="card-body">
+                    <span class="block mb-3 text-indigo-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                    </span>
+                    <h4 class="text-lg font-semibold mb-2">Tambah Buku Baru</h4>
+                    <p class="text-slate-400 text-sm mb-6" style="min-height: 40px;">
                         Unggah file PDF/EPUB buku milik Anda untuk diolah oleh sistem otomatis.
                     </p>
-                    <a href="{{ route('user.books.create') }}" class="btn btn-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; border-color: var(--accent-primary); color: var(--accent-primary);">
+                    <a href="{{ route('user.books.create') }}" class="btn btn-ghost">
                         Tambahkan Buku Saya
                     </a>
                 </div>

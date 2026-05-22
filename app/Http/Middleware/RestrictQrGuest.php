@@ -23,9 +23,9 @@ class RestrictQrGuest
             if (!$exists) {
                 session()->forget('qr_restricted_token');
             } else {
-                // Allow landing page (/), login, register, any QR play route (qr-audio/*), logout, API requests, or static assets (containing a dot)
-                if (!str_contains($request->path(), '.') && !$request->is('/') && !$request->is('login') && !$request->is('register') && !$request->is('qr-audio/*') && !$request->is('logout') && !$request->is('api/*')) {
-                    return redirect()->route('audio-books.play', $allowedToken);
+                // Allow landing page (/), login, register, katalog-audio (show page), qr-audio/*, logout, API, static assets
+                if (!str_contains($request->path(), '.') && !$request->is('/') && !$request->is('login') && !$request->is('register') && !$request->is('katalog-audio/*') && !$request->is('qr-audio/*') && !$request->is('logout') && !$request->is('api/*')) {
+                    return redirect()->route('audio-books.show', ['audioBook' => \App\Models\AudioBuku::where('qr_token', $allowedToken)->value('id')]);
                 }
             }
         }

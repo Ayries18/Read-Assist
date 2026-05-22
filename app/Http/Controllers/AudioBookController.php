@@ -2,13 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateBookAudio;
 use App\Models\AudioBuku;
+use App\Models\ListeningProgress;
+use App\Services\TunnelService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AudioBookController extends Controller
 {
+    protected TunnelService $tunnel;
+
+    public function __construct(TunnelService $tunnel)
+    {
+        $this->tunnel = $tunnel;
+    }
     public function landing()
     {
         $bookCount = AudioBuku::count();
@@ -32,6 +41,8 @@ class AudioBookController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
+        $selectedCategory = $request->query('category');
+        $sort = $request->query('sort', 'terbaru');
 
         $audioBooks = AudioBuku::query()
             ->when($search, function ($query, $search) {
@@ -41,11 +52,27 @@ class AudioBookController extends Controller
                         ->orWhere('kategori', 'like', "%{$search}%");
                 });
             })
-            ->latest()
+            ->when($selectedCategory, function ($query, $cat) {
+                $query->where('kategori', $cat);
+            })
+            ->when($sort, function ($query, $sort) {
+                match ($sort) {
+                    'terlama' => $query->oldest(),
+                    'judul' => $query->orderBy('judul'),
+                    default => $query->latest(),
+                };
+            })
             ->paginate(5)
             ->withQueryString();
 
-        return view('audio-books.index', compact('audioBooks', 'search'));
+        $categories = AudioBuku::whereNotNull('kategori')
+            ->where('kategori', '!=', '')
+            ->distinct()
+            ->pluck('kategori')
+            ->sort()
+            ->values();
+
+        return view('audio-books.index', compact('audioBooks', 'search', 'selectedCategory', 'sort', 'categories'));
     }
 
     public function create()
@@ -102,10 +129,12 @@ class AudioBookController extends Controller
             'deskripsi' => $description,
             'file_buku' => $bookPath,
             'file_audio' => 'tts',
+            'audio_status' => 'completed',
             'qr_token' => Str::uuid(),
         ]);
 
-        // Redirect to show route to display the generated QR code
+        GenerateBookAudio::dispatch($audioBook);
+
         return redirect()
             ->route('audio-books.show', $audioBook)
             ->with('success', 'Buku berhasil ditambahkan.');
@@ -115,17 +144,27 @@ class AudioBookController extends Controller
     {
         $localIps = self::getLocalIps();
         $detectedIp = self::getDetectedIp();
-        $tunnelUrl = self::getTunnelUrl();
+        $tunnelUrl = $this->tunnel->getStoredUrl();
 
-        $path = route('audio-books.play', $audioBook->qr_token, false);
+        $path = route('audio-books.show', $audioBook, false);
+
+        // If accessed via QR scan (query param ?qr), set restricted session
+        if (request()->has('qr')) {
+            session(['qr_restricted_token' => request()->query('qr')]);
+        }
+
+        // Append qr token to the URL so QR scan sets restricted session
+        $qrToken = $audioBook->qr_token;
+        $qrPath = $path . '?qr=' . $qrToken;
+
         if ($tunnelUrl) {
-            $qrUrl = rtrim($tunnelUrl, '/') . $path;
+            $qrUrl = rtrim($tunnelUrl, '/') . $qrPath;
         } else {
             $scheme = request()->getScheme() ?: 'http';
             $port = request()->getPort();
             $host = $detectedIp && $detectedIp !== '127.0.0.1' ? $detectedIp : request()->getHost();
             $portPart = in_array($port, [80, 443], true) ? '' : ':' . $port;
-            $qrUrl = "{$scheme}://{$host}{$portPart}{$path}";
+            $qrUrl = "{$scheme}://{$host}{$portPart}{$qrPath}";
         }
 
         return view('audio-books.show', compact('audioBook', 'qrUrl', 'detectedIp', 'localIps', 'tunnelUrl'));
@@ -225,84 +264,54 @@ class AudioBookController extends Controller
         return $detectedIp;
     }
 
-    public static function getTunnelUrl(): ?string
+    // ─── Listening Progress ─────────────────────────────
+    public function syncProgress(Request $request, AudioBuku $audioBook)
     {
-        $tempPath = storage_path('app/localtunnel_temp.txt');
-        $errPath = storage_path('app/localtunnel_err.txt');
-        
-        $port = request()->getPort() ?: 8000;
+        $validated = $request->validate([
+            'sentence_index' => ['required', 'integer', 'min:0'],
+            'completed' => ['boolean'],
+        ]);
 
-        // Check if ssh.exe is running in Windows tasklist
-        $isRunning = false;
-        try {
-            $tasklist = shell_exec('tasklist /NH /FI "IMAGENAME eq ssh.exe"');
-            if ($tasklist && stripos($tasklist, 'ssh.exe') !== false) {
-                $isRunning = true;
-            }
-        } catch (\Exception $e) {
-            // Fallback
+        $userId = session('auth_id');
+
+        if (!$userId) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        $hasUrl = false;
-        if (file_exists($tempPath)) {
-            $content = file_get_contents($tempPath);
-            if (str_contains($content, "\0")) {
-                $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
-            }
-            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life|\.localhost\.run)/', $content, $match)) {
-                $hasUrl = true;
-            }
+        ListeningProgress::updateOrCreate(
+            [
+                'user_id' => $userId,
+                'audio_buku_id' => $audioBook->id,
+            ],
+            [
+                'sentence_index' => $validated['sentence_index'],
+                'completed' => $validated['completed'] ?? false,
+            ]
+        );
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getProgress(AudioBuku $audioBook)
+    {
+        $userId = session('auth_id');
+
+        if (!$userId) {
+            return response()->json(['sentence_index' => 0, 'completed' => false]);
         }
 
-        // If not running or we don't have a valid tunnel URL file, kill existing ssh.exe and start a new one
-        if (!$isRunning || !$hasUrl) {
-            if ($isRunning) {
-                try {
-                    shell_exec('taskkill /F /IM ssh.exe');
-                } catch (\Exception $e) {}
-            }
-            
-            if (file_exists($tempPath)) {
-                @unlink($tempPath);
-            }
-            if (file_exists($errPath)) {
-                @unlink($errPath);
-            }
+        $progress = ListeningProgress::where('user_id', $userId)
+            ->where('audio_buku_id', $audioBook->id)
+            ->first();
 
-            try {
-                $command = 'powershell -Command "Start-Process -NoNewWindow -FilePath \'ssh\' -ArgumentList \'-o\', \'StrictHostKeyChecking=no\', \'-R\', \'80:127.0.0.1:' . $port . '\', \'nokey@localhost.run\' -RedirectStandardOutput \'' . $tempPath . '\' -RedirectStandardError \'' . $errPath . '\'"';
-                pclose(popen($command, 'r'));
-                
-                // Wait briefly for the tunnel to initialize and write the URL
-                for ($i = 0; $i < 10; $i++) {
-                    usleep(200000); // 0.2 seconds
-                    if (file_exists($tempPath)) {
-                        $content = file_get_contents($tempPath);
-                        if (str_contains($content, "\0")) {
-                            $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
-                        }
-                        if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life|\.localhost\.run)/', $content, $match)) {
-                            break;
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                // Failed to start
-            }
+        if (!$progress) {
+            return response()->json(['sentence_index' => 0, 'completed' => false]);
         }
 
-        // Read active tunnel URL
-        if (file_exists($tempPath)) {
-            $content = file_get_contents($tempPath);
-            if (str_contains($content, "\0")) {
-                $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
-            }
-            if (preg_match('/https:\/\/[a-zA-Z0-9\-\.]+(\.lhr\.life|\.localhost\.run)/', $content, $match)) {
-                return $match[0];
-            }
-        }
-
-        return null;
+        return response()->json([
+            'sentence_index' => $progress->sentence_index,
+            'completed' => $progress->completed,
+        ]);
     }
 
     public function edit(AudioBuku $audioBook)
@@ -339,6 +348,32 @@ class AudioBookController extends Controller
             ->with('success', 'Buku berhasil diperbarui.');
     }
 
+    public function retryAudio(AudioBuku $audioBook)
+    {
+        if (! $this->canManageBook($audioBook)) {
+            return redirect()->route('audio-books.show', $audioBook)
+                ->withErrors(['audio' => 'Hanya admin yang dapat mengulang generate audio.']);
+        }
+
+        // Clean up old audio files
+        $audioDir = storage_path("app/public/audio/{$audioBook->id}");
+        if (is_dir($audioDir)) {
+            array_map('unlink', glob("$audioDir/*.*"));
+            rmdir($audioDir);
+        }
+
+        $audioBook->update([
+            'file_audio' => 'tts',
+            'audio_status' => 'pending',
+        ]);
+
+        GenerateBookAudio::dispatch($audioBook);
+
+        return redirect()
+            ->route('audio-books.show', $audioBook)
+            ->with('success', 'Generate audio diulang. Proses akan berjalan di latar belakang.');
+    }
+
     public function destroy(AudioBuku $audioBook)
     {
         if (! $this->canManageBook($audioBook)) {
@@ -354,8 +389,13 @@ class AudioBookController extends Controller
             Storage::disk('public')->delete($audioBook->file_buku);
         }
 
-        if ($audioBook->file_audio && $audioBook->file_audio !== 'tts') {
+        if ($audioBook->file_audio) {
             Storage::disk('public')->delete($audioBook->file_audio);
+        }
+
+        $audioDir = 'audio/' . $audioBook->id;
+        if (Storage::disk('public')->exists($audioDir)) {
+            Storage::disk('public')->deleteDirectory($audioDir);
         }
 
         $audioBook->delete();
@@ -363,6 +403,24 @@ class AudioBookController extends Controller
         return redirect()
             ->route('audio-books.index')
             ->with('success', 'Buku berhasil dihapus.');
+    }
+
+    public function streamAudio(AudioBuku $audioBook)
+    {
+        if ($audioBook->audio_status !== 'completed' || !$audioBook->file_audio || $audioBook->file_audio === 'tts') {
+            abort(404);
+        }
+
+        $path = storage_path("app/public/{$audioBook->file_audio}");
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'audio/mpeg',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 
     public function play(string $token)

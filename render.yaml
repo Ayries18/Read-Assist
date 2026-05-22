@@ -12,5 +12,5 @@ services:
         value: sqlite
       - key: DB_DATABASE
         value: /var/www/html/database/database.sqlite
-      - key: APP_KEY
-        value: base64:YmI2bHptYmt1bXNocHZqNXR3dThjZ3o1eHdma3ZwbDA= # A default fallback key, can be rotated
+      # - key: APP_KEY
+      #   value: "generate with: php artisan key:generate --show"

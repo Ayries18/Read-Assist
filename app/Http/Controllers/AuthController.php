@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use App\Models\User;
+use App\Models\PasswordResetToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -107,6 +109,147 @@ class AuthController extends Controller
         }
 
         return view('auth.user-dashboard');
+    }
+
+    // ─── Profile ──────────────────────────────────────────
+    public function showProfile()
+    {
+        if (!session('auth_role')) {
+            return redirect('/login')->withErrors(['email' => 'Silakan login terlebih dahulu.']);
+        }
+        $role = session('auth_role');
+        $id = session('auth_id');
+        $account = $role === 'admin' ? Admin::findOrFail($id) : User::findOrFail($id);
+        return view('auth.profile', compact('account', 'role'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        if (!session('auth_role')) {
+            return redirect('/login')->withErrors(['email' => 'Silakan login terlebih dahulu.']);
+        }
+
+        $role = session('auth_role');
+        $id = session('auth_id');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+        ]);
+
+        if ($role === 'admin') {
+            $admin = Admin::findOrFail($id);
+            $existing = Admin::where('email', $validated['email'])->where('id', '!=', $id)->first();
+            if ($existing) {
+                return back()->withErrors(['email' => 'Email sudah digunakan.'])->onlyInput('email');
+            }
+            $admin->update(['nama' => $validated['name'], 'email' => $validated['email']]);
+            session(['auth_name' => $admin->nama]);
+        } else {
+            $user = User::findOrFail($id);
+            $existing = User::where('email', $validated['email'])->where('id', '!=', $id)->first();
+            if ($existing) {
+                return back()->withErrors(['email' => 'Email sudah digunakan.'])->onlyInput('email');
+            }
+            $user->update(['name' => $validated['name'], 'email' => $validated['email']]);
+            session(['auth_name' => $user->name]);
+        }
+
+        return redirect('/profile')->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        $role = session('auth_role');
+        $id = session('auth_id');
+        $account = $role === 'admin' ? Admin::findOrFail($id) : User::findOrFail($id);
+
+        if (!Hash::check($validated['current_password'], $account->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini tidak sesuai.']);
+        }
+
+        $account->update(['password' => Hash::make($validated['password'])]);
+
+        return redirect('/profile')->with('success', 'Password berhasil diubah.');
+    }
+
+    // ─── Forgot Password ──────────────────────────────────
+    public function showForgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function sendResetLink(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+            'role' => ['required', 'in:admin,user'],
+        ]);
+
+        $model = $validated['role'] === 'admin' ? Admin::class : User::class;
+        $account = $model::where('email', $validated['email'])->first();
+
+        if (!$account) {
+            return back()->withErrors(['email' => 'Email tidak ditemukan.'])->onlyInput('email', 'role');
+        }
+
+        $token = Str::random(60);
+
+        // Upsert token
+        $existing = PasswordResetToken::where('email', $validated['email'])->first();
+        if ($existing) {
+            $existing->update(['token' => $token, 'role' => $validated['role']]);
+        } else {
+            PasswordResetToken::create([
+                'email' => $validated['email'],
+                'token' => $token,
+                'role' => $validated['role'],
+            ]);
+        }
+
+        $resetUrl = url("/reset-password/{$token}");
+
+        // Since no mail config, show the link directly on page
+        return view('auth.reset-link-sent', compact('resetUrl', 'validated'));
+    }
+
+    public function showResetForm($token)
+    {
+        $record = PasswordResetToken::where('token', $token)->first();
+        if (!$record) {
+            return redirect('/login')->withErrors(['email' => 'Link reset tidak valid atau sudah kadaluarsa.']);
+        }
+        return view('auth.reset-password', compact('token', 'record'));
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        $record = PasswordResetToken::where('token', $validated['token'])->first();
+        if (!$record) {
+            return back()->withErrors(['password' => 'Token tidak valid.'])->onlyInput('password');
+        }
+
+        $model = $record->role === 'admin' ? Admin::class : User::class;
+        $account = $model::where('email', $record->email)->first();
+
+        if (!$account) {
+            return back()->withErrors(['password' => 'Akun tidak ditemukan.']);
+        }
+
+        $account->update(['password' => Hash::make($validated['password'])]);
+        $record->delete();
+
+        return redirect('/login')->with('success', 'Password berhasil direset. Silakan login.');
     }
 
     public function logout(Request $request)
