@@ -46,7 +46,7 @@
             </div>
 
             <!-- Interactive Simulation Widget -->
-            <div class="simulation-widget-container bg-slate-800/40 border border-white/5 rounded-3xl p-8 shadow-2xl flex flex-col gap-6 relative">
+            <div class="simulation-widget-container border shadow-sm p-8 flex flex-col gap-6 relative" style="background: #121316; border-color: rgba(255, 255, 255, 0.08); border-radius: 24px;">
                 <div class="flex justify-between items-center border-b border-white/5 pb-3">
                     <div class="flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -56,8 +56,8 @@
                 </div>
 
                 <!-- Simulation Book Cover Card -->
-                <div class="bg-slate-800 border border-white/5 rounded-2xl p-5 flex gap-4 items-center relative overflow-hidden">
-                    <div class="w-15 h-20 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center text-white shadow-lg shrink-0">
+                <div class="border rounded-2xl p-5 flex gap-4 items-center relative overflow-hidden" style="background: #1c1c1e; border-color: rgba(255, 255, 255, 0.08);">
+                    <div class="w-15 h-20 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
                     </div>
                     <div class="overflow-hidden flex-1">
@@ -74,7 +74,7 @@
                 </div>
 
                 <!-- Simulation Interactive Player Box -->
-                <div class="bg-slate-900/60 border border-white/5 rounded-2xl p-5 flex flex-col gap-4 text-center">
+                <div class="border rounded-2xl p-5 flex flex-col gap-4 text-center" style="background: rgba(0, 0, 0, 0.2); border-color: rgba(255, 255, 255, 0.08);">
                     <div id="sim-text-box" class="text-sm text-slate-200 leading-relaxed min-h-[54px] flex items-center justify-center transition-colors duration-300">
                         "Klik tombol putar di bawah untuk mendengar suara panduan aksesibilitas."
                     </div>
@@ -90,7 +90,7 @@
                     </div>
 
                     <div class="flex justify-center gap-4 items-center">
-                        <button id="sim-play-btn" onclick="toggleSimPlay()" class="w-12 h-12 rounded-full bg-indigo-500 border-none text-white cursor-pointer flex items-center justify-center shadow-lg shadow-indigo-500/40 transition-all duration-200">
+                        <button id="sim-play-btn" onclick="toggleSimPlay()" class="w-12 h-12 rounded-full bg-indigo-600 border-none text-white cursor-pointer flex items-center justify-center shadow-md transition-all duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         </button>
                     </div>
@@ -108,7 +108,7 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="card bg-base-200/25 border border-white/5 rounded-2xl p-8 relative transition-all duration-300">
+                <div class="card border shadow-sm p-8 relative transition-all duration-300" style="background: #121316; border-color: rgba(255, 255, 255, 0.08); border-radius: 16px;">
                     <div class="w-11 h-11 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl flex items-center justify-center font-extrabold text-lg mb-6">
                         1
                     </div>
@@ -117,7 +117,7 @@
                         Pengajar atau relawan memasukkan buku ke katalog web dengan mengunggah naskah digital berformat PDF atau EPUB.
                     </p>
                 </div>
-                <div class="card bg-base-200/25 border border-white/5 rounded-2xl p-8 relative transition-all duration-300">
+                <div class="card border shadow-sm p-8 relative transition-all duration-300" style="background: #121316; border-color: rgba(255, 255, 255, 0.08); border-radius: 16px;">
                     <div class="w-11 h-11 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl flex items-center justify-center font-extrabold text-lg mb-6">
                         2
                     </div>
@@ -126,7 +126,7 @@
                         Sistem menghasilkan kode QR unik yang dapat diunduh, dicetak, lalu ditempelkan pada sampul atau halaman buku fisik terkait.
                     </p>
                 </div>
-                <div class="card bg-base-200/25 border border-white/5 rounded-2xl p-8 relative transition-all duration-300">
+                <div class="card border shadow-sm p-8 relative transition-all duration-300" style="background: #121316; border-color: rgba(255, 255, 255, 0.08); border-radius: 16px;">
                     <div class="w-11 h-11 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl flex items-center justify-center font-extrabold text-lg mb-6">
                         3
                     </div>
@@ -148,7 +148,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="card bg-white/2 border border-white/5 rounded-2xl p-8 flex flex-col gap-4 transition-all duration-300">
+                <div class="card border shadow-sm p-8 flex flex-col gap-4 transition-all duration-300" style="background: #121316; border-color: rgba(255, 255, 255, 0.08); border-radius: 16px;">
                     <div class="text-indigo-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h2"/><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 0 1 4-4"/></svg>
                     </div>
@@ -157,7 +157,7 @@
                         Kontras tinggi, pembesar teks, serta navigasi keyboard lengkap dengan tombol pintasan seperti <kbd class="kbd kbd-sm">Spasi</kbd> untuk jeda audio.
                     </p>
                 </div>
-                <div class="card bg-white/2 border border-white/5 rounded-2xl p-8 flex flex-col gap-4 transition-all duration-300">
+                <div class="card border shadow-sm p-8 flex flex-col gap-4 transition-all duration-300" style="background: #121316; border-color: rgba(255, 255, 255, 0.08); border-radius: 16px;">
                     <div class="text-indigo-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
                     </div>
@@ -166,7 +166,7 @@
                         Progres kalimat terakhir otomatis tersimpan di peranti Anda. Memindai ulang kode QR akan langsung melanjutkan ke kalimat sebelumnya.
                     </p>
                 </div>
-                <div class="card bg-white/2 border border-white/5 rounded-2xl p-8 flex flex-col gap-4 transition-all duration-300">
+                <div class="card border shadow-sm p-8 flex flex-col gap-4 transition-all duration-300" style="background: #121316; border-color: rgba(255, 255, 255, 0.08); border-radius: 16px;">
                     <div class="text-indigo-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     </div>

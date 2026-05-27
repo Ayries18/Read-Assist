@@ -15,7 +15,7 @@
     </div>
 
     <!-- Search & Filter Form -->
-    <div class="card bg-base-300/50 border border-white/10 shadow-md p-6 mb-8">
+    <div class="card border shadow-sm p-6 mb-8" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
         <form method="GET" action="/katalog-audio" class="flex gap-4 items-center flex-wrap">
             <div class="flex-1 min-w-[200px] relative">
                 <input
@@ -50,7 +50,7 @@
     <!-- Books Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         @forelse ($audioBooks as $book)
-            <div class="card bg-base-300/50 border border-white/10 shadow-md p-6 flex flex-col justify-between">
+            <div class="card border shadow-sm p-6 flex flex-col justify-between" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
                 <div>
                     <!-- Book Cover -->
                     <div class="book-cover-wrapper">
@@ -89,14 +89,14 @@
                         <a href="/katalog-audio/{{ $book->id }}" class="btn btn-ghost btn-sm flex-1 py-2 text-sm text-center">
                             Detail
                         </a>
-                        <a href="/qr-audio/{{ $book->qr_token }}" class="btn btn-primary btn-sm flex-[1.2] py-2 text-sm text-center">
+                        <a href="/katalog/{{ $book->qr_token }}" class="btn btn-primary btn-sm flex-[1.2] py-2 text-sm text-center">
                             Dengar
                         </a>
                     </div>
                 </div>
             </div>
         @empty
-            <div class="card bg-base-300/50 border border-white/10 shadow-md p-12 text-center col-span-full">
+            <div class="card border shadow-sm p-12 text-center col-span-full" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
                 <p class="text-slate-300 text-lg mb-4">Buku tidak ditemukan.</p>
                 <a href="{{ route('audio-books.index') }}" class="btn btn-ghost btn-sm">Lihat Semua Buku</a>
             </div>

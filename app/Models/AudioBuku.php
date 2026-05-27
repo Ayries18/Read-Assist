@@ -24,6 +24,48 @@ class AudioBuku extends Model
         'qr_token',
     ];
 
+    protected $appends = [
+        'slug',
+        'unique_token',
+        'audio_path',
+        'qr_code',
+    ];
+
+    public function getSlugAttribute()
+    {
+        return $this->qr_token;
+    }
+
+    public function setSlugAttribute($value)
+    {
+        $this->attributes['qr_token'] = $value;
+    }
+
+    public function getUniqueTokenAttribute()
+    {
+        return $this->qr_token;
+    }
+
+    public function setUniqueTokenAttribute($value)
+    {
+        $this->attributes['qr_token'] = $value;
+    }
+
+    public function getAudioPathAttribute()
+    {
+        return $this->file_audio;
+    }
+
+    public function setAudioPathAttribute($value)
+    {
+        $this->attributes['file_audio'] = $value;
+    }
+
+    public function getQrCodeAttribute()
+    {
+        return 'qr/qr-book-' . $this->id . '.svg';
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

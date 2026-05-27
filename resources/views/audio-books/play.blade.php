@@ -3,14 +3,14 @@
 @section('content')
 <div class="max-w-3xl mx-auto w-full">
     <!-- Book Header -->
-    <div class="card bg-base-300/50 border border-white/10 shadow-md p-4 sm:p-6 mb-5">
+    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
         <div class="flex gap-4 sm:gap-6 items-start">
             <!-- Cover -->
             <div class="w-[90px] h-[125px] sm:w-[130px] sm:h-[180px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
                 @if ($audioBook->cover)
                     <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover">
                 @else
-                    <div class="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center" style="background: linear-gradient(135deg, #1e1b4b, #09090b);">
+                    <div class="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center" style="background: #1c1c1e;">
                         <span class="text-[0.6rem] sm:text-xs font-bold text-white line-clamp-3 leading-relaxed">{{ $audioBook->judul }}</span>
                     </div>
                 @endif
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Description -->
-    <div class="card bg-base-300/50 border border-white/10 shadow-md p-4 sm:p-6 mb-5">
+    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
         <h4 class="text-xs sm:text-base text-white font-semibold mb-2">Deskripsi Buku</h4>
         <div class="bg-slate-900/40 border border-white/10 rounded-xl p-3 sm:p-5">
             <p class="text-slate-300 leading-relaxed text-xs sm:text-sm whitespace-pre-line">
@@ -61,7 +61,7 @@
 
     @if ($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
         <!-- Generated MP3 Player -->
-        <div class="card bg-base-300/50 border border-indigo-500/15 shadow-md p-4 sm:p-6 text-center mb-5">
+        <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
             <h4 class="text-sm sm:text-base mb-3">Dengarkan Audio</h4>
             <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
                 <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
@@ -73,7 +73,7 @@
         </div>
     @else
         <!-- TTS Player Section -->
-        <div class="card bg-base-300/50 border border-indigo-500/15 shadow-md p-4 sm:p-6 text-center mb-5">
+        <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
             <h4 class="text-sm sm:text-base mb-1">Pemutar Audio (TTS)</h4>
             <p class="text-xs text-slate-400 mb-4">Kalimat demi kalimat — progress tersimpan otomatis</p>
 
@@ -190,30 +190,34 @@
 
     function updateUI() {
         if (isSpeaking && !isPaused) {
-            waveAnimation.classList.remove('paused');
+            if (waveAnimation) waveAnimation.classList.remove('paused');
         } else {
-            waveAnimation.classList.add('paused');
+            if (waveAnimation) waveAnimation.classList.add('paused');
         }
 
         if (isSpeaking) {
-            btnPlay.style.display = 'none';
-            btnPause.style.display = 'flex';
-            btnStop.style.display = 'flex';
-            subtitlesCard.style.display = 'flex';
+            if (btnPlay) btnPlay.style.display = 'none';
+            if (btnPause) btnPause.style.display = 'flex';
+            if (btnStop) btnStop.style.display = 'flex';
+            if (subtitlesCard) subtitlesCard.style.display = 'flex';
 
             if (isPaused) {
-                btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
-                btnPause.title = 'Lanjutkan';
-                statusMessage.innerText = 'Dijeda';
+                if (btnPause) {
+                    btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+                    btnPause.title = 'Lanjutkan';
+                }
+                if (statusMessage) statusMessage.innerText = 'Dijeda';
                 if (statusBadge) {
                     statusBadge.innerText = 'Dijeda';
                     statusBadge.style.color = 'var(--text-muted)';
                     statusBadge.style.borderColor = 'var(--border-glass)';
                 }
             } else {
-                btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-                btnPause.title = 'Jeda';
-                statusMessage.innerText = `Kalimat ${currentChunkIndex + 1} dari ${chunks.length}`;
+                if (btnPause) {
+                    btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+                    btnPause.title = 'Jeda';
+                }
+                if (statusMessage) statusMessage.innerText = `Kalimat ${currentChunkIndex + 1} dari ${chunks.length}`;
                 if (statusBadge) {
                     statusBadge.innerText = `Memutar (${currentChunkIndex + 1}/${chunks.length})`;
                     statusBadge.style.color = 'var(--accent-success)';
@@ -221,21 +225,23 @@
                 }
             }
         } else {
-            btnPlay.style.display = 'flex';
-            btnPause.style.display = 'none';
-            btnStop.style.display = 'none';
-            subtitlesCard.style.display = 'none';
-            btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+            if (btnPlay) btnPlay.style.display = 'flex';
+            if (btnPause) btnPause.style.display = 'none';
+            if (btnStop) btnStop.style.display = 'none';
+            if (subtitlesCard) subtitlesCard.style.display = 'none';
+            if (btnPause) {
+                btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+            }
 
             if (chunks.length > 0 && currentChunkIndex >= chunks.length) {
-                statusMessage.innerText = 'Selesai — seluruh buku telah dibacakan';
+                if (statusMessage) statusMessage.innerText = 'Selesai — seluruh buku telah dibacakan';
                 if (statusBadge) {
                     statusBadge.innerText = 'Selesai';
                     statusBadge.style.color = 'var(--text-secondary)';
                     statusBadge.style.borderColor = 'var(--border-glass)';
                 }
             } else {
-                statusMessage.innerText = 'Ketuk play untuk memulai';
+                if (statusMessage) statusMessage.innerText = 'Ketuk play untuk memulai';
                 if (statusBadge) {
                     statusBadge.innerText = 'Browser TTS';
                     statusBadge.style.color = '';
@@ -246,12 +252,19 @@
     }
 
     function playTTS() {
+        if (currentUtterance) {
+            currentUtterance.onend = null;
+            currentUtterance.onerror = null;
+        }
         window.speechSynthesis.cancel();
+        
         const title = document.getElementById('book-title').innerText;
         const description = document.getElementById('book-description').innerText;
         if (chunks.length === 0) chunks = getSpeechChunks(title, description);
+        
         isSpeaking = true;
         isPaused = false;
+        
         if (statusBadge) {
             statusBadge.innerText = 'Memulai...';
             statusBadge.style.color = 'var(--accent-primary)';
@@ -269,42 +282,71 @@
             updateUI();
             return;
         }
-        const text = chunks[currentChunkIndex];
-        currentSpokenText.innerText = text;
-        localStorage.setItem('read_assist_progress_' + bookId, currentChunkIndex);
 
-        currentUtterance = new SpeechSynthesisUtterance(text);
-        currentUtterance.lang = 'id-ID';
-        const voices = window.speechSynthesis.getVoices();
-        const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
-        if (idVoice) currentUtterance.voice = idVoice;
-        currentUtterance.onstart = () => updateUI();
-        currentUtterance.onend = () => { if (isSpeaking && !isPaused) { currentChunkIndex++; speakNext(); } };
-        currentUtterance.onerror = (e) => {
-            if (e.error === 'not-allowed' || e.error === 'interrupted' || e.error === 'canceled') {
-                isSpeaking = false; updateUI(); return;
-            }
-            if (isSpeaking && !isPaused) { currentChunkIndex++; speakNext(); }
-        };
-        window.speechSynthesis.speak(currentUtterance);
+        if (currentUtterance) {
+            currentUtterance.onend = null;
+            currentUtterance.onerror = null;
+        }
+        window.speechSynthesis.cancel();
+
+        // 50ms timeout to allow window.speechSynthesis.cancel() to fully register on Android Chrome
+        setTimeout(() => {
+            if (!isSpeaking) return;
+            const text = chunks[currentChunkIndex];
+            if (currentSpokenText) currentSpokenText.innerText = text;
+            localStorage.setItem('read_assist_progress_' + bookId, currentChunkIndex);
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = 'id-ID';
+            
+            const voices = window.speechSynthesis.getVoices();
+            const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
+            if (idVoice) currentUtterance.voice = idVoice;
+            
+            currentUtterance.onstart = () => updateUI();
+            currentUtterance.onend = () => {
+                if (isSpeaking && !isPaused) {
+                    currentChunkIndex++;
+                    speakNext();
+                }
+            };
+            currentUtterance.onerror = (e) => {
+                console.error('TTS error:', e);
+                if (e.error === 'not-allowed' || e.error === 'interrupted' || e.error === 'canceled') {
+                    return;
+                }
+                if (isSpeaking && !isPaused) {
+                    currentChunkIndex++;
+                    speakNext();
+                }
+            };
+            window.speechSynthesis.speak(currentUtterance);
+        }, 50);
     }
 
     function pauseTTS() {
         if (!isSpeaking) return;
         if (isPaused) {
-            window.speechSynthesis.resume();
             isPaused = false;
-            setTimeout(() => { if (window.speechSynthesis.paused) { window.speechSynthesis.cancel(); speakNext(); } }, 150);
+            speakNext();
         } else {
-            window.speechSynthesis.pause();
             isPaused = true;
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
+            window.speechSynthesis.cancel();
+            updateUI();
         }
-        updateUI();
     }
 
     function stopTTS() {
         isSpeaking = false;
         isPaused = false;
+        if (currentUtterance) {
+            currentUtterance.onend = null;
+            currentUtterance.onerror = null;
+        }
         window.speechSynthesis.cancel();
         currentChunkIndex = 0;
         localStorage.removeItem('read_assist_progress_' + bookId);
@@ -313,7 +355,9 @@
 
     function prevTTS() {
         if (chunks.length === 0) return;
-        if (currentChunkIndex > 0) currentChunkIndex--;
+        if (currentChunkIndex > 0) {
+            currentChunkIndex--;
+        }
         isSpeaking = true;
         isPaused = false;
         speakNext();
@@ -321,13 +365,16 @@
 
     function nextTTS() {
         if (chunks.length === 0) return;
-        if (currentChunkIndex < chunks.length - 1) currentChunkIndex++;
-        isSpeaking = true;
-        isPaused = false;
-        speakNext();
+        if (currentChunkIndex < chunks.length - 1) {
+            currentChunkIndex++;
+            isSpeaking = true;
+            isPaused = false;
+            speakNext();
+        } else {
+            stopTTS();
+        }
     }
 
-    // Touch swipe
     let touchStartX = 0;
     document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
     document.addEventListener('touchend', (e) => {
@@ -337,19 +384,23 @@
         }
     }, { passive: true });
 
-    // Init
     window.addEventListener('DOMContentLoaded', () => {
         const title = document.getElementById('book-title').innerText;
         const description = document.getElementById('book-description').innerText;
         chunks = getSpeechChunks(title, description);
 
         if (currentChunkIndex > 0) {
-            statusMessage.innerText = `Melanjutkan dari kalimat ${currentChunkIndex + 1}`;
+            if (statusMessage) statusMessage.innerText = `Melanjutkan dari kalimat ${currentChunkIndex + 1}`;
         }
-        playTTS();
+        
+        // Initialize UI without auto-playing immediately
+        updateUI();
 
         if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = () => { if (!isSpeaking) playTTS(); };
+            window.speechSynthesis.onvoiceschanged = () => {
+                // Populate voices list, do not auto-play to avoid browser blocking
+                window.speechSynthesis.getVoices();
+            };
         }
 
         const handleInteraction = () => {
@@ -361,7 +412,6 @@
         document.addEventListener('touchstart', handleInteraction, { passive: true });
     });
 
-    // Keyboard
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         switch(e.key) {

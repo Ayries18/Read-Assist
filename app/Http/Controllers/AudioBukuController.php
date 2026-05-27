@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
-class AudioBookController extends Controller
+class AudioBukuController extends Controller
 {
     protected TunnelService $tunnel;
 
@@ -19,6 +19,7 @@ class AudioBookController extends Controller
     {
         $this->tunnel = $tunnel;
     }
+
     public function landing()
     {
         $bookCount = AudioBuku::count();
@@ -32,7 +33,6 @@ class AudioBookController extends Controller
             $charCount = $totalChars;
         }
 
-        // Optimasi: Gunakan estimasi panjang karakter dibagi 6 untuk menghindari pemuatan seluruh teks buku ke memori PHP yang dapat membuat server crash/hang.
         $totalWords = (int) ($totalChars / 6);
         $readDuration = ceil($totalWords / 150) . ' Mins';
 
@@ -134,8 +134,8 @@ class AudioBookController extends Controller
             'qr_token' => (string) Str::uuid(),
         ]);
 
+        // Generate QR code and trigger audio generation automatically
         $this->generateQrFile($audioBook);
-
         GenerateBookAudio::dispatch($audioBook);
 
         return redirect()
@@ -147,51 +147,24 @@ class AudioBookController extends Controller
     {
         $book = AudioBuku::findOrFail($id);
 
-        $appUrl = config('app.url');
-        if (empty($appUrl) || $appUrl === 'http://localhost' || $appUrl === 'https://localhost') {
-            abort(500, 'Konfigurasi APP_URL tidak valid atau kosong di file .env. Pastikan Anda sudah mengatur APP_URL ke alamat Ngrok publik Anda.');
-        }
+        // Always regenerate QR code to ensure it matches the current APP_URL (e.g. WiFi IP)
+        $this->generateQrFile($book);
 
         if (!session()->has('auth_role')) {
             session(['qr_restricted_token' => $book->qr_token]);
             return redirect()->route('audio-books.play', ['slug' => $book->qr_token]);
         }
 
-        if (request()->has('qr') && request()->query('qr') === $book->qr_token) {
-            session(['qr_restricted_token' => $book->qr_token]);
-        }
-
-        $qrUrl = $this->buildQrUrl($book);
-
-        // Always regenerate QR code to ensure it matches the current APP_URL (e.g. Ngrok)
-        $this->generateQrFile($book);
-
-        $qrFile = 'qr/qr-book-' . $book->id . '.svg';
-        $qrFileExists = Storage::disk('public')->exists($qrFile);
-
-        $qrSvg = QrCode::size(300)
-            ->margin(2)
-            ->errorCorrection('M')
-            ->generate($qrUrl);
-
-        return response()
-            ->view('katalog.show', compact('book', 'qrUrl', 'qrFile', 'qrFileExists', 'qrSvg'))
-            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            ->header('Pragma', 'no-cache')
-            ->header('Expires', '0');
+        return view('katalog.show', compact('book'));
     }
 
     public static function getLocalIps(): array
     {
         $ips = [];
-        
-        // 1. Parse Windows ipconfig command output to find all physical IPv4s
         try {
             $output = shell_exec('ipconfig');
             if ($output) {
-                // Normalize newlines
                 $output = str_replace("\r\n", "\n", $output);
-                // Split by double newline to get each adapter block
                 $blocks = explode("\n\n", $output);
                 foreach ($blocks as $block) {
                     $lines = explode("\n", trim($block));
@@ -202,7 +175,6 @@ class AudioBookController extends Controller
                         continue;
                     }
 
-                    // Abaikan adapter virtual agar HP tidak salah membaca IP VirtualBox/VMware/WSL
                     $lowerName = strtolower($adapterName);
                     if (str_contains($lowerName, 'virtualbox') || 
                         str_contains($lowerName, 'vmware') || 
@@ -228,7 +200,6 @@ class AudioBookController extends Controller
             // Fallback
         }
         
-        // 2. DNS Hostname fallback (hanya jika IP fisik tidak ditemukan)
         if (empty($ips)) {
             $hostIp = gethostbyname(gethostname());
             if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
@@ -246,10 +217,8 @@ class AudioBookController extends Controller
     public static function getDetectedIp(): string
     {
         $localIps = self::getLocalIps();
-        
         $detectedIp = '127.0.0.1';
         
-        // 1. Try to prioritize Wi-Fi or Wireless adapter
         foreach ($localIps as $name => $ip) {
             if (stripos($name, 'wi-fi') !== false || stripos($name, 'wireless') !== false) {
                 $detectedIp = $ip;
@@ -257,7 +226,6 @@ class AudioBookController extends Controller
             }
         }
         
-        // 2. Fallback to standard local ranges if Wi-Fi wasn't explicitly matched
         if ($detectedIp === '127.0.0.1') {
             foreach ($localIps as $name => $ip) {
                 if (str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
@@ -267,7 +235,6 @@ class AudioBookController extends Controller
             }
         }
         
-        // 3. Fallback to the first detected IP
         if ($detectedIp === '127.0.0.1' && !empty($localIps)) {
             $detectedIp = reset($localIps);
         }
@@ -275,7 +242,6 @@ class AudioBookController extends Controller
         return $detectedIp;
     }
 
-    // ─── Listening Progress ─────────────────────────────
     public function syncProgress(Request $request, AudioBuku $audioBook)
     {
         $validated = $request->validate([
@@ -366,7 +332,6 @@ class AudioBookController extends Controller
                 ->withErrors(['audio' => 'Hanya admin yang dapat mengulang generate audio.']);
         }
 
-        // Clean up old audio files
         $audioDir = storage_path("app/public/audio/{$audioBook->id}");
         if (is_dir($audioDir)) {
             array_map('unlink', glob("$audioDir/*.*"));
@@ -466,7 +431,6 @@ class AudioBookController extends Controller
     {
         $audioBook = AudioBuku::where('qr_token', $slug)->firstOrFail();
 
-        // Mark the current session as restricted to this QR token for guest users
         session(['qr_restricted_token' => $slug]);
 
         return view('audio-books.play', compact('audioBook'));
@@ -565,12 +529,10 @@ class AudioBookController extends Controller
 
     private function cleanExtractedText(string $text): string
     {
-        // Ensure string is valid UTF-8
         if (! mb_check_encoding($text, 'UTF-8')) {
             $text = mb_convert_encoding($text, 'UTF-8', 'ISO-8859-1');
         }
 
-        // Clean any residual invalid UTF-8 bytes to prevent DB errors
         $text = iconv('UTF-8', 'UTF-8//IGNORE', $text) ?: $text;
 
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');

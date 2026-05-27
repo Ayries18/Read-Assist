@@ -25,6 +25,8 @@ class QRCodeController extends Controller
 
         return response($svg)
             ->header('Content-Type', 'image/svg+xml')
-            ->header('Cache-Control', 'public, max-age=3600');
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }

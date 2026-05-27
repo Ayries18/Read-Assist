@@ -1,5 +1,119 @@
 # Read-Assist — Sesi Recap
 
+## 📋 Technical Reference
+
+**Deskripsi:** Platform aksesibilitas buku audio untuk tunanetra. Upload PDF/EPUB → auto-generate audio (TTS via Google) + QR code. Scan QR dari HP → play audio buku tanpa login.
+
+### Tech Stack
+
+- Laravel 13, PHP ^8.3, SQLite (default)
+- Tailwind CSS v4 + Vite + DaisyUI 5
+- simplesoftwareio/simple-qrcode 4.2 (QR generation)
+- Google Translate TTS API via Guzzle (per-sentence MP3, concatenated to full.mp3)
+- `pdftotext` (poppler-utils) — system dependency for PDF text extraction
+- Queue: `database` driver — jobs table
+- Session-based auth (custom, no Breeze/Jetstream). Roles: `admin`, `user`.
+
+### Quick Start
+
+```bash
+composer setup      # install + .env + key + migrate + npm build
+npm run build       # build frontend assets (CSS/JS via Vite)
+composer dev        # full dev: server + queue + logs + vite + tunnel (5 processes)
+```
+
+### Dev Commands
+
+| Command | Purpose |
+|---------|---------|
+| `composer dev` | 5 parallel services via `concurrently` (server, queue, logs, vite, tunnel) |
+| `composer test` | `config:clear` → `php artisan test` |
+| `composer fresh-seed` | `migrate:fresh --seed` |
+| `php artisan serve` | Overridden to bind `0.0.0.0` (LAN access) + auto-open browser |
+| `php artisan queue:listen --tries=1 --timeout=0` | Process TTS audio generation jobs |
+| `php artisan tunnel:start` | SSH tunnel (localhost.run) — internet access for QR |
+| `php artisan tunnel:stop` | Kill active tunnel |
+| `php artisan qr:regenerate` | Regenerate QR SVG files for all/specific books |
+
+### QR Flow Architecture
+
+1. **Upload buku** → `AudioBukuController::store()` → simpan ke DB, generate UUID `qr_token`, dispatch `GenerateBookAudio` job
+2. **QR encode** → `{APP_URL}/katalog-audio/{id}` (lihat `buildQrUrl()`) → SVG disimpan di `storage/app/public/qr/qr-book-{id}.svg`
+3. **Scan QR** (dari HP) → `GET /katalog-audio/{id}` → `AudioBukuController::show()`:
+   - Kalau guest (belum login) → set session `qr_restricted_token` → redirect ke `GET /katalog/{qr_token}` (play view)
+   - Kalau login → tampil halaman detail buku normal (`show.blade.php`)
+4. **`RestrictQrGuest` middleware** (registered globally via `bootstrap/app.php:14`):
+   - Guest dengan session `qr_restricted_token` cuma bisa akses: `/`, `/login`, `/register`, `/katalog/*`, `/katalog-audio/*`, `/logout`, `/api/*`
+   - Route lain → redirect balik ke play view
+5. **Play view** → `audio-books.play.blade.php` — TTS player via Web Speech API (browser native). Tidak perlu nunggu audio MP3 selesai di-generate.
+
+### Route Map
+
+| Route | Method | Function |
+|-------|--------|----------|
+| `/katalog-audio` | GET | Book catalog index |
+| `/katalog-audio/{id}` | GET | Book detail + QR entry point (target QR encode) |
+| `/katalog-audio/{id}/edit` | GET | Edit book (admin only) |
+| `/katalog-audio/tambah` | GET | Upload book form |
+| `/katalog-audio` | POST | Upload + trigger audio generation |
+| `/scan/book/{qr_token}` | GET | Alternative QR entry |
+| `/katalog/{slug}` | GET | TTS audio player (slug = qr_token) |
+| `/audio-stream/{audioBook}` | GET | Stream generated MP3 (hanya jika `audio_status=completed`) |
+| `/progress/sync` | POST | Save listening progress (auth) |
+| `/progress/{audioBook}` | GET | Get listening progress (auth) |
+| `/qr-code` | GET | Generic QR generator (`?data=&size=`) |
+
+### Key Gotchas
+
+- **`php artisan serve` is overridden** — binds `0.0.0.0` (bukan 127.0.0.1). Lihat `app/Console/Commands/ServeCommand.php`.
+- **Built CSS > Vite HMR** — layout prioritaskan `public/build/manifest.json`. Vite HMR tidak reliable dari HP/eksternal.
+- **SQLite `DB_DATABASE` trap** — jangan set `DB_DATABASE=` di `.env` kalau pakai SQLite. Biarkan kosong agar Laravel fallback ke `database_path('database.sqlite')`.
+- **Queue worker WAJIB jalan** — tanpa `queue:listen`, TTS audio tidak akan pernah di-generate (`audio_status` stuck di `pending`).
+- **`pdftotext` required** — ekstraksi teks PDF gagal silent kalau `poppler-utils` tidak terinstall.
+- **`canManageBook()` cuma `auth_role === 'admin'`** — pemilik buku (user) tidak bisa edit/hapus bukunya sendiri. Known issue.
+- **Tunnel URL** — disimpan di `storage/app/tunnel_url.txt`. Update `APP_URL` di `.env` kalau tunnel/IP berubah, lalu regenerate QR.
+- **QR SVG di-regenerate setiap `show()`** — setiap kali halaman detail dibuka, QR code di-rebuild pakai `APP_URL` terbaru.
+- **No cron/scheduled tasks** — `routes/console.php` cuma `inspire`. Queue worker harus manual.
+- **Docker** — pakai `php:8.2-apache` + poppler-utils. **Tidak ada queue worker** di Dockerfile — perlu process terpisah untuk production.
+
+### Testing
+
+- SQLite `:memory:`, `RefreshDatabase`, queue `sync`, session `array`, cache `array`
+- Run: `composer test` (wajib `config:clear` dulu)
+- Tests: `tests/Feature/AudioBookTest.php` — 10 tests (landing, catalog, detail, auth, 404)
+
+### App Structure
+
+```
+Read-Assist/
+├── app/
+│   ├── Console/Commands/     # ServeCommand (0.0.0.0), TunnelStart/Stop, RegenerateQr
+│   ├── Http/
+│   │   ├── Controllers/      # AudioBukuController (main), AuthController, QRCodeController, ReadAssistController
+│   │   └── Middleware/       # RestrictQrGuest
+│   ├── Jobs/                 # GenerateBookAudio (queued TTS)
+│   ├── Models/               # AudioBuku, ListeningProgress
+│   └── Services/             # TunnelService, TTSEngine
+├── bootstrap/app.php         # Middleware registration
+├── config/
+│   ├── app.php               # APP_URL = config('app.url')
+│   ├── queue.php             # default = database
+│   └── tts.php               # TTS_TIMEOUT (default 120s)
+├── resources/
+│   ├── css/app.css           # All styles (Tailwind v4 + custom)
+│   ├── js/app.js             # Vanilla JS (Web Speech API TTS)
+│   └── views/                # Blade templates (app layout, audio-books: index/create/edit/show/play)
+├── routes/
+│   ├── web.php               # All HTTP routes
+│   └── console.php           # Only inspire (no cron)
+├── tests/Feature/            # AudioBookTest (10 tests)
+├── Dockerfile                # php:8.2-apache + poppler-utils
+├── render.yaml               # Render deploy (single web service, SQLite)
+└── composer.json             # Scripts: dev, setup, test, tunnel, fresh-seed
+```
+
+---
+
 ## Goal
 Bikin Read-Assist Laravel web app fully functional from mobile via QR code scan, dengan look, feel, dan audio features yang sama kayak laptop.
 

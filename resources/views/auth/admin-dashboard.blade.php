@@ -2,19 +2,17 @@
 
 @section('content')
 @php
-    $tunnelService = app(\App\Services\TunnelService::class);
-    $tunnelUrl = $tunnelService->getStoredUrl();
-    if ($tunnelUrl) {
-        $serverOrigin = $tunnelUrl;
-    } else {
-        $detectedIp = $tunnelService->getLocalIp() ?? '127.0.0.1';
+    $host = request()->getSchemeAndHttpHost();
+    if (str_contains($host, 'localhost') || str_contains($host, '127.0.0.1')) {
+        $detectedIp = \App\Http\Controllers\AudioBukuController::getDetectedIp();
         $port = request()->getPort();
-        $serverOrigin = "http://" . $detectedIp . ($port && $port != 80 && $port != 443 ? ":" . $port : "");
+        $host = 'http://' . $detectedIp . ($port ? ':' . $port : ':8000');
     }
+    $serverOrigin = rtrim($host, '/');
 @endphp
     <div style="max-width: 800px; margin: 0 auto;">
         <!-- Welcome Card -->
-        <div class="card bg-base-300/50 border border-white/10 shadow-md" style="padding: 2.5rem; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(20, 30, 55, 0.7), rgba(99, 102, 241, 0.15)); border-color: rgba(99, 102, 241, 0.25);">
+        <div class="card border shadow-sm" style="padding: 2.5rem; margin-bottom: 2rem; background: #121316; border-color: rgba(255, 255, 255, 0.08);">
             <div class="card-body p-0">
                 <span class="badge badge-outline badge-primary mb-4">
                     Administrator Area
@@ -170,7 +168,7 @@
                 const title = selectedOpt.getAttribute('data-title');
                 
                 // Build the URL to qr-audio
-                const playUrl = `{{ $serverOrigin }}/qr-audio/${token}`;
+                const playUrl = `{{ $serverOrigin }}/katalog/${token}`;
                 const qrImg = document.getElementById('quick-qr-img');
                 if (qrImg) {
                     qrImg.src = `/qr-code?data=${encodeURIComponent(playUrl)}&size=200`;

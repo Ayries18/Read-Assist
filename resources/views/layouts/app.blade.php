@@ -29,89 +29,101 @@
         @vite(['resources/js/app.js'])
     @endif
     <style>
+        /* Modern, minimal layout styling */
+        :root {
+            --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+            --accent-primary: #818cf8;
+            --accent-secondary: #60a5fa;
+            --accent-success: #34d399;
+            --accent-danger: #f87171;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --bg-secondary: #0d0e12;
+            --bg-glass: rgba(22, 25, 35, 0.6);
+        }
+
+        body {
+            background-color: #0c0d10 !important;
+            color: #cbd5e1 !important;
+            font-family: var(--font-sans) !important;
+        }
+
         /* Navbar Enhancements */
         .nav-icon-btn {
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             cursor: pointer;
             padding: 0.4rem;
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             position: relative;
         }
         .nav-icon-btn:hover {
             color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.06);
         }
         .notification-badge {
             position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 8px;
-            height: 8px;
+            top: 3px;
+            right: 3px;
+            width: 7px;
+            height: 7px;
             background-color: var(--accent-danger);
             border-radius: 50%;
-            box-shadow: 0 0 6px var(--accent-danger);
-            animation: pulse-badge 2s infinite;
-        }
-        @keyframes pulse-badge {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.6; }
         }
         
         /* Dropdown Styles */
         .nav-dropdown {
             position: absolute;
-            top: calc(100% + 10px);
+            top: calc(100% + 8px);
             right: -10px;
-            background: rgba(30, 27, 75, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-glass);
-            border-radius: 12px;
-            padding: 0.8rem;
-            width: 250px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #121316;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 0.5rem;
+            width: 240px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
             display: none;
             flex-direction: column;
-            gap: 0.6rem;
+            gap: 0.3rem;
             z-index: 1000;
-            animation: slide-down 0.2s ease;
+            animation: fade-in 0.1s ease;
         }
-        @keyframes slide-down {
-            from { opacity: 0; transform: translateY(-10px); }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-4px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .dropdown-header {
-            font-size: 0.75rem;
-            font-weight: bold;
+            font-size: 0.72rem;
+            font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding-bottom: 0.4rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.5rem 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .dropdown-item {
             display: flex;
-            gap: 0.6rem;
+            gap: 0.5rem;
             font-size: 0.78rem;
             line-height: 1.4;
             color: var(--text-secondary);
-            padding: 0.4rem 0.6rem;
+            padding: 0.4rem 0.5rem;
             border-radius: 6px;
-            transition: background 0.2s ease;
+            transition: all 0.12s ease;
             text-align: left;
             text-decoration: none;
             cursor: pointer;
         }
         .dropdown-item:hover {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.05);
             color: #fff;
         }
         .dropdown-item .dot {
@@ -119,180 +131,111 @@
             height: 6px;
             border-radius: 50%;
             background: var(--accent-primary);
-            margin-top: 4px;
+            margin-top: 5px;
             flex-shrink: 0;
-        }
-        .dropdown-item .dot.active {
-            box-shadow: 0 0 6px var(--accent-primary);
         }
         .dropdown-text {
             margin: 0;
             color: var(--text-secondary);
         }
         .dropdown-time {
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
-            margin-top: 0.2rem;
+            margin-top: 0.15rem;
             display: block;
         }
         
-        /* Avatar & Link style */
         .dropdown-item-link {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.82rem;
-            padding: 0.5rem 0.8rem;
-            border-radius: 6px;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 5px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
+            gap: 0.4rem;
+            transition: all 0.12s ease;
         }
         .dropdown-item-link:hover {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.05);
             color: #fff;
-            padding-left: 1rem;
         }
         .dropdown-logout-btn:hover {
-            background: rgba(239, 68, 68, 0.1) !important;
-            color: #ef4444 !important;
+            background: rgba(248, 113, 113, 0.08) !important;
+            color: #f87171 !important;
         }
 
-        /* Glow Active State */
         .nav-link {
             position: relative;
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.5rem 1rem !important;
-            transition: all 0.3s ease;
+            padding: 0.4rem 0.8rem !important;
+            transition: all 0.15s ease;
         }
         .nav-link.active {
             color: #fff !important;
-            text-shadow: 0 0 10px rgba(99, 102, 241, 0.6), 0 0 20px rgba(99, 102, 241, 0.3);
-        }
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 10%;
-            width: 80%;
-            height: 2px;
-            background: var(--accent-primary);
-            box-shadow: 0 0 8px var(--accent-primary), 0 0 15px var(--accent-primary);
-            border-radius: 2px;
         }
         
         .avatar-btn:hover {
-            opacity: 0.9;
+            opacity: 0.95;
         }
         
         /* Search Input */
         .nav-search-form input:focus {
-            background: rgba(255,255,255,0.12) !important;
-            border-color: var(--accent-primary) !important;
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4) !important;
+            background: rgba(255,255,255,0.08) !important;
+            border-color: rgba(255,255,255,0.15) !important;
+            box-shadow: none !important;
         }
 
-        /* Pulse green for system status */
-        @keyframes pulse-green {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-            50% { transform: scale(1.15); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* Glassmorphism navbar extra glow */
+        /* Navbar style */
         .navbar {
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+            background-color: #121316 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
         }
 
-        /* Micro hover animation for links */
-        .nav-menu li a {
-            transition: transform 0.2s ease, color 0.3s ease;
-        }
-        .nav-menu li a:hover {
-            transform: translateY(-1px);
-        }
-
-        /* Override DaisyUI menu padding so buttons align nicely */
         .navbar .menu-horizontal > li > a {
             padding: 0 !important;
         }
         .navbar .menu-horizontal {
-            gap: 0.15rem !important;
+            gap: 0.25rem !important;
         }
 
-        /* Navbar menu button styles — lively buttons */
+        /* Clean nav buttons */
         .nav-btn {
             position: relative;
             display: flex !important;
             align-items: center;
-            gap: 0.45rem;
-            padding: 0.5rem 1.1rem !important;
-            border-radius: 10px !important;
-            font-size: 0.88rem;
+            gap: 0.4rem;
+            padding: 0.45rem 0.85rem !important;
+            border-radius: 6px !important;
+            font-size: 0.82rem;
             font-weight: 500;
-            color: #cbd5e1 !important;
+            color: var(--text-secondary) !important;
             background: transparent;
             border: 1px solid transparent;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition: all 0.15s ease !important;
             text-decoration: none;
             cursor: pointer;
         }
         .nav-btn:hover {
             color: #fff !important;
-            background: rgba(99, 102, 241, 0.12) !important;
-            border-color: rgba(99, 102, 241, 0.25) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
-        }
-        .nav-btn:active {
-            transform: translateY(0) scale(0.97);
+            background: rgba(255, 255, 255, 0.05) !important;
         }
         .nav-btn.active {
             color: #fff !important;
-            background: rgba(99, 102, 241, 0.18) !important;
-            border-color: rgba(99, 102, 241, 0.4) !important;
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.15), inset 0 0 15px rgba(99, 102, 241, 0.05);
-            text-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+            background: rgba(255, 255, 255, 0.07) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
         }
         .nav-btn .nav-btn-icon {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             flex-shrink: 0;
             opacity: 0.7;
-            transition: opacity 0.2s ease;
         }
         .nav-btn:hover .nav-btn-icon {
-            opacity: 1;
-        }
-        .nav-btn .nav-btn-text {
-            position: relative;
-        }
-        .nav-btn.active .nav-btn-text::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--accent-primary);
-            box-shadow: 0 0 8px var(--accent-primary);
-            border-radius: 2px;
-        }
-        /* Ripple on click */
-        .nav-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 10px;
-            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.08) 0%, transparent 60%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .nav-btn:active::before {
-            opacity: 1;
+            opacity: 0.95;
         }
     </style>
 </head>

@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $host = request()->getSchemeAndHttpHost();
+        if (str_contains($host, 'localhost') || str_contains($host, '127.0.0.1')) {
+            $detectedIp = \App\Http\Controllers\AudioBukuController::getDetectedIp();
+            $port = request()->getPort();
+            $host = 'http://' . $detectedIp . ($port ? ':' . $port : ':8000');
+        }
+        $qrUrl = rtrim($host, '/') . '/katalog-audio/' . $book->id;
+    @endphp
     @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
     <div class="mb-8">
         <a href="/katalog-audio" class="text-slate-400 font-medium text-sm inline-flex items-center gap-2">
@@ -12,17 +21,17 @@
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
         <!-- Left Side: Book Details & TTS Player -->
         <div class="flex flex-col gap-7">
-            <div class="card bg-base-300/50 border border-white/10 shadow-md p-6">
+            <div class="card border shadow-sm p-6" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
                 <div>
                     <!-- Book Header with Cover and Metadata -->
                     <div class="flex gap-6 flex-wrap mb-6 items-start">
                         <!-- Book Cover -->
                         <div class="w-[140px] h-[190px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
-                            @if ($audioBook->cover)
-                                <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover">
+                            @if ($book->cover)
+                                <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="w-full h-full object-cover">
                             @else
                                 <div class="book-cover-placeholder">
-                                    <span class="book-cover-placeholder-title text-sm">{{ $audioBook->judul }}</span>
+                                    <span class="book-cover-placeholder-title text-sm">{{ $book->judul }}</span>
                                 </div>
                             @endif
                         </div>
@@ -30,14 +39,14 @@
                         <!-- Title and Quick Stats -->
                         <div class="flex-1 flex flex-col justify-center">
                             <h2 id="book-title" class="text-gradient text-3xl font-bold mb-2 leading-tight">
-                                {{ $audioBook->judul }}
+                                {{ $book->judul }}
                             </h2>
 
                             <!-- Metadata bar -->
                             <div class="text-sm text-slate-300 flex flex-col gap-1">
-                                <span>Kategori: <strong>{{ $audioBook->kategori ?: 'Umum' }}</strong></span>
-                                <span id="upload-time" data-utc="{{ $audioBook->created_at->toIso8601String() }}">Diunggah: <strong>{{ $audioBook->created_at->format('d M Y, H:i') }}</strong></span>
-                                <span id="update-time-relative" data-utc-updated="{{ $audioBook->updated_at->toIso8601String() }}">Diperbarui: <strong></strong></span>
+                                <span>Kategori: <strong>{{ $book->kategori ?: 'Umum' }}</strong></span>
+                                <span id="upload-time" data-utc="{{ $book->created_at->toIso8601String() }}">Diunggah: <strong>{{ $book->created_at->format('d M Y, H:i') }}</strong></span>
+                                <span id="update-time-relative" data-utc-updated="{{ $book->updated_at->toIso8601String() }}">Diperbarui: <strong></strong></span>
                             </div>
                         </div>
                     </div>
@@ -47,15 +56,15 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                         <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
                             <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Karakter</span>
-                            <span class="text-lg font-bold text-blue-400">{{ strlen($audioBook->deskripsi) }}</span>
+                            <span class="text-lg font-bold text-blue-400">{{ strlen($book->deskripsi) }}</span>
                         </div>
                         <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
                             <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Jumlah Kata</span>
-                            <span class="text-lg font-bold text-indigo-400">{{ str_word_count($audioBook->deskripsi) }}</span>
+                            <span class="text-lg font-bold text-indigo-400">{{ str_word_count($book->deskripsi) }}</span>
                         </div>
                         <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
                             <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Estimasi Baca</span>
-                            <span class="text-lg font-bold text-emerald-400">{{ ceil(str_word_count($audioBook->deskripsi) / 150) }} Menit</span>
+                            <span class="text-lg font-bold text-emerald-400">{{ ceil(str_word_count($book->deskripsi) / 150) }} Menit</span>
                         </div>
                         <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
                             <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Status Audio</span>
@@ -63,24 +72,24 @@
                         </div>
                     </div>
 
-                    @if ($audioBook->user_id)
+                    @if ($book->user_id)
                         <p class="text-slate-300 mb-6 text-sm flex items-center gap-2">
-                            <span class="text-slate-400">Pengunggah ID: {{ $audioBook->user_id }}</span>
+                            <span class="text-slate-400">Pengunggah ID: {{ $book->user_id }}</span>
                         </p>
                     @endif
 
                     <h4 class="text-base text-white font-semibold mb-2">Deskripsi Buku</h4>
                     <div class="bg-slate-900/40 border border-white/10 rounded-xl p-5 mb-6">
                         <p class="text-slate-300 leading-relaxed text-sm whitespace-pre-line">
-                            {{ isset($audioBook->deskripsi) ? \Illuminate\Support\Str::limit($audioBook->deskripsi, 600) : 'Tidak ada deskripsi.' }}
+                            {{ isset($book->deskripsi) ? \Illuminate\Support\Str::limit($book->deskripsi, 600) : 'Tidak ada deskripsi.' }}
                         </p>
-                        <div id="book-description" class="hidden">{{ $audioBook->deskripsi ?? 'Tidak ada deskripsi.' }}</div>
+                        <div id="book-description" class="hidden">{{ $book->deskripsi ?? 'Tidak ada deskripsi.' }}</div>
                     </div>
 
-                    @if ($audioBook->file_buku)
+                    @if ($book->file_buku)
                         <div class="bg-white/[0.03] border border-white/10 rounded-lg p-3 px-4 flex justify-between items-center mb-8">
                             <span class="text-sm text-slate-300">File PDF/EPUB Terlampir</span>
-                            <a href="/storage/{{ $audioBook->file_buku }}" target="_blank" class="btn btn-ghost btn-sm py-1 px-4 text-sm">
+                            <a href="/storage/{{ $book->file_buku }}" target="_blank" class="btn btn-ghost btn-sm py-1 px-4 text-sm">
                                 Buka File
                             </a>
                         </div>
@@ -90,17 +99,17 @@
                     <div class="bg-indigo-500/5 border border-indigo-500/15 rounded-xl p-6 text-center">
                         <h4 class="mb-2 text-base">Dengarkan di Laptop Ini</h4>
 
-                        @if ($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
+                        @if ($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts')
                             <div class="mb-4">
                                 <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
-                                    <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
+                                    <source src="{{ route('audio.stream', $book) }}" type="audio/mpeg">
                                     Browser Anda tidak mendukung pemutar audio.
                                 </audio>
                                 <div style="margin-top: 0.5rem;">
-                                    <a href="{{ route('audio.stream', $audioBook) }}" download class="btn btn-primary btn-sm px-7 py-3 text-sm">
+                                    <a href="{{ route('audio.stream', $book) }}" download class="btn btn-primary btn-sm px-7 py-3 text-sm">
                                     Download MP3
                                 </a>
-                                <a href="{{ route('audio-books.play', $audioBook->qr_token) }}" class="btn btn-ghost btn-sm px-7 py-3 text-sm">
+                                <a href="{{ route('audio-books.play', $book->qr_token) }}" class="btn btn-ghost btn-sm px-7 py-3 text-sm">
                                     Buka Mode Tunanetra
                                 </a>
                             </div>
@@ -124,21 +133,21 @@
 
             <!-- Admin Action Panel -->
             @if (session('auth_role') === 'admin')
-                <div class="card bg-base-300/50 border border-red-500/15 shadow-md p-6" style="background: rgba(239, 68, 68, 0.02);">
+                <div class="card border shadow-sm p-6" style="background: rgba(239, 68, 68, 0.02); border-color: rgba(239, 68, 68, 0.15);">
                     <h4 class="text-base text-red-400 font-semibold mb-3">Panel Kelola Admin</h4>
                     <div class="flex gap-4 flex-wrap">
-                        <a href="/katalog-audio/{{ $audioBook->id }}/edit" class="btn btn-ghost btn-sm flex-1 border-slate-400 text-center flex items-center justify-center">
+                        <a href="/katalog-audio/{{ $book->id }}/edit" class="btn btn-ghost btn-sm flex-1 border-slate-400 text-center flex items-center justify-center">
                             Edit Buku
                         </a>
-                        <form method="POST" action="/katalog-audio/{{ $audioBook->id }}" onsubmit="return confirm('Yakin ingin menghapus buku ini?')" class="flex-1 m-0">
+                        <form method="POST" action="/katalog-audio/{{ $book->id }}" onsubmit="return confirm('Yakin ingin menghapus buku ini?')" class="flex-1 m-0">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-error w-full">
                                 Hapus Buku
                             </button>
                         </form>
-                        @if ($audioBook->audio_status === 'failed')
-                            <form method="POST" action="/katalog-audio/{{ $audioBook->id }}/retry-audio" class="w-full mt-2 m-0">
+                        @if ($book->audio_status === 'failed')
+                            <form method="POST" action="/katalog-audio/{{ $book->id }}/retry-audio" class="w-full mt-2 m-0">
                                 @csrf
                                 <button type="submit" class="btn btn-ghost border-indigo-500/30 text-indigo-400 w-full">
                                     Ulang Generate Audio
@@ -153,7 +162,7 @@
         @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
         <!-- Right Side: QR Code -->
         <div class="flex flex-col gap-7">
-            <div class="card bg-base-300/50 border border-white/10 shadow-md p-6 text-center flex flex-col items-center" style="padding: 2.5rem 1.8rem;">
+            <div class="card border shadow-sm p-6 text-center flex flex-col items-center" style="padding: 2.5rem 1.8rem; background: #121316; border-color: rgba(255, 255, 255, 0.08);">
                 <h3 class="text-xl font-bold mb-2 text-center">QR-Audio untuk Tunanetra</h3>
                 <p class="text-sm text-slate-300 mb-8">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
 
@@ -161,7 +170,7 @@
                     <img
                         id="qr-code-img"
                         src="{{ route('qr-code.generate', ['data' => $qrUrl, 'size' => 320]) }}"
-                        alt="QR Code untuk membuka audio {{ $audioBook->judul }}"
+                        alt="QR Code untuk membuka audio {{ $book->judul }}"
                         class="block mx-auto w-[260px] h-[260px]"
                     >
                 </div>
@@ -179,7 +188,7 @@
         @endif
     </div>
 
-    @if (!($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts'))
+    @if (!($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts'))
     <script>
         // Realtime & Localized Upload Time Formatter
         document.addEventListener('DOMContentLoaded', function () {
@@ -381,7 +390,7 @@
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>Cetak QR - {{ $audioBook->judul }}</title>
+                    <title>Cetak QR - {{ $book->judul }}</title>
                     <style>
                         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px; color: #000; background: #fff; }
                         .container { border: 3px dashed #6366f1; padding: 30px; display: inline-block; border-radius: 15px; max-width: 350px; }
@@ -393,7 +402,7 @@
                 </head>
                 <body>
                     <div class="container">
-                        <h2>{{ $audioBook->judul }}</h2>
+                        <h2>{{ $book->judul }}</h2>
                         <img src="${document.getElementById('qr-code-img').src}" />
                         <div class="footer">SISTEM READ-ASSIST QR-AUDIO</div>
                     </div>
@@ -414,7 +423,7 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = "{{ \Illuminate\Support\Str::slug($audioBook->judul) }}_qr_code.svg";
+                    a.download = "{{ \Illuminate\Support\Str::slug($book->judul) }}_qr_code.svg";
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
