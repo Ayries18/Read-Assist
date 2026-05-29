@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Jobs\GenerateBookAudio;
 use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
-use App\Services\TunnelService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -13,12 +12,6 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AudioBukuController extends Controller
 {
-    protected TunnelService $tunnel;
-
-    public function __construct(TunnelService $tunnel)
-    {
-        $this->tunnel = $tunnel;
-    }
 
     public function landing()
     {
@@ -147,7 +140,6 @@ class AudioBukuController extends Controller
     {
         $book = AudioBuku::findOrFail($id);
 
-        // Always regenerate QR code to ensure it matches the current APP_URL (e.g. WiFi IP)
         $this->generateQrFile($book);
 
         if (!session()->has('auth_role')) {
@@ -155,7 +147,20 @@ class AudioBukuController extends Controller
             return redirect()->route('audio-books.play', ['slug' => $book->qr_token]);
         }
 
-        return view('katalog.show', compact('book'));
+        $qrUrl = $this->buildQrUrl($book);
+        $qrFile = 'qr/qr-book-' . $book->id . '.svg';
+        $qrFileExists = Storage::disk('public')->exists($qrFile);
+
+        $qrSvg = QrCode::size(300)
+            ->margin(2)
+            ->errorCorrection('M')
+            ->generate($qrUrl);
+
+        return response()
+            ->view('katalog.show', compact('book', 'qrUrl', 'qrFile', 'qrFileExists', 'qrSvg'))
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public static function getLocalIps(): array
@@ -421,10 +426,23 @@ class AudioBukuController extends Controller
         file_put_contents($qrDir . '/qr-book-' . $audioBook->id . '.svg', $svg);
     }
 
+    public static function isLocalUrl(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST) ?: '';
+        if (in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+            return true;
+        }
+        if (preg_match('/^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/', $host)) {
+            return true;
+        }
+        return false;
+    }
+
+
     private function buildQrUrl(AudioBuku $audioBook): string
     {
-        $appUrl = rtrim(config('app.url'), '/');
-        return "{$appUrl}/katalog-audio/{$audioBook->id}";
+        $baseUrl = rtrim(config('app.url'), '/');
+        return "{$baseUrl}/katalog-audio/{$audioBook->id}";
     }
 
     public function play(string $slug)

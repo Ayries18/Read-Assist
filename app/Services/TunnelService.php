@@ -130,6 +130,35 @@ class TunnelService
         if ($this->isRunning()) {
             return $this->getUrl();
         }
+
+        $ngrokUrl = $this->getNgrokUrl();
+        if ($ngrokUrl) {
+            return $ngrokUrl;
+        }
+
+        return null;
+    }
+
+    public function getNgrokUrl(): ?string
+    {
+        try {
+            $ctx = stream_context_create(['http' => ['timeout' => 3]]);
+            $result = @file_get_contents('http://127.0.0.1:4040/api/tunnels', false, $ctx);
+            if ($result === false) {
+                return null;
+            }
+            $data = json_decode($result, true);
+            if (!$data || !isset($data['tunnels'])) {
+                return null;
+            }
+            foreach ($data['tunnels'] as $tunnel) {
+                if (!empty($tunnel['public_url'])) {
+                    return $tunnel['public_url'];
+                }
+            }
+        } catch (\Exception $e) {
+            return null;
+        }
         return null;
     }
 }

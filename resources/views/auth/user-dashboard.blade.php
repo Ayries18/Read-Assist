@@ -10,6 +10,11 @@
     }
     $serverOrigin = rtrim($host, '/');
 @endphp
+@if (\App\Http\Controllers\AudioBukuController::isLocalUrl($serverOrigin))
+    <div class="alert alert-warning shadow-lg mb-6 text-sm" role="alert">
+        ⚠️ QR tidak akan dapat diakses dari jaringan berbeda. Server menggunakan alamat lokal (<strong>{{ $serverOrigin }}</strong>). Aktifkan tunnel (php artisan tunnel:start) untuk akses publik.
+    </div>
+@endif
     <div style="max-width: 800px; margin: 0 auto;">
         <!-- Welcome Card -->
         <div class="card border shadow-sm" style="padding: 2.5rem; margin-bottom: 2rem; background: #121316; border-color: rgba(255, 255, 255, 0.08);">
@@ -167,8 +172,7 @@
                 const selectedOpt = selector.options[selector.selectedIndex];
                 const title = selectedOpt.getAttribute('data-title');
                 
-                // Build the URL to qr-audio
-                const playUrl = `{{ $serverOrigin }}/katalog/${token}`;
+                const playUrl = `{{ $serverOrigin }}/scan/book/${token}`;
                 const qrImg = document.getElementById('quick-qr-img');
                 if (qrImg) {
                     qrImg.src = `/qr-code?data=${encodeURIComponent(playUrl)}&size=200`;

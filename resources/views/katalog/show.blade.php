@@ -2,13 +2,10 @@
 
 @section('content')
     @php
-        $host = request()->getSchemeAndHttpHost();
-        if (str_contains($host, 'localhost') || str_contains($host, '127.0.0.1')) {
-            $detectedIp = \App\Http\Controllers\AudioBukuController::getDetectedIp();
-            $port = request()->getPort();
-            $host = 'http://' . $detectedIp . ($port ? ':' . $port : ':8000');
+        if (!isset($qrUrl)) {
+            $baseUrl = rtrim(config('app.url'), '/');
+            $qrUrl = $baseUrl . '/katalog-audio/' . $book->id;
         }
-        $qrUrl = rtrim($host, '/') . '/katalog-audio/' . $book->id;
     @endphp
     @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
     <div class="mb-8">

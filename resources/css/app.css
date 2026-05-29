@@ -14,20 +14,20 @@
 }
 
 :root {
-    --accent-primary: #818cf8;
-    --accent-secondary: #60a5fa;
-    --accent-success: #34d399;
-    --accent-danger: #f87171;
+    --accent-primary: #8b5cf6;
+    --accent-secondary: #6366f1;
+    --accent-success: #10b981;
+    --accent-danger: #f43f5e;
     --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
+    --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --border-glass: rgba(255, 255, 255, 0.08);
-    --bg-secondary: #0c0d10;
-    --bg-glass: rgba(18, 19, 22, 0.7);
+    --border-glass: rgba(255, 255, 255, 0.04);
+    --bg-secondary: #0d0e12;
+    --bg-glass: rgba(18, 18, 22, 0.5);
 }
 
 .text-gradient {
-    background: linear-gradient(135deg, #fff, #94a3b8);
+    background: linear-gradient(135deg, #ffffff, #a1a1aa);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

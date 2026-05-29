@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\AudioBukuController;
 use App\Models\AudioBuku;
 use Illuminate\Console\Command;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -9,9 +10,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class RegenerateQrCommand extends Command
 {
     protected $signature = 'qr:regenerate {--id= : Regenerate QR for specific book ID}';
-    protected $description = 'Regenerate QR code files for all (or specific) books using APP_URL';
+    protected $description = 'Regenerate QR code files for all (or specific) books';
 
-    public function handle()
+    public function handle(): int
     {
         $query = AudioBuku::query();
 
@@ -26,15 +27,8 @@ class RegenerateQrCommand extends Command
             return 0;
         }
 
-        $appUrl = rtrim(config('app.url'), '/');
-        $this->info("Menggunakan APP_URL: {$appUrl}");
-
-        $host = parse_url($appUrl, PHP_URL_HOST) ?: '';
-        if (in_array($host, ['localhost', '127.0.0.1'], true)) {
-            $this->warn('⚠️  APP_URL masih menggunakan localhost/127.0.0.1!');
-            $this->warn('   QR hanya akan berfungsi di perangkat yang sama.');
-            $this->warn('   Gunakan alamat IP lokal laptop Anda untuk akses dari HP di jaringan WiFi yang sama.');
-        }
+        $baseUrl = rtrim(config('app.url'), '/');
+        $this->info("Menggunakan APP_URL: {$baseUrl}");
 
         $qrDir = storage_path('app/public/qr');
         if (! is_dir($qrDir)) {
@@ -43,7 +37,7 @@ class RegenerateQrCommand extends Command
 
         $count = 0;
         foreach ($books as $book) {
-            $qrUrl = $appUrl . '/katalog-audio/' . $book->id;
+            $qrUrl = "{$baseUrl}/katalog-audio/{$book->id}";
 
             $svg = QrCode::size(300)
                 ->margin(2)

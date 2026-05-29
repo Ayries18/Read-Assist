@@ -32,22 +32,23 @@
         /* Modern, minimal layout styling */
         :root {
             --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            --accent-primary: #818cf8;
-            --accent-secondary: #60a5fa;
-            --accent-success: #34d399;
-            --accent-danger: #f87171;
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #6366f1;
+            --accent-success: #10b981;
+            --accent-danger: #f43f5e;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --bg-secondary: #0d0e12;
-            --bg-glass: rgba(22, 25, 35, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.04);
+            --bg-secondary: #111216;
+            --bg-glass: rgba(18, 18, 22, 0.6);
         }
 
         body {
-            background-color: #0c0d10 !important;
-            color: #cbd5e1 !important;
+            background-color: #0a0b0d !important;
+            color: #94a3b8 !important;
             font-family: var(--font-sans) !important;
+            line-height: 1.6;
         }
 
         /* Navbar Enhancements */
@@ -241,13 +242,10 @@
 </head>
 <body>
     @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
-    <nav class="navbar bg-base-300/50 backdrop-blur-lg border-b border-white/10 sticky top-0 z-[1000] shadow-lg">
+    <nav class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
         <div class="navbar-start gap-2">
-            <a href="/" class="flex items-center gap-3 no-underline">
-                <img src="/logo.png" alt="Read-Assist Logo" class="h-10 w-10 rounded-full object-cover border-2 border-indigo-500 transition-transform hover:scale-105">
-                <span class="text-xl font-bold text-white tracking-tight">
-                    <span class="text-indigo-400">Read</span>-Assist
-                </span>
+            <a href="/" class="flex items-center no-underline transition-transform hover:scale-[1.02]">
+                <img src="/logo-horizontal.svg" alt="ReadAssist Logo" class="h-9 w-auto">
             </a>
         </div>
 

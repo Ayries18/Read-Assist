@@ -147,10 +147,7 @@ class AudioBookController extends Controller
     {
         $book = AudioBuku::findOrFail($id);
 
-        $appUrl = config('app.url');
-        if (empty($appUrl) || $appUrl === 'http://localhost' || $appUrl === 'https://localhost') {
-            abort(500, 'Konfigurasi APP_URL tidak valid atau kosong di file .env. Pastikan Anda sudah mengatur APP_URL ke alamat Ngrok publik Anda.');
-        }
+        $this->generateQrFile($book);
 
         if (!session()->has('auth_role')) {
             session(['qr_restricted_token' => $book->qr_token]);
@@ -162,9 +159,6 @@ class AudioBookController extends Controller
         }
 
         $qrUrl = $this->buildQrUrl($book);
-
-        // Always regenerate QR code to ensure it matches the current APP_URL (e.g. Ngrok)
-        $this->generateQrFile($book);
 
         $qrFile = 'qr/qr-book-' . $book->id . '.svg';
         $qrFileExists = Storage::disk('public')->exists($qrFile);
@@ -456,10 +450,39 @@ class AudioBookController extends Controller
         file_put_contents($qrDir . '/qr-book-' . $audioBook->id . '.svg', $svg);
     }
 
+    public static function isLocalUrl(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST) ?: '';
+        if (in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+            return true;
+        }
+        if (preg_match('/^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/', $host)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getPublicUrl(): string
+    {
+        $tunnelUrl = $this->tunnel->getStoredUrl();
+        if ($tunnelUrl) {
+            return rtrim($tunnelUrl, '/');
+        }
+
+        $appUrl = rtrim(config('app.url'), '/');
+        if (! self::isLocalUrl($appUrl)) {
+            return $appUrl;
+        }
+
+        $detectedIp = self::getDetectedIp();
+        $port = parse_url($appUrl, PHP_URL_PORT) ?: '8000';
+        return "http://{$detectedIp}:{$port}";
+    }
+
     private function buildQrUrl(AudioBuku $audioBook): string
     {
-        $appUrl = rtrim(config('app.url'), '/');
-        return "{$appUrl}/katalog-audio/{$audioBook->id}";
+        $baseUrl = $this->getPublicUrl();
+        return "{$baseUrl}/scan/book/{$audioBook->qr_token}";
     }
 
     public function play(string $slug)

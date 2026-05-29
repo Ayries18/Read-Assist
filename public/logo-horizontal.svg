@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 40" fill="none">
+  <!-- Monogram RA -->
+  <g transform="translate(4, 4)">
+    <!-- Stylized R (Modern Geometric, White for Dark Mode Contrast) -->
+    <path d="M4 28V4H14C19 4 23 7.5 23 12C23 15.5 20.5 18.5 17 19.5L23 28H16L11 20H8V28H4ZM8 10V15H13.5C14.8 15 16 14.2 16 12.5C16 10.8 14.8 10 13.5 10H8Z" fill="#ffffff" stroke="#ffffff" stroke-width="0.5" />
+    <!-- Stylized A slanted bar (Purple) -->
+    <path d="M37 4L42.5 28H35.8L34.5 21.8H29.2L31 28H24.5L29.5 9.5L37 4Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0.5" />
+    <!-- Curved bridge connecting R and A (Purple) -->
+    <path d="M22 17.5C24.5 14.5 28 17.5 29.5 21.8H23.5C23 19.5 22.5 18.5 22 17.5Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="0.5" />
+  </g>
+  <!-- Thin Vertical Line Divider -->
+  <line x1="53" y1="10" x2="53" y2="30" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" />
+  <!-- Text: ReadAssist using Outfit / Instrument Sans / Inter (Clean Modern Sans-Serif) -->
+  <text x="61" y="27" font-family="'Outfit', 'Instrument Sans', 'Inter', system-ui, sans-serif" font-weight="700" font-size="20" fill="#ffffff" letter-spacing="-0.4">Read<tspan fill="#7c3aed">Assist</tspan></text>
+</svg>
