@@ -191,52 +191,57 @@
 
         /* Navbar style */
         .navbar {
-            background-color: #121316 !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+            background: rgba(18, 24, 42, 0.95) !important;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
+            box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.05), 0 14px 30px rgba(0, 0, 0, 0.25) !important;
+            backdrop-filter: saturate(180%) blur(8px);
         }
 
         .navbar .menu-horizontal > li > a {
             padding: 0 !important;
         }
         .navbar .menu-horizontal {
-            gap: 0.25rem !important;
+            gap: 0.35rem !important;
         }
 
-        /* Clean nav buttons */
+        /* Natural nav buttons */
         .nav-btn {
             position: relative;
             display: flex !important;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.45rem 0.85rem !important;
-            border-radius: 6px !important;
-            font-size: 0.82rem;
+            padding: 0.5rem 0.95rem !important;
+            border-radius: 9999px !important;
+            font-size: 0.88rem;
             font-weight: 500;
-            color: var(--text-secondary) !important;
-            background: transparent;
-            border: 1px solid transparent;
-            transition: all 0.15s ease !important;
+            color: #d7dae0 !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid transparent !important;
+            transition: all 0.18s ease !important;
             text-decoration: none;
             cursor: pointer;
         }
         .nav-btn:hover {
             color: #fff !important;
-            background: rgba(255, 255, 255, 0.05) !important;
+            background: rgba(99, 102, 241, 0.14) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12) !important;
         }
         .nav-btn.active {
             color: #fff !important;
-            background: rgba(255, 255, 255, 0.07) !important;
-            border-color: rgba(255, 255, 255, 0.08) !important;
+            background: rgba(139, 92, 246, 0.2) !important;
+            border-color: rgba(139, 92, 246, 0.18) !important;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 18px rgba(15, 23, 42, 0.14) !important;
         }
         .nav-btn .nav-btn-icon {
             width: 16px;
             height: 16px;
             flex-shrink: 0;
-            opacity: 0.7;
+            opacity: 0.85;
+            color: currentColor;
         }
         .nav-btn:hover .nav-btn-icon {
-            opacity: 0.95;
+            opacity: 1;
         }
     </style>
 </head>
@@ -245,7 +250,13 @@
     <nav class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
         <div class="navbar-start gap-2">
             <a href="/" class="flex items-center no-underline transition-transform hover:scale-[1.02]">
-                <img src="/logo-horizontal.svg" alt="ReadAssist Logo" class="h-9 w-auto">
+                <img
+                    src="{{ asset('logo-horizontal.svg') }}"
+                    alt="ReadAssist Logo"
+                    class="h-16 w-auto md:h-20 lg:h-24"
+                    width="256"
+                    height="128"
+                >
             </a>
         </div>
 

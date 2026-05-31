@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class TunnelStartCommand extends Command
 {
-    protected $signature = 'tunnel:start';
+    protected $signature = 'tunnel:start|start:tunnel';
     protected $description = 'Mulai SSH tunnel (localhost.run) agar QR bisa discan dari jaringan luar';
 
     public function handle(TunnelService $tunnel): void
@@ -34,6 +34,15 @@ class TunnelStartCommand extends Command
         } else {
             $this->error('❌ Gagal membuat tunnel. Pastikan SSH sudah terinstall.');
             $this->line('');
+            $errFile = storage_path('app/tunnel_err.txt');
+            if (file_exists($errFile)) {
+                $errorOutput = trim(file_get_contents($errFile));
+                if ($errorOutput !== '') {
+                    $this->line('Detail error:');
+                    $this->line($errorOutput);
+                    $this->line('');
+                }
+            }
             $this->line('Coba manual: ssh -o StrictHostKeyChecking=no -R 80:127.0.0.1:' . $port . ' nokey@localhost.run');
         }
     }

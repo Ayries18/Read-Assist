@@ -8,18 +8,19 @@ use Symfony\Component\Console\Attribute\AsCommand;
 #[AsCommand(name: 'serve')]
 class ServeCommand extends BaseServeCommand
 {
+    protected $name = 'serve';
+
     /**
      * Override host agar bind ke 0.0.0.0 supaya bisa diakses dari perangkat lain di jaringan LAN
      * (misal HP saat scan QR code).
      */
-    protected function host(): string
+    protected $description = 'Serve the application on the PHP development server (LAN-aware)';
+
+    protected function host()
     {
         return '0.0.0.0';
     }
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         // 1. Ambil port dan host yang akan digunakan

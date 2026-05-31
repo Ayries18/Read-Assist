@@ -142,11 +142,6 @@ class AudioBukuController extends Controller
 
         $this->generateQrFile($book);
 
-        if (!session()->has('auth_role')) {
-            session(['qr_restricted_token' => $book->qr_token]);
-            return redirect()->route('audio-books.play', ['slug' => $book->qr_token]);
-        }
-
         $qrUrl = $this->buildQrUrl($book);
         $qrFile = 'qr/qr-book-' . $book->id . '.svg';
         $qrFileExists = Storage::disk('public')->exists($qrFile);
