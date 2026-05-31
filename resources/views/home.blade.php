@@ -29,18 +29,18 @@
                 </div>
 
                 <!-- Service Stats -->
-                <div class="grid grid-cols-3 gap-6 mt-8 border-t border-white/10 pt-8">
+                <div class="grid grid-cols-3 gap-3 sm:gap-6 mt-8 border-t border-white/10 pt-8">
                     <div class="flex flex-col gap-1">
-                        <span class="text-4xl font-extrabold text-white">{{ $bookCount }}</span>
-                        <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Buku Terdaftar</span>
+                        <span class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">{{ $bookCount }}</span>
+                        <span class="text-[0.6rem] sm:text-xs text-slate-400 font-semibold uppercase tracking-wider">Buku Terdaftar</span>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <span class="text-4xl font-extrabold text-white">{{ $charCount }}</span>
-                        <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Karakter</span>
+                        <span class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">{{ $charCount }}</span>
+                        <span class="text-[0.6rem] sm:text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Karakter</span>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <span class="text-4xl font-extrabold text-white">{{ $readDuration }}</span>
-                        <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Estimasi Bacaan</span>
+                        <span class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">{{ $readDuration }}</span>
+                        <span class="text-[0.6rem] sm:text-xs text-slate-400 font-semibold uppercase tracking-wider">Estimasi Bacaan</span>
                     </div>
                 </div>
             </div>

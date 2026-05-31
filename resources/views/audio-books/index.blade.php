@@ -15,19 +15,39 @@
     </div>
 
     <!-- Search & Filter Form -->
-    <div class="card border shadow-sm p-6 mb-8" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
-        <form method="GET" action="/katalog-audio" class="flex gap-4 items-center flex-wrap">
-            <div class="flex-1 min-w-[200px] relative">
+    <div class="card border shadow-sm p-4 sm:p-6 mb-8" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+        <form method="GET" action="/katalog-audio" class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center flex-wrap">
+            <div class="flex-1 min-w-0 sm:min-w-[200px] relative">
                 <input
                     type="text"
                     id="search"
                     name="search"
                     class="input input-bordered w-full bg-base-300/60 text-white placeholder:text-slate-500 pl-10"
                     value="{{ $search ?? '' }}"
-                    placeholder="Cari judul, penulis, atau kategori..."
+                    placeholder="Cari judul, penulis..."
                 >
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">Cari</span>
             </div>
+            <div class="flex gap-3 flex-wrap sm:flex-nowrap">
+                <select name="category" class="select select-bordered bg-base-300/60 text-white min-w-0 sm:min-w-[130px] flex-1 sm:flex-none">
+                    <option value="">Semua</option>
+                    @foreach ($categories as $cat)
+                        <option value="{{ $cat }}" @selected(($selectedCategory ?? '') === $cat)>{{ $cat }}</option>
+                    @endforeach
+                </select>
+                <select name="sort" class="select select-bordered bg-base-300/60 text-white min-w-0 sm:min-w-[120px] flex-1 sm:flex-none">
+                    <option value="terbaru" @selected(($sort ?? '') === 'terbaru' || ($sort ?? 'terbaru') === 'terbaru')>Terbaru</option>
+                    <option value="terlama" @selected(($sort ?? '') === 'terlama')>Terlama</option>
+                    <option value="judul" @selected(($sort ?? '') === 'judul')>A-Z</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm px-5">Cari</button>
+
+            @if (!empty($search) || !empty($selectedCategory) || ($sort ?? '') !== 'terbaru')
+                <a href="/katalog-audio" class="btn btn-ghost btn-sm">Reset</a>
+            @endif
+        </form>
+    </div>
             <select name="category" class="select select-bordered bg-base-300/60 text-white min-w-[140px]">
                 <option value="">Semua Kategori</option>
                 @foreach ($categories as $cat)
@@ -48,9 +68,9 @@
     </div>
 
     <!-- Books Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
         @forelse ($audioBooks as $book)
-            <div class="card border shadow-sm p-6 flex flex-col justify-between" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+            <div class="card border shadow-sm p-4 sm:p-6 flex flex-col justify-between" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
                 <div>
                     <!-- Book Cover -->
                     <div class="book-cover-wrapper">
