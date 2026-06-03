@@ -10,6 +10,7 @@
         "guzzlehttp/guzzle": "^7.10",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
+        "sebastian/version": "6.0.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "symfony/process": "^8.0"
     },

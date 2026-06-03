@@ -11,8 +11,8 @@
                         Platform Aksesibilitas Buku
                     </span>
                 </div>
-                <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight text-white tracking-tight m-0">
-                    Jembatan Audio untuk <br><span class="text-gradient">Membaca Buku Fisik</span>
+                <h1 class="text-3xl sm:text-5xl font-extrabold leading-tight text-white tracking-tight m-0">
+                    Jembatan Audio untuk <br class="hidden sm:block"><span class="text-gradient">Membaca Buku Fisik</span>
                 </h1>
                 <p class="text-base text-slate-400 leading-relaxed max-w-xl m-0">
                     Read-Assist mendampingi penyandang tunanetra untuk membaca buku cetak secara mandiri. Cukup pindai label QR unik yang ditempel pada buku fisik untuk mendengarkan pembacaan teks otomatis langsung dari smartphone Anda.

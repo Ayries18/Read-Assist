@@ -195,6 +195,13 @@
             border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
             box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.05), 0 14px 30px rgba(0, 0, 0, 0.25) !important;
             backdrop-filter: saturate(180%) blur(8px);
+            min-height: 3rem !important;
+        }
+        @media (max-width: 640px) {
+            .navbar { min-height: 2.5rem !important; padding-top: 0.15rem !important; padding-bottom: 0.15rem !important; }
+            .navbar .navbar-start { gap: 0.15rem !important; }
+            .nav-icon-btn { font-size: 0.9rem !important; padding: 0.2rem !important; }
+            .navbar-end { gap: 0.2rem !important; }
         }
 
         .navbar .menu-horizontal > li > a {
@@ -204,15 +211,83 @@
             gap: 0.35rem !important;
         }
 
+        /* Mobile drawer overlay */
+        .mobile-drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            backdrop-filter: blur(4px);
+        }
+        .mobile-drawer-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100vh;
+            background: #0d0e12;
+            border-left: 1px solid rgba(255,255,255,0.06);
+            z-index: 999;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: -8px 0 30px rgba(0,0,0,0.5);
+        }
+        .mobile-drawer.open { right: 0; }
+        .mobile-drawer-close {
+            align-self: flex-end;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mobile-drawer-close:hover { color: #fff; background: rgba(255,255,255,0.06); }
+        .mobile-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.15s ease;
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+        .mobile-nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .mobile-nav-btn.active { background: rgba(139,92,246,0.12); color: #fff; }
+        .mobile-nav-btn-icon { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.7; }
+        .mobile-nav-btn:hover .mobile-nav-btn-icon { opacity: 1; }
+        .mobile-drawer-divider {
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 0.5rem 0;
+        }
+
         /* Natural nav buttons */
         .nav-btn {
             position: relative;
             display: flex !important;
             align-items: center;
-            gap: 0.4rem;
-            padding: 0.5rem 0.95rem !important;
+            gap: 0.35rem;
+            padding: 0.35rem 0.8rem !important;
             border-radius: 9999px !important;
-            font-size: 0.88rem;
+            font-size: 0.82rem;
             font-weight: 500;
             color: #d7dae0 !important;
             background: rgba(255, 255, 255, 0.04) !important;
@@ -248,12 +323,12 @@
 <body>
     @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
     <nav class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
-        <div class="navbar-start gap-2">
+        <div class="navbar-start gap-1 sm:gap-2">
             <a href="/" class="flex items-center no-underline transition-transform hover:scale-[1.02]">
                 <img
                     src="{{ asset('logo-horizontal.svg') }}"
                     alt="ReadAssist Logo"
-                    class="h-16 w-auto md:h-20 lg:h-24"
+                    class="h-7 w-auto sm:h-10 md:h-16 lg:h-20"
                     width="256"
                     height="128"
                 >
@@ -311,6 +386,11 @@
         </div>
 
         <div class="navbar-end gap-2">
+                <!-- Mobile Hamburger -->
+                <button class="nav-icon-btn lg:hidden" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+
                 <div class="nav-accessibility-wrapper accessibility-nav-wrapper">
                     <button class="nav-icon-btn accessibility-nav-trigger" onclick="toggleAccessibilityDropdown(event)" title="Opsi Aksesibilitas" aria-label="Buka opsi aksesibilitas" aria-controls="accessibility-dropdown" aria-expanded="false">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h2"/><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 0 1 4-4"/></svg>
@@ -424,6 +504,84 @@
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="toggleMobileDrawer()"></div>
+    <div id="mobile-drawer" class="mobile-drawer">
+        <button class="mobile-drawer-close" onclick="toggleMobileDrawer()" aria-label="Tutup menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        @if (session('auth_role'))
+            <div style="display:flex; align-items:center; gap:0.75rem; padding:0.5rem 1rem; margin-bottom:0.5rem;">
+                <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1rem;flex-shrink:0;">
+                    {{ strtoupper(substr(session('auth_name'), 0, 1)) }}
+                </div>
+                <div style="overflow:hidden;">
+                    <div style="font-weight:700;color:#fff;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ session('auth_name') }}</div>
+                    <div style="font-size:0.7rem;color:var(--accent-primary);font-weight:bold;text-transform:uppercase;">{{ session('auth_role') }}</div>
+                </div>
+            </div>
+            <hr class="mobile-drawer-divider">
+        @endif
+
+        <a href="/" class="mobile-nav-btn {{ request()->is('/') ? 'active' : '' }}">
+            <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+            Beranda
+        </a>
+        <a href="/katalog-audio" class="mobile-nav-btn {{ request()->is('katalog-audio') ? 'active' : '' }}">
+            <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
+            Katalog Buku
+        </a>
+        @if (session('auth_role') === 'admin')
+            <a href="/katalog-audio/tambah" class="mobile-nav-btn {{ request()->is('katalog-audio/tambah') ? 'active' : '' }}">
+                <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                Tambah Buku
+            </a>
+            <a href="/admin/dashboard" class="mobile-nav-btn {{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
+                Dashboard Admin
+            </a>
+        @elseif (session('auth_role') === 'user')
+            <a href="/user/tambah-buku" class="mobile-nav-btn {{ request()->is('user/tambah-buku') ? 'active' : '' }}">
+                <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                Tambah Buku
+            </a>
+            <a href="/user/dashboard" class="mobile-nav-btn {{ request()->is('user/dashboard') ? 'active' : '' }}">
+                <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
+                Dashboard User
+            </a>
+        @endif
+        <a href="/read-assist" class="mobile-nav-btn {{ request()->is('read-assist') || request()->is('read-assist*') ? 'active' : '' }}">
+            <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+            Read Assist
+        </a>
+
+        @if (!session('auth_role'))
+            <hr class="mobile-drawer-divider">
+            <a href="/login" class="mobile-nav-btn" style="color:var(--accent-primary);font-weight:600;">
+                <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
+                Login
+            </a>
+            <a href="/register" class="mobile-nav-btn" style="color:var(--accent-primary);font-weight:600;">
+                <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                Daftar
+            </a>
+        @else
+            <hr class="mobile-drawer-divider">
+            <a href="/profile" class="mobile-nav-btn {{ request()->is('profile') ? 'active' : '' }}">
+                <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+                Profil Saya
+            </a>
+            <form method="POST" action="/logout" style="margin:0;">
+                @csrf
+                <button type="submit" class="mobile-nav-btn" style="color:var(--accent-danger);width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+                    <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/></svg>
+                    Keluar (Logout)
+                </button>
+            </form>
+        @endif
+    </div>
     @endif
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
@@ -538,6 +696,16 @@
             }
         }
 
+        // Mobile drawer toggle
+        function toggleMobileDrawer() {
+            const drawer = document.getElementById('mobile-drawer');
+            const overlay = document.getElementById('mobile-drawer-overlay');
+            if (!drawer || !overlay) return;
+            const isOpen = drawer.classList.contains('open');
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('open');
+            document.body.style.overflow = isOpen ? '' : 'hidden';
+        }
 
         // Close dropdowns on clicking anywhere outside
         document.addEventListener('click', function(e) {
