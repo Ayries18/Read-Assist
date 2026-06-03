@@ -195,13 +195,29 @@
             border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
             box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.05), 0 14px 30px rgba(0, 0, 0, 0.25) !important;
             backdrop-filter: saturate(180%) blur(8px);
-            min-height: 3rem !important;
+            min-height: 72px !important;
+        }
+        .logo-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-height: 48px;
+            overflow: hidden;
+        }
+        .logo-navbar img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+        @media (max-width: 1024px) {
+            .logo-navbar img { height: 32px; }
         }
         @media (max-width: 640px) {
-            .navbar { min-height: 2.5rem !important; padding-top: 0.15rem !important; padding-bottom: 0.15rem !important; }
+            .navbar { min-height: 60px !important; padding-top: 0.15rem !important; padding-bottom: 0.15rem !important; }
             .navbar .navbar-start { gap: 0.15rem !important; }
             .nav-icon-btn { font-size: 0.9rem !important; padding: 0.2rem !important; }
             .navbar-end { gap: 0.2rem !important; }
+            .logo-navbar img { height: 28px; }
         }
 
         .navbar .menu-horizontal > li > a {
@@ -324,11 +340,10 @@
     @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
     <nav class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
         <div class="navbar-start gap-1 sm:gap-2">
-            <a href="/" class="flex items-center no-underline transition-transform hover:scale-[1.02]">
+            <a href="/" class="logo-navbar no-underline transition-transform hover:scale-[1.02]">
                 <img
                     src="{{ asset('logo-horizontal.svg') }}"
                     alt="ReadAssist Logo"
-                    class="h-7 w-auto sm:h-10 md:h-16 lg:h-20"
                     width="256"
                     height="128"
                 >
