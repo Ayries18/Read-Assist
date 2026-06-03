@@ -634,29 +634,3 @@ body.accessibility-high-contrast .accessibility-size-btn.is-active {
     outline: none !important;
     box-shadow: none !important;
 }
-
-/* Touch-friendly mobile improvements */
-@media (max-width: 640px) {
-    .book-cover-wrapper {
-        height: 140px !important;
-    }
-    .book-cover-placeholder-title {
-        font-size: 0.8rem !important;
-    }
-    h1.text-gradient {
-        font-size: 1.75rem !important;
-        line-height: 1.2 !important;
-    }
-    .simulation-widget-container {
-        padding: 1rem !important;
-    }
-    .card-title {
-        font-size: 1rem !important;
-    }
-    .navbar .avatar-btn .nav-user-name-text {
-        display: none !important;
-    }
-    .navbar .avatar-btn > span:last-child {
-        display: none !important;
-    }
-}

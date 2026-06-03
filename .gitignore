@@ -28,5 +28,3 @@ Thumbs.db
 /database/database.sqlite
 /storage/app/tunnel_*
 ip_output.txt
-AGENTS*.md
-/.opencode/
