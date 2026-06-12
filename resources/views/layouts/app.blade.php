@@ -201,23 +201,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            max-height: 48px;
+            max-height: 56px;
             overflow: hidden;
         }
         .logo-navbar img {
-            height: 40px;
+            height: 48px;
             width: auto;
             object-fit: contain;
         }
         @media (max-width: 1024px) {
-            .logo-navbar img { height: 32px; }
+            .logo-navbar img { height: 38px; }
         }
         @media (max-width: 640px) {
             .navbar { min-height: 60px !important; padding-top: 0.15rem !important; padding-bottom: 0.15rem !important; }
             .navbar .navbar-start { gap: 0.15rem !important; }
             .nav-icon-btn { font-size: 0.9rem !important; padding: 0.2rem !important; }
             .navbar-end { gap: 0.2rem !important; }
-            .logo-navbar img { height: 28px; }
+            .logo-navbar img { height: 32px; }
         }
 
         .navbar .menu-horizontal > li > a {
