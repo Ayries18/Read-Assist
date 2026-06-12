@@ -11,8 +11,11 @@
     $serverOrigin = rtrim($host, '/');
 @endphp
 @if (\App\Http\Controllers\AudioBukuController::isLocalUrl($serverOrigin))
-    <div class="alert alert-warning shadow-lg mb-6 text-sm" role="alert">
-        ⚠️ QR tidak akan dapat diakses dari jaringan berbeda. Server menggunakan alamat lokal (<strong>{{ $serverOrigin }}</strong>). Aktifkan tunnel (php artisan tunnel:start) untuk akses publik.
+    <div class="alert alert-warning shadow-lg mb-6 text-sm flex justify-between items-center cursor-pointer" role="alert" onclick="this.remove();" title="Klik untuk menutup" style="cursor: pointer;">
+        <div>
+            ⚠️ QR tidak akan dapat diakses dari jaringan berbeda. Server menggunakan alamat lokal (<strong>{{ $serverOrigin }}</strong>). Aktifkan tunnel (php artisan tunnel:start) untuk akses publik.
+        </div>
+        <div class="text-xs opacity-75 font-semibold border border-current px-2 py-0.5 rounded cursor-pointer hover:bg-black/10">Tutup</div>
     </div>
 @endif
     <div style="max-width: 800px; margin: 0 auto;">
