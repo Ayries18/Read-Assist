@@ -5,7 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>QR Tidak Valid - Read Assist</title>
     <meta name="theme-color" content="#081028">
-    @vite(['resources/css/app.css'])
+    @php
+        $hasBuild = file_exists(public_path('build/manifest.json'));
+        $hasHot = file_exists(public_path('hot'));
+        if ($hasBuild) {
+            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
+        }
+        $isMobile = (bool) preg_match('/(android|iphone|ipad|mobile|phone)/i', request()->header('User-Agent', ''));
+        $isLocalHost = in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'], true);
+        $useBuild = $hasBuild && (!$hasHot || !$isLocalHost || $isMobile);
+    @endphp
+    @if ($useBuild)
+        <link rel="stylesheet" href="{{ asset('build/' . ($manifest['resources/css/app.css']['file'] ?? 'assets/app-B9pJSmzU.css')) }}">
+    @else
+        @vite(['resources/css/app.css'])
+    @endif
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {

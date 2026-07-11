@@ -439,42 +439,54 @@ class AudioBukuController extends Controller
     {
         $baseUrl = null;
 
-        // Priority 1: Check if config('app.url') is a public tunnel URL
-        $configUrl = config('app.url');
-        if ($configUrl && !self::isLocalUrl($configUrl)) {
-            $baseUrl = rtrim($configUrl, '/');
-        }
-
-        // Priority 2: Check if a tunnel (localhost.run or ngrok) is active
-        if (!$baseUrl) {
-            try {
-                $tunnelService = app(\App\Services\TunnelService::class);
-                $tunnelUrl = $tunnelService->getStoredUrl();
-                if ($tunnelUrl) {
-                    $baseUrl = rtrim($tunnelUrl, '/');
-                }
-            } catch (\Exception $e) {
-                // Fallback if TunnelService is not available
+        // Priority 1: Prefer an active tunnel URL if available.
+        try {
+            $tunnelService = app(\App\Services\TunnelService::class);
+            $tunnelUrl = $tunnelService->getStoredUrl();
+            if ($tunnelUrl) {
+                $baseUrl = rtrim($tunnelUrl, '/');
             }
+        } catch (\Exception $e) {
+            // Fallback if TunnelService is not available
         }
 
-        // Priority 3: Use current request host
-        if (!$baseUrl) {
-            $baseUrl = request() ? request()->getSchemeAndHttpHost() : rtrim(config('app.url'), '/');
-            
-            // Priority 4: If viewing locally on 127.0.0.1/localhost, convert to Wi-Fi IP
-            if (self::isLocalUrl($baseUrl)) {
-                $host = parse_url($baseUrl, PHP_URL_HOST);
-                if ($host === 'localhost' || $host === '127.0.0.1' || $host === '::1') {
-                    $detectedIp = self::getDetectedIp();
-                    $port = parse_url($baseUrl, PHP_URL_PORT);
-                    $portSuffix = $port ? ":{$port}" : '';
-                    $baseUrl = "http://{$detectedIp}{$portSuffix}";
+        // Priority 2: Use current request host if it's accessed via LAN IP or public domain
+        if (!$baseUrl && request()) {
+            $host = request()->getHost();
+            // If the request host is not localhost, 127.0.0.1, or ::1, we can use it directly!
+            // This allows LAN IPs like 192.168.x.x to be used so that devices on the same Wi-Fi can connect.
+            if (!in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+                $baseUrl = request()->getSchemeAndHttpHost();
+            } else {
+                // If it is localhost, detect the LAN IP of this computer and use it with the request port
+                $detectedIp = self::getDetectedIp();
+                if ($detectedIp && $detectedIp !== '127.0.0.1') {
+                    $port = request()->getPort();
+                    $portStr = ($port && $port != 80 && $port != 443) ? ":{$port}" : '';
+                    $baseUrl = "http://{$detectedIp}{$portStr}";
                 }
             }
         }
 
-        // Force HTTPS for any public/tunnel URL to ensure Web Speech API secure context
+        // Priority 3: Check if config('app.url') is a public URL (excluding localhost/stale lhr.life/localhost.run URLs when tunnel is not running)
+        if (!$baseUrl) {
+            $configUrl = config('app.url');
+            if ($configUrl && !self::isLocalUrl($configUrl)) {
+                // Only use config('app.url') if it's not a stale/expired tunnel URL
+                if (!preg_match('/\.(?:lhr\.life|localhost\.run)/', $configUrl)) {
+                    $baseUrl = rtrim($configUrl, '/');
+                }
+            }
+        }
+
+        // Ultimate fallback
+        if (!$baseUrl) {
+            $baseUrl = rtrim(config('app.url'), '/');
+        }
+
+        // Force HTTPS for any public/tunnel URL to ensure Web Speech API secure context.
+        // We do not force HTTPS for local/private network IPs (like 192.168.x.x or localhost)
+        // because they do not have valid SSL certificates locally and force-redirecting to HTTPS would break them.
         if ($baseUrl && !self::isLocalUrl($baseUrl)) {
             $baseUrl = preg_replace('/^http:/i', 'https:', $baseUrl);
         }

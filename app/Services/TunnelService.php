@@ -10,6 +10,8 @@ class TunnelService
     protected string $pidFile;
     protected int $port;
     protected string $sshPath;
+    protected $process;
+    protected array $pipes = [];
 
     public function __construct()
     {
@@ -31,38 +33,86 @@ class TunnelService
 
         $errFile = storage_path('app/tunnel_err.txt');
 
-        $psCommand = sprintf(
-            "Start-Process -NoNewWindow -PassThru -FilePath '%s' -ArgumentList '-o', 'StrictHostKeyChecking=no', '-o', 'ServerAliveInterval=30', '-R', '80:127.0.0.1:%d', 'nokey@localhost.run' -RedirectStandardOutput '%s' -RedirectStandardError '%s' | Select-Object -ExpandProperty Id",
+        // Pastikan file temporary dibersihkan dulu
+        @unlink($this->urlFile);
+        @unlink($errFile);
+
+        // Gunakan path absolut ssh yang terdeteksi
+        $cmd = sprintf(
+            '"%s" -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R 80:127.0.0.1:%d nokey@localhost.run',
             $this->sshPath,
-            $this->port,
-            $this->urlFile,
-            $errFile
+            $this->port
         );
 
-        $pid = shell_exec("powershell -NoProfile -Command \"{$psCommand}\"");
-        $pid = preg_replace('/\D/', '', $pid ?? '');
+        $descriptorspec = [
+            0 => ['pipe', 'r'],                  // stdin
+            1 => ['pipe', 'w'],                  // stdout (pipe untuk menghindari buffering file OS)
+            2 => ['file', $errFile, 'w']         // stderr
+        ];
 
-        if ($pid && is_numeric($pid)) {
-            file_put_contents($this->pidFile, $pid);
-        } else {
-            $errorOutput = file_exists($errFile) ? trim(file_get_contents($errFile)) : '';
-            Log::error('SSH tunnel failed to start', [
-                'pid' => $pid,
-                'error' => $errorOutput,
-                'port' => $this->port,
-            ]);
+        // bypass_shell sangat penting di Windows agar memanggil executable secara langsung tanpa dibungkus cmd.exe
+        $options = [];
+        if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+            $options = ['bypass_shell' => true];
         }
 
-        for ($i = 0; $i < 50; $i++) {
+        $process = proc_open($cmd, $descriptorspec, $pipes, null, null, $options);
+
+        if (is_resource($process)) {
+            $status = proc_get_status($process);
+            $pid = $status['pid'];
+            $this->process = $process;
+            $this->pipes = $pipes;
+            file_put_contents($this->pidFile, $pid);
+        } else {
+            Log::error('SSH tunnel failed to start via proc_open');
+            return null;
+        }
+
+        // Set pipe stdout agar non-blocking agar pembacaan fgets/fread tidak menahan eksekusi
+        stream_set_blocking($pipes[1], false);
+
+        $stdoutAccumulator = '';
+        $detectedUrl = null;
+
+        // Loop pengecekan URL publik hingga 30 detik (150 * 200ms)
+        for ($i = 0; $i < 150; $i++) {
             usleep(200000);
-            $url = $this->getUrl();
-            if ($url !== null) {
-                @unlink($errFile);
-                return $url;
+
+            // Baca output real-time dari stream
+            $data = fread($pipes[1], 8192);
+            if ($data !== false && $data !== '') {
+                $stdoutAccumulator .= $data;
+
+                $content = $stdoutAccumulator;
+                if (str_contains($content, "\0")) {
+                    $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
+                }
+
+                // Coba cocokkan URL tunnel subdomain dari output yang terkumpul
+                if (preg_match('/https:\/\/[a-zA-Z0-9\-]+\.(?:lhr\.life|localhost\.run)/', $content, $match)) {
+                    $detectedUrl = $match[0];
+                    break;
+                }
+            }
+
+            // Jika proses SSH ternyata sudah mati di tengah jalan, hentikan loop
+            $status = proc_get_status($process);
+            if (!$status['running']) {
+                break;
             }
         }
 
-        @unlink($errFile);
+        if ($detectedUrl) {
+            // Tulis URL ke file agar bisa diakses oleh request web lain
+            file_put_contents($this->urlFile, $detectedUrl);
+            @unlink($errFile);
+            return $detectedUrl;
+        }
+
+        // Jika gagal mendapatkan URL setelah 30 detik, stop tunnel agar proses tidak menggantung,
+        // tapi JANGAN hapus $errFile agar command bisa menampilkan detail errornya kepada user.
+        $this->stop();
         return null;
     }
 
@@ -73,7 +123,20 @@ class TunnelService
             shell_exec("taskkill /PID {$pid} /F 2>NUL");
         }
 
-        shell_exec('taskkill /F /FI "WINDOWTITLE eq ssh*" /IM ssh.exe 2>NUL');
+        // Paksa matikan semua ssh.exe di Windows untuk mencegah proses yatim (orphan)
+        shell_exec('taskkill /F /IM ssh.exe 2>NUL');
+
+        foreach ($this->pipes as $pipe) {
+            if (is_resource($pipe)) {
+                @fclose($pipe);
+            }
+        }
+        $this->pipes = [];
+
+        if (is_resource($this->process)) {
+            @proc_close($this->process);
+            $this->process = null;
+        }
 
         @unlink($this->pidFile);
         @unlink($this->urlFile);
@@ -94,7 +157,9 @@ class TunnelService
             $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16');
         }
 
-        if (preg_match_all('/https:\/\/[a-zA-Z0-9\-\.]+(?:\.lhr\.life|\.localhost\.run)/', $content, $matches)) {
+        // Hanya cocokkan URL dengan subdomain aktif (misal xxxx.lhr.life atau xxxx.localhost.run)
+        // Mengecualikan URL dokumentasi localhost.run (karena tidak memiliki subdomain tambahan)
+        if (preg_match_all('/https:\/\/[a-zA-Z0-9\-]+\.(?:lhr\.life|localhost\.run)/', $content, $matches)) {
             return end($matches[0]);
         }
 
@@ -109,7 +174,13 @@ class TunnelService
         }
 
         $output = shell_exec("tasklist /NH /FI \"PID eq {$pid}\" 2>NUL");
-        return $output && stripos($output, 'ssh.exe') !== false;
+        if (!$output) {
+            return false;
+        }
+
+        // Jika proses sudah mati, tasklist Windows akan mengembalikan pesan berawalan "INFO:" (misal: "INFO: No tasks..." atau "INFO: Tidak ada tugas...")
+        // Jadi jika tidak ada kata "INFO:", berarti proses tersebut masih berjalan aktif.
+        return strpos($output, 'INFO:') === false;
     }
 
     public function getPid(): ?string
@@ -154,12 +225,6 @@ class TunnelService
         $ngrokUrl = $this->getNgrokUrl();
         if ($ngrokUrl) {
             return $ngrokUrl;
-        }
-
-        // Secondary fallback: if the tunnel file still exists and contains a URL, use it
-        $url = $this->getUrl();
-        if ($url) {
-            return $url;
         }
 
         return null;

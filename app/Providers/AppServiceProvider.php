@@ -17,32 +17,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
-            // 1. Detect public URL from tunnel (if already running)
+            // 1. Detect public URL from tunnel or request host (if already running)
             $publicUrl = $this->detectPublicUrl();
 
-            if ($publicUrl) {
-                $targetAppUrl = $publicUrl;
-            } elseif (!app()->runningInConsole()) {
-                $detectedIp = \App\Http\Controllers\AudioBukuController::getDetectedIp();
-                $targetAppUrl = "http://{$detectedIp}:8000";
-                \Illuminate\Support\Facades\Cache::put('app_url_fallback', $targetAppUrl, 60);
-            } else {
+            if (!$publicUrl) {
+                // Do not auto-fallback to a local IP address. Local network URLs should not overwrite
+                // APP_URL because they break QR scanning from external devices.
                 return;
             }
 
-            $envPath = base_path('.env');
-            if (!file_exists($envPath)) return;
-
-            $envContent = file_get_contents($envPath);
-            if (!preg_match('/^APP_URL=(.*)$/m', $envContent, $matches)) return;
-
-            $currentAppUrl = trim($matches[1]);
-            if ($currentAppUrl === $targetAppUrl) return;
-
-            $envContent = preg_replace('/^APP_URL=.*$/m', "APP_URL={$targetAppUrl}", $envContent);
-            file_put_contents($envPath, $envContent);
-
+            $targetAppUrl = $publicUrl;
             config(['app.url' => $targetAppUrl]);
+
+            // Avoid writing to .env on Windows since that can cause app restarts or permission issues.
+            // Use the dynamic runtime URL only for QR generation during the current request.
 
             // Only regenerate QR codes, skip heavy cache clears
             $books = \App\Models\AudioBuku::all();

@@ -17,6 +17,14 @@ class TunnelStartCommand extends Command
         if ($tunnel->isRunning()) {
             $url = $tunnel->getUrl();
             $this->warn("Tunnel sudah berjalan: {$url}");
+
+            if ($url) {
+                config(['app.url' => $url]);
+                $this->info('🔄 Regenerasi QR code untuk tunnel yang sudah aktif...');
+                $this->call('qr:regenerate');
+                $this->info('✅ QR code berhasil diregenerate menggunakan URL tunnel saat ini.');
+            }
+
             return;
         }
 
@@ -30,24 +38,28 @@ class TunnelStartCommand extends Command
             $this->line("   {$url}");
             $this->newLine();
 
-            // Update .env file and application configuration
-            $envPath = base_path('.env');
-            if (file_exists($envPath)) {
-                $envContent = file_get_contents($envPath);
-                if (preg_match('/^APP_URL=(.*)$/m', $envContent)) {
-                    $envContent = preg_replace('/^APP_URL=.*$/m', "APP_URL={$url}", $envContent);
-                    file_put_contents($envPath, $envContent);
-                }
-            }
+            // Jangan update file .env secara fisik untuk menghindari crash restart otomatis pada Windows (php artisan serve).
+            // Kita cukup melakukan set config secara in-memory agar perintah internal (seperti qr:regenerate) mendeteksi URL tunnel.
+            // Sistem akan mendeteksi URL tunnel secara dinamis melalui TunnelService.
             config(['app.url' => $url]);
 
-            $this->info("🔄 Mengubah APP_URL di .env menjadi: {$url}");
+            $this->info("🔄 Menggunakan URL tunnel (in-memory config): {$url}");
 
             // Regenerate all QR codes immediately
             $this->call('qr:regenerate');
 
             $this->newLine();
-            $this->line("Tunnel akan tetap berjalan sampai dihentikan (tunnel:stop).");
+            $this->line("Tunnel akan tetap berjalan sampai dihentikan (Tekan Ctrl+C untuk keluar).");
+
+            // Registrasi shutdown function untuk mematikan tunnel saat script selesai/Ctrl+C
+            register_shutdown_function(function () use ($tunnel) {
+                $tunnel->stop();
+            });
+
+            // Biarkan perintah berjalan di foreground memantau tunnel
+            while ($tunnel->isRunning()) {
+                sleep(1);
+            }
         } else {
             $this->error('❌ Gagal membuat tunnel. Pastikan SSH sudah terinstall.');
             $this->line('');

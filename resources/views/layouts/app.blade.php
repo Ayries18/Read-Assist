@@ -22,12 +22,17 @@
             $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
         }
         $isMobile = (bool) preg_match('/(android|iphone|ipad|mobile|phone)/i', request()->header('User-Agent', ''));
+        
+        // If accessed externally (not via localhost/127.0.0.1) or from a mobile device,
+        // we bypass the local Vite HMR server and directly load the compiled assets from the build directory.
+        $isLocalHost = in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'], true);
+        $useBuild = $hasBuild && (!$hasHot || !$isLocalHost || $isMobile);
     @endphp
-    @if ($hasBuild)
-        <link rel="stylesheet" href="{{ asset('build/' . ($manifest['resources/css/app.css']['file'] ?? 'assets/app.css')) }}">
-    @endif
-    @if ($hasHot || $hasBuild)
-        @vite(['resources/js/app.js'])
+    @if ($useBuild)
+        <link rel="stylesheet" href="{{ asset('build/' . ($manifest['resources/css/app.css']['file'] ?? 'assets/app-B9pJSmzU.css')) }}">
+        <script type="module" src="{{ asset('build/' . ($manifest['resources/js/app.js']['file'] ?? 'assets/app-34mOoJaZ.js')) }}"></script>
+    @else
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
     <style>
         /* Modern, minimal layout styling */
