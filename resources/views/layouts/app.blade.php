@@ -626,7 +626,7 @@
     </main>
 
     <footer style="text-align: center; padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-glass); background: rgba(0,0,0,0.2);">
-        <p style="margin: 0; font-size: 0.9rem;">&copy; {{ date('Y') }} Read Assist. Sistem Pendukung Belajar Mandiri untuk Tunanetra.</p>
+        <p style="margin: 0; font-size: 0.9rem;">&copy; {{ date('Y') }} Read Assist. Sistem Pendukung Belajar Mandiri untuk Penyandang Disabilitas Netra.</p>
     </footer>
 
     <div id="accessibility-widget" class="accessibility-widget">
