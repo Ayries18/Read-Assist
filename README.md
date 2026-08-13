@@ -1,6 +1,6 @@
 # Read-Assist
 
-Aplikasi layanan akses belajar mandiri berbasis web dengan fitur QR-Audio dan manajemen katalog audio buku untuk mendukung penyandang tunanetra.
+Aplikasi layanan akses belajar mandiri berbasis web dengan fitur QR-Audio dan manajemen katalog audio buku untuk mendukung penyandang disabilitas netra.
 
 Mahasiswa Teknologi Informasi  
 Muhammad Almuwarisin
