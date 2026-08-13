@@ -718,6 +718,7 @@
                 const willOpen = accDrop.style.display === 'none';
                 accDrop.style.display = willOpen ? 'flex' : 'none';
                 if (accTrigger) accTrigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+                speakText(willOpen ? "Menu opsi aksesibilitas dibuka." : "Menu opsi aksesibilitas ditutup.");
             }
         }
 
@@ -748,9 +749,11 @@
                 avatar.style.display = 'none';
             }
             if (!accBtn && accDrop) {
+                const wasOpen = accDrop.style.display !== 'none';
                 accDrop.style.display = 'none';
                 const accTrigger = document.querySelector('.accessibility-nav-trigger');
                 if (accTrigger) accTrigger.setAttribute('aria-expanded', 'false');
+                if (wasOpen) speakText("Menu opsi aksesibilitas ditutup.");
             }
         });
 
@@ -820,15 +823,17 @@
                 const willOpen = accMenu.style.display === 'none';
                 accMenu.style.display = willOpen ? 'flex' : 'none';
                 accToggleBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-                speakText("Menu opsi aksesibilitas dibuka.");
+                speakText(willOpen ? "Menu opsi aksesibilitas dibuka." : "Menu opsi aksesibilitas ditutup.");
             });
         }
 
         // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (accToggleBtn && !document.getElementById('accessibility-widget').contains(e.target)) {
+                const wasOpen = accMenu.style.display !== 'none';
                 accMenu.style.display = 'none';
                 accToggleBtn.setAttribute('aria-expanded', 'false');
+                if (wasOpen) speakText("Menu opsi aksesibilitas ditutup.");
             }
         });
 

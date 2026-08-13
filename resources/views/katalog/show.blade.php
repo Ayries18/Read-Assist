@@ -164,9 +164,15 @@
                                 <span class="text-sm text-slate-300">Status Audio:</span>
                                 <span id="audio-status-badge" class="badge badge-ghost badge-sm">Browser TTS</span>
                             </div>
-                            <div class="flex gap-4 justify-center">
+                            <div class="flex flex-wrap gap-4 justify-center items-center">
+                                <button id="btn-start-show" onclick="startTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm" title="Mulai dari Awal">
+                                    Mulai (Start)
+                                </button>
                                 <button id="btn-play-show" onclick="playTTS()" class="btn btn-primary btn-sm px-7 py-3 text-sm">
                                     Putar Suara (Play)
+                                </button>
+                                <button id="btn-pause-show" onclick="pauseTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm" style="display: none;">
+                                    Jeda (Pause)
                                 </button>
                                 <button id="btn-stop-show" onclick="stopTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm">
                                     Berhenti
@@ -276,6 +282,7 @@
         let chunks = [];
         let currentChunkIndex = 0;
         let isSpeaking = false;
+        let isPaused = false;
         let currentUtterance = null;
 
         function chunkString(str, maxLength) {
@@ -328,39 +335,116 @@
 
         const statusBadge = document.getElementById('audio-status-badge');
 
-        function playTTS() {
-            // Stop mini player if running
+        function updateAudioButtons() {
+            const playBtn = document.getElementById('btn-play-show');
+            const pauseBtn = document.getElementById('btn-pause-show');
+
+            if (isSpeaking && !isPaused) {
+                if (playBtn) playBtn.style.display = 'none';
+                if (pauseBtn) pauseBtn.style.display = 'inline-flex';
+            } else {
+                if (playBtn) {
+                    playBtn.style.display = 'inline-flex';
+                    playBtn.innerHTML = isPaused ? 'Lanjutkan (Play)' : 'Putar Suara (Play)';
+                }
+                if (pauseBtn) pauseBtn.style.display = 'none';
+            }
+        }
+
+        function startTTS() {
             if (typeof closeMiniPlayer === 'function') {
                 closeMiniPlayer();
             }
 
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
             window.speechSynthesis.resume();
             window.speechSynthesis.cancel();
-            
+
             const title = document.getElementById('book-title').innerText;
             const description = document.getElementById('book-description').innerText;
             chunks = getSpeechChunks(title, description);
             currentChunkIndex = 0;
             isSpeaking = true;
-            
+            isPaused = false;
+
             if (statusBadge) {
                 statusBadge.innerText = "Memulai...";
                 statusBadge.style.color = "var(--accent-primary)";
                 statusBadge.style.borderColor = "var(--accent-primary)";
                 statusBadge.style.background = "rgba(99, 102, 241, 0.15)";
             }
-            
+
             speakNext();
+            updateAudioButtons();
+        }
+
+        function playTTS() {
+            if (isSpeaking && !isPaused) return;
+
+            if (typeof closeMiniPlayer === 'function') {
+                closeMiniPlayer();
+            }
+
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
+            window.speechSynthesis.resume();
+            window.speechSynthesis.cancel();
+
+            if (chunks.length === 0) {
+                const title = document.getElementById('book-title').innerText;
+                const description = document.getElementById('book-description').innerText;
+                chunks = getSpeechChunks(title, description);
+            }
+
+            if (currentChunkIndex >= chunks.length) {
+                currentChunkIndex = 0;
+            }
+            isSpeaking = true;
+            isPaused = false;
+
+            if (statusBadge) {
+                statusBadge.innerText = "Memulai...";
+                statusBadge.style.color = "var(--accent-primary)";
+                statusBadge.style.borderColor = "var(--accent-primary)";
+                statusBadge.style.background = "rgba(99, 102, 241, 0.15)";
+            }
+
+            speakNext();
+            updateAudioButtons();
+        }
+
+        function pauseTTS() {
+            if (!isSpeaking || isPaused) return;
+            isPaused = true;
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
+            window.speechSynthesis.resume();
+            window.speechSynthesis.cancel();
+
+            if (statusBadge) {
+                statusBadge.innerText = "Dijeda";
+                statusBadge.style.color = "var(--text-muted)";
+                statusBadge.style.borderColor = "var(--border-glass)";
+                statusBadge.style.background = "rgba(255, 255, 255, 0.05)";
+            }
+            updateAudioButtons();
         }
 
         function speakNext() {
             if (!isSpeaking) return;
-            
+
             if (currentChunkIndex >= chunks.length) {
                 isSpeaking = false;
                 currentChunkIndex = 0;
-                document.getElementById('btn-play-show').innerHTML = 'Putar Suara (Play)';
-                
+                updateAudioButtons();
+
                 if (statusBadge) {
                     statusBadge.innerText = "Selesai";
                     statusBadge.style.color = "var(--text-secondary)";
@@ -369,20 +453,19 @@
                 }
                 return;
             }
-            
+
             const text = chunks[currentChunkIndex];
-            document.getElementById('btn-play-show').innerHTML = `Membaca Bagian ${currentChunkIndex + 1}...`;
-            
+
             if (statusBadge) {
                 statusBadge.innerText = `Memutar (${currentChunkIndex + 1}/${chunks.length})`;
                 statusBadge.style.color = "var(--accent-success)";
                 statusBadge.style.borderColor = "var(--accent-success)";
                 statusBadge.style.background = "rgba(16, 185, 129, 0.15)";
             }
-            
+
             currentUtterance = new SpeechSynthesisUtterance(text);
             currentUtterance.lang = 'id-ID';
-            
+
             const savedRate = localStorage.getItem('read_assist_tts_rate') || '1.0';
             currentUtterance.rate = parseFloat(savedRate);
 
@@ -391,22 +474,30 @@
             if (idVoice) {
                 currentUtterance.voice = idVoice;
             }
-            
+
+            currentUtterance.onstart = function() {
+                updateAudioButtons();
+            };
+
             currentUtterance.onend = function() {
-                if (isSpeaking) {
+                if (isSpeaking && !isPaused) {
                     currentChunkIndex++;
                     speakNext();
                 }
             };
-            
+
             currentUtterance.onerror = function(e) {
                 console.error(e);
-                if (e.error === 'not-allowed' || e.error === 'interrupted' || e.error === 'canceled') {
+                if (e.error === 'not-allowed') {
                     isSpeaking = false;
-                    document.getElementById('btn-play-show').innerHTML = 'Putar Suara (Play)';
+                    isPaused = false;
+                    updateAudioButtons();
                     return;
                 }
-                if (isSpeaking) {
+                if (e.error === 'interrupted' || e.error === 'canceled') {
+                    return;
+                }
+                if (isSpeaking && !isPaused) {
                     currentChunkIndex++;
                     speakNext();
                 }
@@ -418,16 +509,17 @@
 
         function stopTTS() {
             isSpeaking = false;
+            isPaused = false;
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
             window.speechSynthesis.resume();
             window.speechSynthesis.cancel();
             currentUtterance = null;
             chunks = [];
             currentChunkIndex = 0;
-
-            const playBtn = document.getElementById('btn-play-show');
-            if (playBtn) {
-                playBtn.innerHTML = 'Putar Suara (Play)';
-            }
+            updateAudioButtons();
 
             if (statusBadge) {
                 statusBadge.innerText = 'Browser TTS';

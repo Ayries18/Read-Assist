@@ -101,15 +101,19 @@
 
             <!-- Controls -->
             <div class="flex items-center justify-center gap-3 sm:gap-5 mb-3">
-                <button id="btn-prev" onclick="prevTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" style="background: rgba(255,255,255,0.05);">
+                <button id="btn-start" onclick="startTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Mulai dari Awal" aria-label="Mulai dari Awal" style="background: rgba(255,255,255,0.05);">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+
+                <button id="btn-prev" onclick="prevTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Sebelumnya" style="background: rgba(255,255,255,0.05);">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                 </button>
 
-                <button id="btn-play" onclick="playTTS()" class="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-500 text-white shadow-2xl shadow-indigo-500/40 active:scale-90 transition-all duration-150" title="Putar">
+                <button id="btn-play" onclick="playTTS()" class="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-500 text-white shadow-2xl shadow-indigo-500/40 active:scale-90 transition-all duration-150" title="Lanjutkan" aria-label="Putar atau lanjutkan">
                     <svg id="play-icon" class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 </button>
 
-                <button id="btn-pause" onclick="pauseTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Jeda" style="background: rgba(255,255,255,0.05); display: none;">
+                <button id="btn-pause" onclick="pauseTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Jeda" aria-label="Jeda" style="background: rgba(255,255,255,0.05); display: none;">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
 
@@ -136,6 +140,7 @@
     let isPaused = false;
     let currentUtterance = null;
 
+    const btnStart = document.getElementById('btn-start');
     const btnPlay = document.getElementById('btn-play');
     const btnPause = document.getElementById('btn-pause');
     const btnStop = document.getElementById('btn-stop');
@@ -195,17 +200,15 @@
             if (waveAnimation) waveAnimation.classList.add('paused');
         }
 
+        if (btnStart) btnStart.style.display = 'flex';
+
         if (isSpeaking) {
-            if (btnPlay) btnPlay.style.display = 'none';
-            if (btnPause) btnPause.style.display = 'flex';
             if (btnStop) btnStop.style.display = 'flex';
             if (subtitlesCard) subtitlesCard.style.display = 'flex';
 
             if (isPaused) {
-                if (btnPause) {
-                    btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
-                    btnPause.title = 'Lanjutkan';
-                }
+                if (btnPlay) btnPlay.style.display = 'flex';
+                if (btnPause) btnPause.style.display = 'none';
                 if (statusMessage) statusMessage.innerText = 'Dijeda';
                 if (statusBadge) {
                     statusBadge.innerText = 'Dijeda';
@@ -213,10 +216,8 @@
                     statusBadge.style.borderColor = 'var(--border-glass)';
                 }
             } else {
-                if (btnPause) {
-                    btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-                    btnPause.title = 'Jeda';
-                }
+                if (btnPlay) btnPlay.style.display = 'none';
+                if (btnPause) btnPause.style.display = 'flex';
                 if (statusMessage) statusMessage.innerText = `Kalimat ${currentChunkIndex + 1} dari ${chunks.length}`;
                 if (statusBadge) {
                     statusBadge.innerText = `Memutar (${currentChunkIndex + 1}/${chunks.length})`;
@@ -229,9 +230,6 @@
             if (btnPause) btnPause.style.display = 'none';
             if (btnStop) btnStop.style.display = 'none';
             if (subtitlesCard) subtitlesCard.style.display = 'none';
-            if (btnPause) {
-                btnPause.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-            }
 
             if (chunks.length > 0 && currentChunkIndex >= chunks.length) {
                 if (statusMessage) statusMessage.innerText = 'Selesai — seluruh buku telah dibacakan';
@@ -249,6 +247,31 @@
                 }
             }
         }
+    }
+
+    function startTTS() {
+        if (currentUtterance) {
+            currentUtterance.onend = null;
+            currentUtterance.onerror = null;
+        }
+        window.speechSynthesis.resume();
+        window.speechSynthesis.cancel();
+
+        const title = document.getElementById('book-title').innerText;
+        const description = document.getElementById('book-description').innerText;
+        if (chunks.length === 0) chunks = getSpeechChunks(title, description);
+
+        currentChunkIndex = 0;
+        localStorage.removeItem('read_assist_progress_' + bookId);
+        isSpeaking = true;
+        isPaused = false;
+
+        if (statusBadge) {
+            statusBadge.innerText = 'Memulai...';
+            statusBadge.style.color = 'var(--accent-primary)';
+            statusBadge.style.borderColor = 'var(--accent-primary)';
+        }
+        speakNext(true);
     }
 
     function playTTS() {
@@ -340,20 +363,15 @@
     }
 
     function pauseTTS() {
-        if (!isSpeaking) return;
-        if (isPaused) {
-            isPaused = false;
-            speakNext();
-        } else {
-            isPaused = true;
-            if (currentUtterance) {
-                currentUtterance.onend = null;
-                currentUtterance.onerror = null;
-            }
-            window.speechSynthesis.resume();
-            window.speechSynthesis.cancel();
-            updateUI();
+        if (!isSpeaking || isPaused) return;
+        isPaused = true;
+        if (currentUtterance) {
+            currentUtterance.onend = null;
+            currentUtterance.onerror = null;
         }
+        window.speechSynthesis.resume();
+        window.speechSynthesis.cancel();
+        updateUI();
     }
 
     function stopTTS() {
@@ -438,7 +456,7 @@
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         switch(e.key) {
-            case ' ': e.preventDefault(); if (!isSpeaking) playTTS(); else pauseTTS(); break;
+            case ' ': e.preventDefault(); if (isSpeaking && !isPaused) pauseTTS(); else playTTS(); break;
             case 'ArrowLeft': e.preventDefault(); prevTTS(); break;
             case 'ArrowRight': e.preventDefault(); nextTTS(); break;
             case 'Escape': e.preventDefault(); stopTTS(); break;
