@@ -285,52 +285,86 @@
         let isPaused = false;
         let currentUtterance = null;
 
-        function chunkString(str, maxLength) {
-            const result = [];
-            let temp = '';
-            const words = str.split(' ');
-            
-            for (const word of words) {
-                if ((temp + ' ' + word).trim().length <= maxLength) {
-                    temp = (temp + ' ' + word).trim();
+        function splitLongSentence(sentence, maxLength) {
+            const parts = [];
+            const fragments = sentence.split(/(?<=[,;:])\s+/);
+            let segment = '';
+            for (const frag of fragments) {
+                const f = frag.trim();
+                if (!f) continue;
+                if (segment && (segment + ' ' + f).length <= maxLength) {
+                    segment += ' ' + f;
                 } else {
-                    if (temp) result.push(temp);
-                    temp = word;
+                    if (segment) parts.push(segment);
+                    segment = f;
                 }
             }
-            if (temp) result.push(temp);
+            if (segment) parts.push(segment);
+
+            const result = [];
+            for (const p of parts) {
+                if (p.length <= maxLength) {
+                    result.push(p);
+                    continue;
+                }
+                let temp = '';
+                for (const word of p.split(' ')) {
+                    const candidate = (temp + ' ' + word).trim();
+                    if (candidate.length <= maxLength) {
+                        temp = candidate;
+                    } else {
+                        if (temp) result.push(temp);
+                        temp = word;
+                    }
+                }
+                if (temp) result.push(temp);
+            }
             return result;
         }
 
         function getSpeechChunks(title, description) {
-            const rawChunks = [];
-            rawChunks.push(`Membaca judul buku: ${title}.`);
-            
+            const MAX_LEN = 180;
+            const chunks = [];
+            chunks.push({ text: `Membaca judul buku: ${title}.`, pause: 400 });
+
             if (description) {
                 const paragraphs = description.split(/\r?\n/);
                 for (const para of paragraphs) {
                     const trimmed = para.trim();
-                    if (trimmed) {
-                        const sentences = trimmed.split(/(?<=[.!?])\s+/);
-                        for (const sentence of sentences) {
-                            if (sentence.trim()) {
-                                rawChunks.push(sentence.trim());
+                    if (!trimmed) continue;
+
+                    const sentences = trimmed.split(/(?<=[.!?])\s+/);
+                    let buffer = '';
+
+                    for (const s of sentences) {
+                        const sentence = s.trim();
+                        if (!sentence) continue;
+
+                        if (buffer && (buffer + ' ' + sentence).length <= MAX_LEN) {
+                            buffer += ' ' + sentence;
+                            continue;
+                        }
+                        if (buffer) {
+                            chunks.push({ text: buffer, pause: 320 });
+                            buffer = '';
+                        }
+
+                        if (sentence.length <= MAX_LEN) {
+                            buffer = sentence;
+                        } else {
+                            const parts = splitLongSentence(sentence, MAX_LEN);
+                            for (let i = 0; i < parts.length; i++) {
+                                chunks.push({ text: parts[i], pause: i < parts.length - 1 ? 160 : 320 });
                             }
                         }
                     }
+
+                    if (buffer) {
+                        chunks.push({ text: buffer, pause: 550 });
+                    }
                 }
             }
-            
-            const finalChunks = [];
-            for (const chunk of rawChunks) {
-                if (chunk.length > 150) {
-                    const subChunks = chunkString(chunk, 150);
-                    finalChunks.push(...subChunks);
-                } else {
-                    finalChunks.push(chunk);
-                }
-            }
-            return finalChunks;
+            return chunks;
         }
 
         const statusBadge = document.getElementById('audio-status-badge');
@@ -454,7 +488,9 @@
                 return;
             }
 
-            const text = chunks[currentChunkIndex];
+            const chunk = chunks[currentChunkIndex];
+            const text = typeof chunk === 'string' ? chunk : chunk.text;
+            const pause = (chunk && typeof chunk === 'object' && chunk.pause) ? chunk.pause : 300;
 
             if (statusBadge) {
                 statusBadge.innerText = `Memutar (${currentChunkIndex + 1}/${chunks.length})`;
@@ -482,7 +518,7 @@
             currentUtterance.onend = function() {
                 if (isSpeaking && !isPaused) {
                     currentChunkIndex++;
-                    speakNext();
+                    setTimeout(function() { speakNext(); }, pause);
                 }
             };
 

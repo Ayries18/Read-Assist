@@ -82,8 +82,8 @@
 
                 <div class="flex flex-col gap-2 border-t border-white/10 pt-3 mt-auto z-10">
                     <!-- Mini Player Trigger -->
-                    <button onclick="window.playMiniPlayer('{{ addslashes($book->judul) }}', '', '{{ addslashes($book->deskripsi) }}', '{{ $book->cover ? '/storage/'.$book->cover : '' }}')" class="btn btn-ghost w-full py-2 text-sm flex items-center justify-center gap-1">
-                        Putar Instan
+                    <button type="button" data-play-mini data-title="{{ $book->judul }}" data-description="{{ $book->deskripsi }}" data-cover="{{ $book->cover ? '/storage/'.$book->cover : '' }}" class="btn btn-ghost w-full py-2 text-sm flex items-center justify-center gap-1">
+                        Dengar Ringkasan
                     </button>
                     <div class="flex gap-2 w-full">
                         <a href="/katalog-audio/{{ $book->id }}" class="btn btn-ghost btn-sm flex-1 py-2 text-sm text-center">
@@ -137,6 +137,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateCardRelativeTimes();
             setInterval(updateCardRelativeTimes, 15000);
+        });
+
+        document.addEventListener('click', function(e) {
+            const trigger = e.target.closest('[data-play-mini]');
+            if (trigger) {
+                window.playMiniPlayer(trigger.dataset.title || '', '', trigger.dataset.description || '', trigger.dataset.cover || '');
+            }
         });
     </script>
 @endsection

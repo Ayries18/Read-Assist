@@ -1067,19 +1067,80 @@
             speakNextMini();
         };
 
+        function splitMiniLong(sentence, maxLength) {
+            const parts = [];
+            const fragments = sentence.split(/(?<=[,;:])\s+/);
+            let segment = '';
+            for (const frag of fragments) {
+                const f = frag.trim();
+                if (!f) continue;
+                if (segment && (segment + ' ' + f).length <= maxLength) {
+                    segment += ' ' + f;
+                } else {
+                    if (segment) parts.push(segment);
+                    segment = f;
+                }
+            }
+            if (segment) parts.push(segment);
+
+            const result = [];
+            for (const p of parts) {
+                if (p.length <= maxLength) {
+                    result.push(p);
+                    continue;
+                }
+                let temp = '';
+                for (const word of p.split(' ')) {
+                    const candidate = (temp + ' ' + word).trim();
+                    if (candidate.length <= maxLength) {
+                        temp = candidate;
+                    } else {
+                        if (temp) result.push(temp);
+                        temp = word;
+                    }
+                }
+                if (temp) result.push(temp);
+            }
+            return result;
+        }
+
         function getSpeechChunksList(title, author, description) {
-            const list = [`Memutar buku ${title}.`];
+            const MAX_LEN = 180;
+            const list = [{ text: `Memutar buku ${title}.`, pause: 400 }];
             if (description) {
                 const paragraphs = description.split(/\r?\n/);
                 for (const para of paragraphs) {
                     const trimmed = para.trim();
-                    if (trimmed) {
-                        const sentences = trimmed.split(/(?<=[.!?])\s+/);
-                        for (const sentence of sentences) {
-                            if (sentence.trim()) {
-                                list.push(sentence.trim());
+                    if (!trimmed) continue;
+
+                    const sentences = trimmed.split(/(?<=[.!?])\s+/);
+                    let buffer = '';
+
+                    for (const s of sentences) {
+                        const sentence = s.trim();
+                        if (!sentence) continue;
+
+                        if (buffer && (buffer + ' ' + sentence).length <= MAX_LEN) {
+                            buffer += ' ' + sentence;
+                            continue;
+                        }
+                        if (buffer) {
+                            list.push({ text: buffer, pause: 320 });
+                            buffer = '';
+                        }
+
+                        if (sentence.length <= MAX_LEN) {
+                            buffer = sentence;
+                        } else {
+                            const parts = splitMiniLong(sentence, MAX_LEN);
+                            for (let i = 0; i < parts.length; i++) {
+                                list.push({ text: parts[i], pause: i < parts.length - 1 ? 160 : 320 });
                             }
                         }
+                    }
+
+                    if (buffer) {
+                        list.push({ text: buffer, pause: 550 });
                     }
                 }
             }
@@ -1096,8 +1157,10 @@
                 return;
             }
 
-            const text = miniChunks[miniCurrentIndex];
-            
+            const miniChunk = miniChunks[miniCurrentIndex];
+            const text = typeof miniChunk === 'string' ? miniChunk : miniChunk.text;
+            const miniPause = (miniChunk && typeof miniChunk === 'object' && miniChunk.pause) ? miniChunk.pause : 300;
+
             miniUtterance = new SpeechSynthesisUtterance(text);
             miniUtterance.lang = 'id-ID';
 
@@ -1114,7 +1177,7 @@
             miniUtterance.onend = function() {
                 if (miniSpeaking && !miniPaused) {
                     miniCurrentIndex++;
-                    speakNextMini();
+                    setTimeout(speakNextMini, miniPause);
                 }
             };
 

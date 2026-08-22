@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\GenerateBookAudio;
 use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
+use App\Services\TunnelService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,7 +13,6 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AudioBukuController extends Controller
 {
-
     public function landing()
     {
         try {
@@ -21,19 +21,19 @@ class AudioBukuController extends Controller
         } catch (\Exception $e) {
             $bookCount = 0;
             $totalChars = 0;
-            \Log::warning('Database connection failed on landing page: ' . $e->getMessage());
+            \Log::warning('Database connection failed on landing page: '.$e->getMessage());
         }
-        
+
         if ($totalChars >= 1000000) {
-            $charCount = round($totalChars / 1000000, 1) . 'M+';
+            $charCount = round($totalChars / 1000000, 1).'M+';
         } elseif ($totalChars >= 1000) {
-            $charCount = round($totalChars / 1000, 1) . 'K+';
+            $charCount = round($totalChars / 1000, 1).'K+';
         } else {
             $charCount = $totalChars;
         }
 
         $totalWords = (int) ($totalChars / 6);
-        $readDuration = ceil($totalWords / 150) . ' Mins';
+        $readDuration = ceil($totalWords / 150).' Mins';
 
         return view('home', compact('bookCount', 'charCount', 'readDuration'));
     }
@@ -62,7 +62,7 @@ class AudioBukuController extends Controller
                     default => $query->latest(),
                 };
             })
-            ->paginate(5)
+            ->paginate(6)
             ->withQueryString();
 
         $categories = AudioBuku::whereNotNull('kategori')
@@ -139,7 +139,7 @@ class AudioBukuController extends Controller
 
         return redirect()
             ->route('katalog.show', $audioBook->id)
-            ->with('success', 'Buku berhasil ditambahkan.');
+            ->with('success', 'Buku berhasil ditambahkan. Audio sedang diproses di latar belakang dan akan tersedia dalam beberapa menit.');
     }
 
     public function show($id)
@@ -169,28 +169,30 @@ class AudioBukuController extends Controller
                 $blocks = explode("\n\n", $output);
                 foreach ($blocks as $block) {
                     $lines = explode("\n", trim($block));
-                    if (empty($lines)) continue;
-                    
+                    if (empty($lines)) {
+                        continue;
+                    }
+
                     $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
                     if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
                         continue;
                     }
 
                     $lowerName = strtolower($adapterName);
-                    if (str_contains($lowerName, 'virtualbox') || 
-                        str_contains($lowerName, 'vmware') || 
-                        str_contains($lowerName, 'wsl') || 
-                        str_contains($lowerName, 'vethernet') || 
+                    if (str_contains($lowerName, 'virtualbox') ||
+                        str_contains($lowerName, 'vmware') ||
+                        str_contains($lowerName, 'wsl') ||
+                        str_contains($lowerName, 'vethernet') ||
                         str_contains($lowerName, 'host-only') ||
                         str_contains($lowerName, 'loopback') ||
                         str_contains($lowerName, 'hyper-v')) {
                         continue;
                     }
-                    
+
                     foreach ($lines as $line) {
                         if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
                             $ip = trim($match[1]);
-                            if ($ip !== '127.0.0.1' && !in_array($ip, $ips, true)) {
+                            if ($ip !== '127.0.0.1' && ! in_array($ip, $ips, true)) {
                                 $ips[$adapterName] = $ip;
                             }
                         }
@@ -200,18 +202,18 @@ class AudioBukuController extends Controller
         } catch (\Exception $e) {
             // Fallback
         }
-        
+
         if (empty($ips)) {
             $hostIp = gethostbyname(gethostname());
             if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
                 $ips['Host DNS'] = $hostIp;
             }
         }
-        
+
         if (empty($ips)) {
             $ips['Localhost'] = '127.0.0.1';
         }
-        
+
         return $ips;
     }
 
@@ -219,14 +221,14 @@ class AudioBukuController extends Controller
     {
         $localIps = self::getLocalIps();
         $detectedIp = '127.0.0.1';
-        
+
         foreach ($localIps as $name => $ip) {
             if (stripos($name, 'wi-fi') !== false || stripos($name, 'wireless') !== false) {
                 $detectedIp = $ip;
                 break;
             }
         }
-        
+
         if ($detectedIp === '127.0.0.1') {
             foreach ($localIps as $name => $ip) {
                 if (str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
@@ -235,8 +237,8 @@ class AudioBukuController extends Controller
                 }
             }
         }
-        
-        if ($detectedIp === '127.0.0.1' && !empty($localIps)) {
+
+        if ($detectedIp === '127.0.0.1' && ! empty($localIps)) {
             $detectedIp = reset($localIps);
         }
 
@@ -252,7 +254,7 @@ class AudioBukuController extends Controller
 
         $userId = session('auth_id');
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
@@ -274,7 +276,7 @@ class AudioBukuController extends Controller
     {
         $userId = session('auth_id');
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['sentence_index' => 0, 'completed' => false]);
         }
 
@@ -282,7 +284,7 @@ class AudioBukuController extends Controller
             ->where('audio_buku_id', $audioBook->id)
             ->first();
 
-        if (!$progress) {
+        if (! $progress) {
             return response()->json(['sentence_index' => 0, 'completed' => false]);
         }
 
@@ -370,12 +372,12 @@ class AudioBukuController extends Controller
             Storage::disk('public')->delete($audioBook->file_audio);
         }
 
-        $audioDir = 'audio/' . $audioBook->id;
+        $audioDir = 'audio/'.$audioBook->id;
         if (Storage::disk('public')->exists($audioDir)) {
             Storage::disk('public')->deleteDirectory($audioDir);
         }
 
-        $qrFile = 'qr/qr-book-' . $audioBook->id . '.svg';
+        $qrFile = 'qr/qr-book-'.$audioBook->id.'.svg';
         if (Storage::disk('public')->exists($qrFile)) {
             Storage::disk('public')->delete($qrFile);
         }
@@ -389,13 +391,13 @@ class AudioBukuController extends Controller
 
     public function streamAudio(AudioBuku $audioBook)
     {
-        if ($audioBook->audio_status !== 'completed' || !$audioBook->file_audio || $audioBook->file_audio === 'tts') {
+        if ($audioBook->audio_status !== 'completed' || ! $audioBook->file_audio || $audioBook->file_audio === 'tts') {
             abort(404);
         }
 
         $path = storage_path("app/public/{$audioBook->file_audio}");
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             abort(404);
         }
 
@@ -419,7 +421,7 @@ class AudioBukuController extends Controller
             mkdir($qrDir, 0755, true);
         }
 
-        file_put_contents($qrDir . '/qr-book-' . $audioBook->id . '.svg', $svg);
+        file_put_contents($qrDir.'/qr-book-'.$audioBook->id.'.svg', $svg);
     }
 
     public static function isLocalUrl(string $url): bool
@@ -431,9 +433,9 @@ class AudioBukuController extends Controller
         if (preg_match('/^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/', $host)) {
             return true;
         }
+
         return false;
     }
-
 
     public static function buildQrUrl(AudioBuku $audioBook): string
     {
@@ -441,7 +443,7 @@ class AudioBukuController extends Controller
 
         // Priority 1: Prefer an active tunnel URL if available.
         try {
-            $tunnelService = app(\App\Services\TunnelService::class);
+            $tunnelService = app(TunnelService::class);
             $tunnelUrl = $tunnelService->getStoredUrl();
             if ($tunnelUrl) {
                 $baseUrl = rtrim($tunnelUrl, '/');
@@ -451,11 +453,11 @@ class AudioBukuController extends Controller
         }
 
         // Priority 2: Use current request host if it's accessed via LAN IP or public domain
-        if (!$baseUrl && request()) {
+        if (! $baseUrl && request()) {
             $host = request()->getHost();
             // If the request host is not localhost, 127.0.0.1, or ::1, we can use it directly!
             // This allows LAN IPs like 192.168.x.x to be used so that devices on the same Wi-Fi can connect.
-            if (!in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+            if (! in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
                 $baseUrl = request()->getSchemeAndHttpHost();
             } else {
                 // If it is localhost, detect the LAN IP of this computer and use it with the request port
@@ -469,25 +471,25 @@ class AudioBukuController extends Controller
         }
 
         // Priority 3: Check if config('app.url') is a public URL (excluding localhost/stale lhr.life/localhost.run URLs when tunnel is not running)
-        if (!$baseUrl) {
+        if (! $baseUrl) {
             $configUrl = config('app.url');
-            if ($configUrl && !self::isLocalUrl($configUrl)) {
+            if ($configUrl && ! self::isLocalUrl($configUrl)) {
                 // Only use config('app.url') if it's not a stale/expired tunnel URL
-                if (!preg_match('/\.(?:lhr\.life|localhost\.run)/', $configUrl)) {
+                if (! preg_match('/\.(?:lhr\.life|localhost\.run)/', $configUrl)) {
                     $baseUrl = rtrim($configUrl, '/');
                 }
             }
         }
 
         // Ultimate fallback
-        if (!$baseUrl) {
+        if (! $baseUrl) {
             $baseUrl = rtrim(config('app.url'), '/');
         }
 
         // Force HTTPS for any public/tunnel URL to ensure Web Speech API secure context.
         // We do not force HTTPS for local/private network IPs (like 192.168.x.x or localhost)
         // because they do not have valid SSL certificates locally and force-redirecting to HTTPS would break them.
-        if ($baseUrl && !self::isLocalUrl($baseUrl)) {
+        if ($baseUrl && ! self::isLocalUrl($baseUrl)) {
             $baseUrl = preg_replace('/^http:/i', 'https:', $baseUrl);
         }
 
@@ -550,8 +552,8 @@ class AudioBukuController extends Controller
             mkdir($tempDirectory, 0777, true);
         }
 
-        $outputPath = $tempDirectory . DIRECTORY_SEPARATOR . Str::uuid() . '.txt';
-        $command = 'pdftotext -enc UTF-8 -layout ' . escapeshellarg($path) . ' ' . escapeshellarg($outputPath);
+        $outputPath = $tempDirectory.DIRECTORY_SEPARATOR.Str::uuid().'.txt';
+        $command = 'pdftotext -enc UTF-8 -layout '.escapeshellarg($path).' '.escapeshellarg($outputPath);
         exec($command, $output, $exitCode);
 
         if ($exitCode !== 0 || ! file_exists($outputPath)) {
@@ -570,7 +572,7 @@ class AudioBukuController extends Controller
             return '';
         }
 
-        $zip = new \ZipArchive();
+        $zip = new \ZipArchive;
 
         if ($zip->open($path) !== true) {
             return '';
@@ -592,7 +594,7 @@ class AudioBukuController extends Controller
                 continue;
             }
 
-            $text .= ' ' . strip_tags($content);
+            $text .= ' '.strip_tags($content);
         }
 
         $zip->close();

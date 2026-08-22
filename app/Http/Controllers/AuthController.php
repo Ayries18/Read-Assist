@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
-use App\Models\User;
+use App\Models\AudioBuku;
+use App\Models\ListeningProgress;
 use App\Models\PasswordResetToken;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -31,8 +33,8 @@ class AuthController extends Controller
                 ->orWhere('email', 'muwarisin@gmail.com')
                 ->first();
 
-            if (!$account) {
-                $account = new User();
+            if (! $account) {
+                $account = new User;
                 $account->name = 'Muwarisin';
                 $account->email = $email;
                 $account->password = Hash::make('Aris1234');
@@ -45,8 +47,8 @@ class AuthController extends Controller
         } elseif ($validated['role'] === 'admin' && strtolower($email) === 'admin@example.com') {
             $account = Admin::where('email', 'admin@example.com')->first();
 
-            if (!$account) {
-                $account = new Admin();
+            if (! $account) {
+                $account = new Admin;
                 $account->nama = 'Admin Read Assist';
                 $account->email = 'admin@example.com';
                 $account->password = Hash::make('password');
@@ -135,7 +137,30 @@ class AuthController extends Controller
             return redirect('/login')->withErrors(['email' => 'Silakan login sebagai admin.']);
         }
 
-        return view('auth.admin-dashboard');
+        try {
+            $stats = [
+                'total_books' => AudioBuku::count(),
+                'audio_completed' => AudioBuku::where('audio_status', 'completed')->count(),
+                'audio_processing' => AudioBuku::whereIn('audio_status', ['pending', 'processing'])->count(),
+                'audio_failed' => AudioBuku::where('audio_status', 'failed')->count(),
+                'total_users' => User::count(),
+                'user_uploads' => AudioBuku::whereNotNull('user_id')->count(),
+                'total_progress' => ListeningProgress::count(),
+            ];
+        } catch (\Exception $e) {
+            $stats = [
+                'total_books' => 0,
+                'audio_completed' => 0,
+                'audio_processing' => 0,
+                'audio_failed' => 0,
+                'total_users' => 0,
+                'user_uploads' => 0,
+                'total_progress' => 0,
+            ];
+            \Log::warning('Admin dashboard stats unavailable: '.$e->getMessage());
+        }
+
+        return view('auth.admin-dashboard', compact('stats'));
     }
 
     public function userDashboard()
@@ -144,24 +169,46 @@ class AuthController extends Controller
             return redirect('/login')->withErrors(['email' => 'Silakan login sebagai user.']);
         }
 
-        return view('auth.user-dashboard');
+        $userId = session('auth_id');
+
+        try {
+            $stats = [
+                'total_books' => AudioBuku::count(),
+                'my_uploads' => AudioBuku::where('user_id', $userId)->count(),
+                'my_uploads_completed' => AudioBuku::where('user_id', $userId)->where('audio_status', 'completed')->count(),
+                'listened_books' => ListeningProgress::where('user_id', $userId)->count(),
+                'listened_completed' => ListeningProgress::where('user_id', $userId)->where('completed', true)->count(),
+            ];
+        } catch (\Exception $e) {
+            $stats = [
+                'total_books' => 0,
+                'my_uploads' => 0,
+                'my_uploads_completed' => 0,
+                'listened_books' => 0,
+                'listened_completed' => 0,
+            ];
+            \Log::warning('User dashboard stats unavailable: '.$e->getMessage());
+        }
+
+        return view('auth.user-dashboard', compact('stats'));
     }
 
     // ─── Profile ──────────────────────────────────────────
     public function showProfile()
     {
-        if (!session('auth_role')) {
+        if (! session('auth_role')) {
             return redirect('/login')->withErrors(['email' => 'Silakan login terlebih dahulu.']);
         }
         $role = session('auth_role');
         $id = session('auth_id');
         $account = $role === 'admin' ? Admin::findOrFail($id) : User::findOrFail($id);
+
         return view('auth.profile', compact('account', 'role'));
     }
 
     public function updateProfile(Request $request)
     {
-        if (!session('auth_role')) {
+        if (! session('auth_role')) {
             return redirect('/login')->withErrors(['email' => 'Silakan login terlebih dahulu.']);
         }
 
@@ -205,7 +252,7 @@ class AuthController extends Controller
         $id = session('auth_id');
         $account = $role === 'admin' ? Admin::findOrFail($id) : User::findOrFail($id);
 
-        if (!Hash::check($validated['current_password'], $account->password)) {
+        if (! Hash::check($validated['current_password'], $account->password)) {
             return back()->withErrors(['current_password' => 'Password saat ini tidak sesuai.']);
         }
 
@@ -230,7 +277,7 @@ class AuthController extends Controller
         $model = $validated['role'] === 'admin' ? Admin::class : User::class;
         $account = $model::where('email', $validated['email'])->first();
 
-        if (!$account) {
+        if (! $account) {
             return back()->withErrors(['email' => 'Email tidak ditemukan.'])->onlyInput('email', 'role');
         }
 
@@ -257,9 +304,10 @@ class AuthController extends Controller
     public function showResetForm($token)
     {
         $record = PasswordResetToken::where('token', $token)->first();
-        if (!$record) {
+        if (! $record) {
             return redirect('/login')->withErrors(['email' => 'Link reset tidak valid atau sudah kadaluarsa.']);
         }
+
         return view('auth.reset-password', compact('token', 'record'));
     }
 
@@ -271,14 +319,14 @@ class AuthController extends Controller
         ]);
 
         $record = PasswordResetToken::where('token', $validated['token'])->first();
-        if (!$record) {
+        if (! $record) {
             return back()->withErrors(['password' => 'Token tidak valid.'])->onlyInput('password');
         }
 
         $model = $record->role === 'admin' ? Admin::class : User::class;
         $account = $model::where('email', $record->email)->first();
 
-        if (!$account) {
+        if (! $account) {
             return back()->withErrors(['password' => 'Akun tidak ditemukan.']);
         }
 

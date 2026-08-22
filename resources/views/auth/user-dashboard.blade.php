@@ -40,7 +40,7 @@
                     </span>
                     <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Buku Audio</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-blue-400">
-                        {{ \App\Models\AudioBuku::count() }}
+                        {{ $stats['total_books'] }}
                     </h2>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                     </span>
                     <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Unggahan Saya</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-indigo-400">
-                        {{ \App\Models\AudioBuku::where('user_id', session('auth_id'))->count() }}
+                        {{ $stats['my_uploads'] }}
                     </h2>
                 </div>
             </div>
@@ -60,11 +60,11 @@
             <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-emerald-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Total Anggota</span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Audio Siap (Milik Saya)</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-emerald-400">
-                        {{ \App\Models\User::count() }}
+                        {{ $stats['my_uploads_completed'] }}
                     </h2>
                 </div>
             </div>
@@ -72,13 +72,22 @@
             <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-purple-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h3v3H7z"/><path d="M14 7h3v3h-3z"/><path d="M7 14h3v3H7z"/><path d="M14 14h3v3h-3z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">QR Code Terbit</span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Buku Didengarkan</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-purple-400">
-                        {{ \App\Models\AudioBuku::count() }}
+                        {{ $stats['listened_books'] }}
                     </h2>
                 </div>
+            </div>
+        </div>
+
+        <!-- Listening Ringkasan -->
+        <div class="card bg-base-300/50 border border-white/10 shadow-md mb-2" style="padding: 1rem 1.5rem;">
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                <span class="text-slate-400 font-semibold uppercase tracking-wider text-xs">Ringkasan Mendengar:</span>
+                <span class="text-slate-300"><strong class="text-purple-400">{{ $stats['listened_books'] }}</strong> buku pernah dibuka</span>
+                <span class="text-slate-300"><strong class="text-emerald-400">{{ $stats['listened_completed'] }}</strong> selesai didengarkan</span>
             </div>
         </div>
 

@@ -40,7 +40,7 @@
                     </span>
                     <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Buku Audio</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-blue-400">
-                        {{ \App\Models\AudioBuku::count() }}
+                        {{ $stats['total_books'] }}
                     </h2>
                 </div>
             </div>
@@ -48,37 +48,72 @@
             <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-emerald-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Anggota</span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Audio Siap</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-emerald-400">
-                        {{ \App\Models\User::count() }}
+                        {{ $stats['audio_completed'] }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 3 -->
             <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
                 <div class="card-body">
-                    <span class="block mb-1 text-indigo-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h3v3H7z"/><path d="M14 7h3v3h-3z"/><path d="M7 14h3v3H7z"/><path d="M14 14h3v3h-3z"/></svg>
+                    <span class="block mb-1 text-amber-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M12 6v6l3 2"/><path d="M21 3v6h-6"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">QR Code Terbit</span>
-                    <h2 class="text-3xl font-extrabold mt-1 text-indigo-400">
-                        {{ \App\Models\AudioBuku::count() }}
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Sedang Diproses</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-amber-400">
+                        {{ $stats['audio_processing'] }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 4 -->
             <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
                 <div class="card-body">
-                    <span class="block mb-1 text-purple-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+                    <span class="block mb-1 text-rose-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Admin</span>
-                    <h2 class="text-3xl font-extrabold mt-1 text-purple-400">
-                        {{ \App\Models\Admin::count() }}
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Audio Gagal</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-rose-400">
+                        {{ $stats['audio_failed'] }}
                     </h2>
                 </div>
+            </div>
+            <!-- Stat 5 -->
+            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+                <div class="card-body">
+                    <span class="block mb-1 text-cyan-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Anggota</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-cyan-400">
+                        {{ $stats['total_users'] }}
+                    </h2>
+                </div>
+            </div>
+            <!-- Stat 6 -->
+            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+                <div class="card-body">
+                    <span class="block mb-1 text-purple-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </span>
+                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Unggahan Anggota</span>
+                    <h2 class="text-3xl font-extrabold mt-1 text-purple-400">
+                        {{ $stats['user_uploads'] }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio Status Ringkasan -->
+        <div class="card bg-base-300/50 border border-white/10 shadow-md mb-2" style="padding: 1rem 1.5rem;">
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                <span class="text-slate-400 font-semibold uppercase tracking-wider text-xs">Ringkasan Audio:</span>
+                <span class="text-slate-300"><strong class="text-emerald-400">{{ $stats['audio_completed'] }}</strong> siap</span>
+                <span class="text-slate-300"><strong class="text-amber-400">{{ $stats['audio_processing'] }}</strong> diproses</span>
+                <span class="text-slate-300"><strong class="text-rose-400">{{ $stats['audio_failed'] }}</strong> gagal</span>
+                <span class="text-slate-300"><strong class="text-blue-400">{{ $stats['total_progress'] }}</strong> progres tersimpan</span>
             </div>
         </div>
 

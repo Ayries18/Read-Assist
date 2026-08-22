@@ -45,57 +45,26 @@
                 </div>
             </div>
 
-            <!-- Interactive Simulation Widget -->
-            <div class="simulation-widget-container border shadow-sm p-6 flex flex-col gap-5 relative" style="background: #111216; border-color: rgba(255, 255, 255, 0.04); border-radius: 12px;">
-                <div class="flex justify-between items-center border-b border-white/5 pb-3">
-                    <div class="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-violet-400"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        <h3 class="m-0 text-sm font-bold text-white">Simulasi Pemutar Audio</h3>
+            <!-- Ilustrasi Penyandang Disabilitas Netra -->
+            <figure class="hero-visual relative overflow-hidden border shadow-sm" style="background: #111216; border-color: rgba(255, 255, 255, 0.04); border-radius: 12px; aspect-ratio: 4 / 3;">
+                <img
+                    src="https://images.pexels.com/photos/7488084/pexels-photo-7488084.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                    alt="Anak perempuan penyandang tunanetra membaca buku braille dengan ujung jarinya"
+                    class="w-full h-full object-cover block"
+                    loading="lazy"
+                    width="1260"
+                    height="750"
+                >
+                <figcaption class="absolute inset-x-0 bottom-0 p-5 flex items-center gap-3" style="background: linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0));">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-violet-300 shrink-0" style="background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(139, 92, 246, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     </div>
-                    <span class="text-[0.7rem] text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full font-bold">Uji Coba</span>
-                </div>
-
-                <!-- Simulation Book Cover Card -->
-                <div class="border rounded-lg p-4 flex gap-4 items-center relative overflow-hidden" style="background: #16171b; border-color: rgba(255, 255, 255, 0.04);">
-                    <div class="w-12 h-16 bg-violet-600 rounded flex items-center justify-center text-white shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
+                    <div>
+                        <span class="block text-[0.68rem] uppercase tracking-wider font-bold mb-0.5" style="color: #a78bfa;">Disabilitas Netra</span>
+                        <p class="m-0 text-xs text-slate-200 leading-snug">Membaca buku braille secara mandiri — kini didukung audio Read-Assist.</p>
                     </div>
-                    <div class="overflow-hidden flex-1">
-                        <h4 class="m-0 mb-1 text-xs font-bold text-white truncate">Panduan Awal Sistem</h4>
-                        <p class="m-0 mb-1 text-[0.7rem] text-slate-400">Tim Pengembang Read-Assist</p>
-                        <div class="inline-flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded text-[0.65rem] text-slate-300 border border-white/5">
-                            <span class="text-violet-400 font-bold">[QR]</span> RA-GUIDE-2026
-                        </div>
-                    </div>
-                    <!-- Mock QR Code Stamp on physical book -->
-                    <div class="bg-white p-1 rounded flex items-center justify-center shrink-0">
-                        <img src="{{ route('qr-code.generate', ['data' => 'demo', 'size' => 40], false) }}" alt="Mock QR" class="w-8 h-8 block">
-                    </div>
-                </div>
-
-                <!-- Simulation Interactive Player Box -->
-                <div class="border rounded-lg p-4 flex flex-col gap-4 text-center" style="background: rgba(0, 0, 0, 0.1); border-color: rgba(255, 255, 255, 0.04);">
-                    <div id="sim-text-box" class="text-xs text-slate-400 leading-relaxed min-h-[50px] flex items-center justify-center transition-colors duration-300">
-                        "Klik tombol putar di bawah untuk mendengar suara panduan aksesibilitas."
-                    </div>
-
-                    <!-- Audio Wave Visualizer -->
-                    <div id="sim-wave" class="flex justify-center items-end gap-0.5 h-4 opacity-30 transition-opacity duration-300">
-                        <div class="w-[3px] h-1.5 bg-violet-400 rounded-sm"></div>
-                        <div class="w-[3px] h-3 bg-violet-400 rounded-sm"></div>
-                        <div class="w-[3px] h-[14px] bg-violet-400 rounded-sm"></div>
-                        <div class="w-[3px] h-2.5 bg-violet-400 rounded-sm"></div>
-                        <div class="w-[3px] h-3.5 bg-violet-400 rounded-sm"></div>
-                        <div class="w-[3px] h-1.5 bg-violet-400 rounded-sm"></div>
-                    </div>
-
-                    <div class="flex justify-center gap-4 items-center">
-                        <button id="sim-play-btn" onclick="toggleSimPlay()" class="w-10 h-10 rounded-full bg-violet-600 border-none text-white cursor-pointer flex items-center justify-center transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                </figcaption>
+            </figure>
         </section>
 
         <!-- Workflow Section -->
@@ -178,73 +147,4 @@
             </div>
         </section>
     </div>
-
-    <!-- Simulation Script -->
-    <script>
-        let simSpeaking = false;
-        let simUtterance = null;
-
-        function toggleSimPlay() {
-            const btn = document.getElementById('sim-play-btn');
-            const wave = document.getElementById('sim-wave');
-            const textBox = document.getElementById('sim-text-box');
-
-            if (simSpeaking) {
-                // Stop speech
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.resume();
-                    window.speechSynthesis.cancel();
-                }
-                simSpeaking = false;
-                btn.innerHTML = "\u25B6";
-                btn.style.background = "#4f46e5";
-                wave.style.opacity = "0.3";
-                textBox.innerText = '"Simulasi dihentikan. Klik tombol putar kembali untuk mendengarkan."';
-                textBox.style.color = "#94a3b8";
-            } else {
-                // Start speech
-                const textToSpeak = "Selamat datang di platform pembaca buku aksesibilitas Read Assist. Silakan tempel kode QR pada buku fisik Anda, kemudian pindai stiker tersebut menggunakan kamera smartphone Anda untuk mulai mendengarkan audio pembacaan naskah secara mandiri.";
-                
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.resume();
-                    window.speechSynthesis.cancel(); // cancel any active speech
-                    simUtterance = new SpeechSynthesisUtterance(textToSpeak);
-                    simUtterance.lang = 'id-ID';
-                    
-                    simUtterance.onstart = function() {
-                        simSpeaking = true;
-                        btn.innerHTML = "\u23F8";
-                        btn.style.background = "#ef4444";
-                        wave.style.opacity = "1";
-                        textBox.innerText = '"Selamat datang di platform pembaca buku aksesibilitas Read Assist. Silakan tempel kode QR pada buku fisik Anda..."';
-                        textBox.style.color = "#a5b4fc";
-                    };
-
-                    simUtterance.onend = function() {
-                        simSpeaking = false;
-                        btn.innerHTML = "\u25B6";
-                        btn.style.background = "#4f46e5";
-                        wave.style.opacity = "0.3";
-                        textBox.innerText = '"Simulasi selesai. Klik tombol putar di bawah untuk mendengar kembali."';
-                        textBox.style.color = "#34d399";
-                    };
-
-                    simUtterance.onerror = function() {
-                        simSpeaking = false;
-                        btn.innerHTML = "\u25B6";
-                        btn.style.background = "#4f46e5";
-                        wave.style.opacity = "0.3";
-                        textBox.innerText = '"Simulasi gagal diputar. Browser Anda mungkin tidak mendukung fitur ini."';
-                        textBox.style.color = "#ef4444";
-                    };
-
-                    window.speechSynthesis.resume();
-                    window.speechSynthesis.speak(simUtterance);
-                } else {
-                    textBox.innerText = '"Simulasi gagal diputar. Peranti atau browser Anda tidak mendukung Web Speech Synthesis."';
-                    textBox.style.color = "#ef4444";
-                }
-            }
-        }
-    </script>
 @endsection

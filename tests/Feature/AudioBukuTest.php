@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Admin;
 use App\Models\AudioBuku;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AudioBookTest extends TestCase
+class AudioBukuTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -110,5 +111,54 @@ class AudioBookTest extends TestCase
     {
         $response = $this->get('/read-assist');
         $response->assertStatus(200);
+    }
+
+    public function test_admin_dashboard_shows_real_stats()
+    {
+        Admin::create([
+            'nama' => 'Admin Test',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        User::factory()->count(2)->create();
+        AudioBuku::factory()->count(3)->create(['audio_status' => 'completed']);
+        AudioBuku::factory()->count(1)->create(['audio_status' => 'pending']);
+        AudioBuku::factory()->count(1)->create(['audio_status' => 'failed']);
+
+        $this->post('/login', [
+            'role' => 'admin',
+            'email' => 'admin@example.com',
+            'password' => 'password',
+        ]);
+
+        $response = $this->get('/admin/dashboard');
+        $response->assertStatus(200);
+        $response->assertSee('5'); // total books
+        $response->assertSee('3'); // audio completed
+        $response->assertSee('Ringkasan Audio');
+        $response->assertSee('progres tersimpan');
+    }
+
+    public function test_user_dashboard_shows_real_stats()
+    {
+        $user = User::factory()->create(['password' => bcrypt('password123')]);
+
+        AudioBuku::factory()->count(4)->create();
+        AudioBuku::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'audio_status' => 'completed',
+        ]);
+
+        $this->post('/login', [
+            'role' => 'user',
+            'email' => $user->email,
+            'password' => 'password123',
+        ]);
+
+        $response = $this->get('/user/dashboard');
+        $response->assertStatus(200);
+        $response->assertSee('6'); // total books
+        $response->assertSee('2'); // my uploads & completed
+        $response->assertSee('Ringkasan Mendengar');
     }
 }
