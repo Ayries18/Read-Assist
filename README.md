@@ -37,7 +37,6 @@
 - [Tentang Proyek](#-tentang-proyek)
 - [Fitur Utama](#-fitur-utama)
 - [Aksesibilitas](#-aksesibilitas)
-- [Tangkapan Layar](#-tangkapan-layar)
 - [Teknologi](#-teknologi)
 - [Cara Menjalankan](#-cara-menjalankan)
 - [Konfigurasi Lingkungan](#-konfigurasi-lingkungan)
@@ -77,20 +76,6 @@ Aplikasi dibangun sesuai standar **WCAG 2.2** dan diverifikasi dengan **axe-core
 - ⌨️ **Navigasi keyboard penuh** — fokus terlihat jelas, modal tertutup dengan `Escape`
 - 🔈 **Suara pendamping** (TTS) untuk membacakan konten halaman
 - 🎯 Kontras warna lolos rasio AA pada semua komponen
-
----
-
-## 🖼️ Tangkapan Layar
-
-> _Tambahkan file gambar ke `docs/screenshots/` lalu ganti placeholder di bawah ini._
-
-<div align="center">
-
-![Beranda](docs/screenshots/beranda.png)
-![Katalog](docs/screenshots/katalog.png)
-![Detail & QR](docs/screenshots/detail-buku.png)
-
-</div>
 
 ---
 
