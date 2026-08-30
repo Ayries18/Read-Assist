@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>QR Tidak Valid - Read Assist</title>
-    <meta name="theme-color" content="#081028">
+    <meta name="theme-color" content="#000000">
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));
         $hasHot = file_exists(public_path('hot'));
@@ -24,12 +24,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #0f1123;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #e2e8f0;
+            color: #000000;
             -webkit-font-smoothing: antialiased;
         }
         .container {
@@ -42,7 +42,8 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(184, 134, 11, 0.15);
+            border: 2px solid #b8860b;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -51,17 +52,17 @@
         .icon-box svg {
             width: 36px;
             height: 36px;
-            color: #ef4444;
+            color: #b8860b;
         }
         h1 {
             font-size: 1.3rem;
             font-weight: 700;
             margin-bottom: 10px;
-            color: #fff;
+            color: #000;
         }
         p {
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: #000000;
             line-height: 1.6;
             margin-bottom: 28px;
         }
@@ -72,14 +73,14 @@
             padding: 12px 28px;
             border-radius: 12px;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             transition: all 0.2s;
-            background: linear-gradient(135deg, #7c3aed, #6366f1);
-            color: #fff;
-            border: none;
+            background: #b8860b;
+            color: #ffffff;
+            border: 2px solid #000000;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+            box-shadow: none;
         }
         .btn:active { transform: scale(0.97); }
         .btn-secondary {
@@ -92,13 +93,13 @@
             font-weight: 600;
             text-decoration: none;
             transition: all 0.2s;
-            background: rgba(255,255,255,0.05);
-            color: #94a3b8;
-            border: 1px solid rgba(255,255,255,0.08);
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #000000;
             margin-top: 12px;
         }
         .btn-secondary:active { transform: scale(0.97); }
-        .footer { margin-top: 32px; font-size: 0.7rem; color: #475569; }
+        .footer { margin-top: 32px; font-size: 0.7rem; color: #b8860b; }
     </style>
 </head>
 <body>

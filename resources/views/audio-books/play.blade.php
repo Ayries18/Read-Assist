@@ -3,25 +3,25 @@
 @section('content')
 <div class="max-w-3xl mx-auto w-full">
     <!-- Book Header -->
-    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
         <div class="flex gap-4 sm:gap-6 items-start">
             <!-- Cover -->
             <div class="w-[90px] h-[125px] sm:w-[130px] sm:h-[180px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
                 @if ($audioBook->cover)
                     <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover">
                 @else
-                    <div class="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center" style="background: #1c1c1e;">
-                        <span class="text-[0.6rem] sm:text-xs font-bold text-white line-clamp-3 leading-relaxed">{{ $audioBook->judul }}</span>
+                    <div class="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center" style="background: #ffffff;">
+                        <span class="text-[0.6rem] sm:text-xs font-bold text-black line-clamp-3 leading-relaxed">{{ $audioBook->judul }}</span>
                     </div>
                 @endif
             </div>
 
             <!-- Title & Meta -->
             <div class="flex-1 min-w-0">
-                <h2 id="book-title" class="text-gradient text-lg sm:text-3xl font-bold leading-tight mb-1 sm:mb-2">
+                <h1 id="book-title" class="text-gradient text-lg sm:text-3xl font-bold leading-tight mb-1 sm:mb-2">
                     {{ $audioBook->judul }}
-                </h2>
-                <div class="text-xs sm:text-sm text-slate-300 flex flex-col gap-0.5 sm:gap-1">
+                </h1>
+                <div class="text-xs sm:text-sm text-slate-600 flex flex-col gap-0.5 sm:gap-1">
                     <span>Kategori: <strong>{{ $audioBook->kategori ?: 'Umum' }}</strong></span>
                 </div>
             </div>
@@ -29,30 +29,30 @@
 
         <!-- Metadata Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mt-4 sm:mt-6">
-            <div class="bg-white/[0.02] border border-white/10 rounded-lg p-2 sm:p-3 text-center">
-                <span class="text-[0.6rem] sm:text-xs text-slate-400 uppercase font-bold block mb-0.5">Karakter</span>
-                <span class="text-sm sm:text-lg font-bold text-blue-400">{{ strlen($audioBook->deskripsi) }}</span>
+            <div class="bg-black/5 border border-black/10 rounded-lg p-2 sm:p-3 text-center">
+                <span class="text-[0.6rem] sm:text-xs text-slate-600 uppercase font-bold block mb-0.5">Karakter</span>
+                <span class="text-sm sm:text-lg font-bold text-blue-600">{{ strlen($audioBook->deskripsi) }}</span>
             </div>
-            <div class="bg-white/[0.02] border border-white/10 rounded-lg p-2 sm:p-3 text-center">
-                <span class="text-[0.6rem] sm:text-xs text-slate-400 uppercase font-bold block mb-0.5">Jumlah Kata</span>
-                <span class="text-sm sm:text-lg font-bold text-indigo-400">{{ str_word_count($audioBook->deskripsi) }}</span>
+            <div class="bg-black/5 border border-black/10 rounded-lg p-2 sm:p-3 text-center">
+                <span class="text-[0.6rem] sm:text-xs text-slate-600 uppercase font-bold block mb-0.5">Jumlah Kata</span>
+                <span class="text-sm sm:text-lg font-bold text-indigo-600">{{ str_word_count($audioBook->deskripsi) }}</span>
             </div>
-            <div class="bg-white/[0.02] border border-white/10 rounded-lg p-2 sm:p-3 text-center">
-                <span class="text-[0.6rem] sm:text-xs text-slate-400 uppercase font-bold block mb-0.5">Estimasi Baca</span>
-                <span class="text-sm sm:text-lg font-bold text-emerald-400">{{ ceil(str_word_count($audioBook->deskripsi) / 150) }} Menit</span>
+            <div class="bg-black/5 border border-black/10 rounded-lg p-2 sm:p-3 text-center">
+                <span class="text-[0.6rem] sm:text-xs text-slate-600 uppercase font-bold block mb-0.5">Estimasi Baca</span>
+                <span class="text-sm sm:text-lg font-bold text-emerald-600">{{ ceil(str_word_count($audioBook->deskripsi) / 150) }} Menit</span>
             </div>
-            <div class="bg-white/[0.02] border border-white/10 rounded-lg p-2 sm:p-3 text-center">
-                <span class="text-[0.6rem] sm:text-xs text-slate-400 uppercase font-bold block mb-0.5">Status Audio</span>
-                <span class="text-[0.65rem] sm:text-base font-bold text-emerald-400 block mt-0.5 sm:mt-1">Siap</span>
+            <div class="bg-black/5 border border-black/10 rounded-lg p-2 sm:p-3 text-center">
+                <span class="text-[0.6rem] sm:text-xs text-slate-600 uppercase font-bold block mb-0.5">Status Audio</span>
+                <span class="text-[0.65rem] sm:text-base font-bold text-emerald-600 block mt-0.5 sm:mt-1">Siap</span>
             </div>
         </div>
     </div>
 
     <!-- Description -->
-    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
-        <h4 class="text-xs sm:text-base text-white font-semibold mb-2">Deskripsi Buku</h4>
-        <div class="bg-slate-900/40 border border-white/10 rounded-xl p-3 sm:p-5">
-            <p class="text-slate-300 leading-relaxed text-xs sm:text-sm whitespace-pre-line">
+    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+        <h2 class="text-xs sm:text-base text-black font-semibold mb-2">Deskripsi Buku</h2>
+        <div class="bg-black/5 border border-black/10 rounded-xl p-3 sm:p-5">
+            <p id="display-description-play" class="text-slate-700 leading-relaxed text-xs sm:text-sm whitespace-pre-line">
                 {{ isset($audioBook->deskripsi) ? \Illuminate\Support\Str::limit($audioBook->deskripsi, 300) : 'Tidak ada deskripsi.' }}
             </p>
             <div id="book-description" class="hidden">{{ $audioBook->deskripsi ?? 'Tidak ada deskripsi.' }}</div>
@@ -61,27 +61,87 @@
 
     @if ($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
         <!-- Generated MP3 Player -->
-        <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
-            <h4 class="text-sm sm:text-base mb-3">Dengarkan Audio</h4>
+        <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+            <h2 class="text-sm sm:text-base text-black mb-3">Dengarkan Audio</h2>
             <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
                 <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
                 Browser Anda tidak mendukung pemutar audio.
             </audio>
             <div style="margin-top: 0.2rem;">
-                <a href="{{ route('audio.stream', $audioBook) }}" download class="text-indigo-400 underline text-sm">Download MP3</a>
+                <a href="{{ route('audio.stream', $audioBook) }}" download class="text-indigo-600 underline text-sm">Download MP3</a>
             </div>
         </div>
     @else
         <!-- TTS Player Section -->
-        <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
-            <h4 class="text-sm sm:text-base mb-1">Pemutar Audio (TTS)</h4>
+        <div id="play-reader-card" class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+            <h2 class="text-sm sm:text-base mb-1">Pemutar Audio (TTS)</h2>
             <p class="text-xs text-slate-400 mb-4">Kalimat demi kalimat — progress tersimpan otomatis</p>
 
             <!-- Status Badge -->
             <div class="flex justify-center items-center gap-2 mb-4">
                 <span class="text-xs text-slate-400">Status:</span>
-                <span id="audio-status-badge" class="badge badge-ghost badge-sm text-xs">Browser TTS</span>
+                <span id="audio-status-badge" class="badge badge-sm text-xs bg-black/5 text-black border border-black/10">Browser TTS</span>
             </div>
+
+            <style>
+                #play-reader-card.high-contrast-mode {
+                    background: #000000 !important;
+                    color: #ffff00 !important;
+                    border-color: #ffff00 !important;
+                }
+                #play-reader-card.high-contrast-mode h1,
+                #play-reader-card.high-contrast-mode h2,
+                #play-reader-card.high-contrast-mode h3,
+                #play-reader-card.high-contrast-mode h4,
+                #play-reader-card.high-contrast-mode p,
+                #play-reader-card.high-contrast-mode span,
+                #play-reader-card.high-contrast-mode label,
+                #play-reader-card.high-contrast-mode strong,
+                #play-reader-card.high-contrast-mode a {
+                    color: #ffff00 !important;
+                }
+                #play-reader-card.high-contrast-mode button,
+                #play-reader-card.high-contrast-mode select,
+                #play-reader-card.high-contrast-mode input,
+                #play-reader-card.high-contrast-mode textarea,
+                #play-reader-card.high-contrast-mode .btn,
+                #play-reader-card.high-contrast-mode a.btn {
+                    background: #000 !important;
+                    color: #ffff00 !important;
+                    border: 2px solid #ffff00 !important;
+                }
+                #play-reader-card.high-contrast-mode #btn-play {
+                    background: #ffff00 !important;
+                    color: #000000 !important;
+                    border: 2px solid #ffff00 !important;
+                }
+                #play-reader-card.light-mode {
+                    background: #ffffff !important;
+                    color: #000000 !important;
+                    border-color: #000000 !important;
+                }
+                #play-reader-card.light-mode h1,
+                #play-reader-card.light-mode h2,
+                #play-reader-card.light-mode h3,
+                #play-reader-card.light-mode h4,
+                #play-reader-card.light-mode p,
+                #play-reader-card.light-mode span,
+                #play-reader-card.light-mode label,
+                #play-reader-card.light-mode strong,
+                #play-reader-card.light-mode a {
+                    color: #000000 !important;
+                }
+                #play-reader-card.light-mode button {
+                    background: #ffffff !important;
+                    color: #000000 !important;
+                    border: 2px solid #000000 !important;
+                }
+                #play-reader-card.light-mode #btn-play {
+                    background: #b8860b !important;
+                    color: #ffffff !important;
+                    border: 2px solid #000000 !important;
+                }
+            </style>
 
             <!-- Hidden full description source -->
             <p id="book-description-tts" class="hidden">{{ $audioBook->deskripsi ?? 'Tidak ada deskripsi.' }}</p>
@@ -95,7 +155,7 @@
             </div>
 
             <!-- Progress -->
-            <div id="status-message" class="text-xs text-slate-400 mb-4 min-h-[1.2em]">
+            <div id="status-message" class="text-xs text-slate-400 mb-4 min-h-[1.2em]" role="status" aria-live="polite" aria-atomic="true">
                 Ketuk play untuk memulai
             </div>
 
@@ -109,7 +169,7 @@
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                 </button>
 
-                <button id="btn-play" onclick="playTTS()" class="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-500 text-white shadow-2xl shadow-indigo-500/40 active:scale-90 transition-all duration-150" title="Lanjutkan" aria-label="Putar atau lanjutkan">
+                <button id="btn-play" onclick="playTTS()" class="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#ffff00] text-black shadow-2xl shadow-black/60 active:scale-90 transition-all duration-150" title="Lanjutkan" aria-label="Putar atau lanjutkan">
                     <svg id="play-icon" class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 </button>
 
@@ -117,8 +177,19 @@
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
 
-                <button id="btn-next" onclick="nextTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Selanjutnya" style="background: rgba(255,255,255,0.05);">
+                <button id="btn-next" onclick="nextTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Selanjutnya" aria-label="Kalimat selanjutnya" style="background: rgba(255,255,255,0.05);">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </button>
+            </div>
+
+            <!-- Speed & Settings -->
+            <div class="flex items-center justify-center gap-2 sm:gap-3 mb-3">
+                <button id="btn-speed" onclick="cycleTTSRate()" class="flex items-center gap-1.5 text-xs text-white border-2 border-white rounded-full px-4 py-2 hover:border-[#ffff00] active:scale-95 transition-all" title="Ubah kecepatan suara">
+                    Kecepatan: <strong id="speed-label">1.0x</strong>
+                </button>
+                <button id="btn-settings" onclick="openReaderSettings()" class="flex items-center gap-1.5 text-xs text-white border-2 border-white rounded-full px-4 py-2 hover:border-[#ffff00] active:scale-95 transition-all" title="Pengaturan Membaca">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Pengaturan
                 </button>
             </div>
 
@@ -129,6 +200,49 @@
             </button>
         </div>
     @endif
+</div>
+
+<div id="reader-settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="Pengaturan Membaca" style="display: none;">
+    <div class="card border shadow-sm p-6 w-full max-w-md" style="background: #ffffff; border-color: #000000;">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-black font-bold text-lg">Pengaturan Membaca</h3>
+            <button onclick="closeReaderSettings()" class="text-black border-2 border-black rounded-lg w-9 h-9 flex items-center justify-center hover:bg-black hover:text-white transition-colors" aria-label="Tutup Pengaturan">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label for="setting-rate-select" class="text-black font-medium block mb-1 text-sm">Kecepatan Suara (TTS Rate)</label>
+                <select id="setting-rate-select" onchange="setReaderRate(this.value)" class="input input-bordered w-full text-base">
+                    <option value="0.75">0.75x (Lambat)</option>
+                    <option value="1">1.0x (Normal)</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x (Cepat)</option>
+                    <option value="1.75">1.75x</option>
+                    <option value="2">2.0x (Sangat Cepat)</option>
+                </select>
+            </div>
+            <div>
+                <label for="setting-font-select" class="text-black font-medium block mb-1 text-sm">Ukuran Font</label>
+                <select id="setting-font-select" onchange="setReaderFont(this.value)" class="input input-bordered w-full text-base">
+                    <option value="small">Kecil (Small)</option>
+                    <option value="medium" selected>Sedang (Medium)</option>
+                    <option value="large">Besar (Large)</option>
+                    <option value="xlarge">Sangat Besar (X-Large)</option>
+                </select>
+            </div>
+            <div>
+                <label for="setting-contrast-select" class="text-black font-medium block mb-1 text-sm">Kontras</label>
+                <select id="setting-contrast-select" onchange="setReaderContrast(this.value)" class="input input-bordered w-full text-base">
+                    <option value="normal">Normal (Putih-Kuning)</option>
+                    <option value="light">Terang (Putih-Kuning)</option>
+                    <option value="high-contrast">Kontras Tinggi (Kuning-Hitam maksimum)</option>
+                </select>
+            </div>
+            <p class="text-xs text-[#b8860b]">Pengaturan tersimpan otomatis di perangkat ini.</p>
+            <button onclick="closeReaderSettings()" class="btn btn-primary w-full">Selesai</button>
+        </div>
+    </div>
 </div>
 
 @if (!($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts'))
@@ -149,6 +263,114 @@
     const currentSpokenText = document.getElementById('current-spoken-text');
     const waveAnimation = document.getElementById('wave-animation');
     const statusBadge = document.getElementById('audio-status-badge');
+
+    // ── Pengaturan Membaca (gear), Kecepatan TTS, & Sinkronisasi Progres ──
+    const progressKey = 'read_assist_progress_' + bookId;
+    const TTS_RATES = [0.75, 1, 1.25, 1.5, 2.0];
+    let serverSyncedIndex = -1;
+
+    function getSavedTTSRate() {
+        const v = parseFloat(localStorage.getItem('read_assist_tts_rate') || '1.0');
+        return isNaN(v) ? 1.0 : v;
+    }
+
+    function syncRateUI() {
+        const rate = getSavedTTSRate();
+        const label = document.getElementById('speed-label');
+        if (label) label.innerText = rate + 'x';
+        const sel = document.getElementById('setting-rate-select');
+        if (sel) sel.value = String(rate);
+    }
+
+    function cycleTTSRate() {
+        const idx = TTS_RATES.indexOf(getSavedTTSRate());
+        const next = TTS_RATES[(idx + 1) % TTS_RATES.length];
+        localStorage.setItem('read_assist_tts_rate', next);
+        syncRateUI();
+        if (statusMessage) statusMessage.innerText = 'Kecepatan: ' + next + 'x';
+    }
+
+    function syncSettingsUI() {
+        syncRateUI();
+        const fontSel = document.getElementById('setting-font-select');
+        const font = localStorage.getItem('read_assist_font_size') || 'medium';
+        if (fontSel) fontSel.value = font;
+        const conSel = document.getElementById('setting-contrast-select');
+        const contrast = localStorage.getItem('read_assist_contrast') || 'normal';
+        if (conSel) conSel.value = contrast;
+    }
+
+    function openReaderSettings() {
+        syncSettingsUI();
+        const modal = document.getElementById('reader-settings-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+            const first = modal.querySelector('select, button');
+            if (first) first.focus();
+        }
+    }
+
+    function closeReaderSettings() {
+        const modal = document.getElementById('reader-settings-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+        }
+        const settingsBtn = document.getElementById('btn-settings');
+        if (settingsBtn) settingsBtn.focus();
+    }
+
+    function setReaderRate(v) {
+        localStorage.setItem('read_assist_tts_rate', v);
+        syncRateUI();
+    }
+
+    function setReaderFont(v) {
+        localStorage.setItem('read_assist_font_size', v);
+        applyReaderSettings();
+    }
+
+    function setReaderContrast(v) {
+        localStorage.setItem('read_assist_contrast', v);
+        applyReaderSettings();
+    }
+
+    function applyReaderSettings() {
+        const fontSize = localStorage.getItem('read_assist_font_size') || 'medium';
+        const descEl = document.getElementById('display-description-play');
+        if (descEl) {
+            const sizes = { small: '0.75rem', medium: '0.875rem', large: '1.125rem', xlarge: '1.5rem' };
+            descEl.style.fontSize = sizes[fontSize] || '0.875rem';
+        }
+        const contrast = localStorage.getItem('read_assist_contrast') || 'normal';
+        const cardEl = document.getElementById('play-reader-card');
+        if (cardEl) {
+            cardEl.classList.remove('high-contrast-mode');
+            cardEl.classList.remove('light-mode');
+            if (contrast === 'high-contrast') {
+                cardEl.classList.add('high-contrast-mode');
+            } else {
+                // normal & light sama-sama putih-kuning (default)
+                cardEl.classList.add('light-mode');
+            }
+        }
+    }
+
+    function syncProgressToServer(index, completed) {
+        if (index === serverSyncedIndex) return;
+        serverSyncedIndex = index;
+        const csrf = document.querySelector('meta[name="csrf-token"]');
+        fetch('/progress/sync/' + bookId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf ? csrf.getAttribute('content') : ''
+            },
+            body: JSON.stringify({ sentence_index: index, completed: completed || false })
+        }).catch(function() {});
+    }
 
     function splitLongSentence(sentence, maxLength) {
         const parts = [];
@@ -302,6 +524,8 @@
 
         currentChunkIndex = 0;
         localStorage.removeItem('read_assist_progress_' + bookId);
+        serverSyncedIndex = 0;
+        syncProgressToServer(0, false);
         isSpeaking = true;
         isPaused = false;
 
@@ -344,6 +568,7 @@
             isSpeaking = false;
             currentChunkIndex = 0;
             localStorage.removeItem('read_assist_progress_' + bookId);
+            syncProgressToServer(0, true);
             updateUI();
             return;
         }
@@ -353,6 +578,7 @@
         const pause = (chunk && typeof chunk === 'object' && chunk.pause) ? chunk.pause : 300;
         if (currentSpokenText) currentSpokenText.innerText = text;
         localStorage.setItem('read_assist_progress_' + bookId, currentChunkIndex);
+        syncProgressToServer(currentChunkIndex, false);
 
         if (currentUtterance) {
             currentUtterance.onend = null;
@@ -427,6 +653,8 @@
         window.speechSynthesis.cancel();
         currentChunkIndex = 0;
         localStorage.removeItem('read_assist_progress_' + bookId);
+        serverSyncedIndex = 0;
+        syncProgressToServer(0, false);
         updateUI();
     }
 
@@ -470,6 +698,30 @@
         const description = document.getElementById('book-description').innerText;
         chunks = getSpeechChunks(title, description);
 
+        applyReaderSettings();
+        syncRateUI();
+
+        const localIndex = parseInt(localStorage.getItem(progressKey) || '0', 10);
+        fetch('/progress/' + bookId)
+            .then((resp) => resp.json())
+            .then((data) => {
+                if (data && data.completed) {
+                    localStorage.removeItem(progressKey);
+                    return;
+                }
+                const serverSaved = (data && typeof data.sentence_index === 'number') ? data.sentence_index : 0;
+                if (serverSaved > 0 && serverSaved > currentChunkIndex && serverSaved < chunks.length) {
+                    currentChunkIndex = serverSaved;
+                    localStorage.setItem(progressKey, serverSaved);
+                    if (statusMessage) statusMessage.innerText = `Melanjutkan dari kalimat ${currentChunkIndex + 1}`;
+                }
+                if (localIndex > 0) {
+                    if (statusMessage) statusMessage.innerText = `Melanjutkan dari kalimat ${currentChunkIndex + 1}`;
+                }
+                updateUI();
+            })
+            .catch(() => {});
+
         if (currentChunkIndex > 0) {
             if (statusMessage) statusMessage.innerText = `Melanjutkan dari kalimat ${currentChunkIndex + 1}`;
         }
@@ -496,7 +748,14 @@
     });
 
     document.addEventListener('keydown', (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const settingsModal = document.getElementById('reader-settings-modal');
+        if (settingsModal && settingsModal.style.display === 'flex' && e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            closeReaderSettings();
+            return;
+        }
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
         switch(e.key) {
             case ' ': e.preventDefault(); if (isSpeaking && !isPaused) pauseTTS(); else playTTS(); break;
             case 'ArrowLeft': e.preventDefault(); prevTTS(); break;

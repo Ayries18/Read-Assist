@@ -11,7 +11,8 @@
     <meta property="og:description" content="Platform aksesibilitas buku audio untuk tunanetra. Cukup pindai QR code untuk mendengarkan.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta name="theme-color" content="#09090b">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="/logo.png">
     <link rel="apple-touch-icon" href="/logo.png">
     <link rel="manifest" href="/manifest.json">
@@ -38,23 +39,55 @@
         /* Modern, minimal layout styling */
         :root {
             --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            --accent-primary: #8b5cf6;
-            --accent-secondary: #6366f1;
-            --accent-success: #10b981;
-            --accent-danger: #f43f5e;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-glass: rgba(255, 255, 255, 0.04);
-            --bg-secondary: #111216;
-            --bg-glass: rgba(18, 18, 22, 0.6);
+            --accent-primary: #b8860b;
+            --accent-secondary: #b8860b;
+            --accent-success: #b8860b;
+            --accent-danger: #b8860b;
+            --text-primary: #000000;
+            --text-secondary: #000000;
+            --text-muted: #b8860b;
+            --border-glass: #000000;
+            --bg-secondary: #ffffff;
+            --bg-glass: #ffffff;
         }
 
         body {
-            background-color: #0a0b0d !important;
-            color: #94a3b8 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
             font-family: var(--font-sans) !important;
             line-height: 1.6;
+        }
+
+        /* Skip link: visible only on keyboard focus */
+        .skip-link {
+            position: absolute;
+            left: 8px;
+            top: -48px;
+            z-index: 2000;
+            padding: 10px 18px;
+            background: #b8860b;
+            color: #000;
+            font-weight: 700;
+            border-radius: 0 0 10px 10px;
+            border: 2px solid #000;
+            text-decoration: none;
+            transition: top 0.15s ease;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Visible keyboard focus indicator (keyboard users) */
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        summary:focus-visible,
+        [tabindex]:focus-visible {
+            outline: 3px solid #b8860b !important;
+            outline-offset: 2px !important;
+            border-radius: 4px;
         }
 
         /* Navbar Enhancements */
@@ -73,8 +106,8 @@
             position: relative;
         }
         .nav-icon-btn:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.06);
+            color: #000;
+            background: rgba(0, 0, 0, 0.06);
         }
         .notification-badge {
             position: absolute;
@@ -91,12 +124,12 @@
             position: absolute;
             top: calc(100% + 8px);
             right: -10px;
-            background: #121316;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.12);
             border-radius: 8px;
             padding: 0.5rem;
             width: 240px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
             display: none;
             flex-direction: column;
             gap: 0.3rem;
@@ -114,7 +147,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             padding: 0.3rem 0.5rem 0.4rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
         .dropdown-item {
             display: flex;
@@ -130,8 +163,8 @@
             cursor: pointer;
         }
         .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: rgba(0, 0, 0, 0.05);
+            color: #000;
         }
         .dropdown-item .dot {
             width: 6px;
@@ -164,8 +197,8 @@
             transition: all 0.12s ease;
         }
         .dropdown-item-link:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: rgba(0, 0, 0, 0.05);
+            color: #000;
         }
         .dropdown-logout-btn:hover {
             background: rgba(248, 113, 113, 0.08) !important;
@@ -181,7 +214,7 @@
             transition: all 0.15s ease;
         }
         .nav-link.active {
-            color: #fff !important;
+            color: #000 !important;
         }
         
         .avatar-btn:hover {
@@ -197,10 +230,10 @@
 
         /* Navbar style */
         .navbar {
-            background: rgba(18, 24, 42, 0.95) !important;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
-            box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.05), 0 14px 30px rgba(0, 0, 0, 0.25) !important;
-            backdrop-filter: saturate(180%) blur(8px);
+            background: #ffffff !important;
+            border-bottom: 2px solid #000000 !important;
+            box-shadow: none !important;
+            backdrop-filter: none;
             min-height: 72px !important;
         }
         .logo-navbar {
@@ -221,7 +254,7 @@
         @media (max-width: 640px) {
             .navbar { min-height: 60px !important; padding-top: 0.15rem !important; padding-bottom: 0.15rem !important; }
             .navbar .navbar-start { gap: 0.15rem !important; }
-            .nav-icon-btn { font-size: 1.25rem !important; padding: 0.6rem !important; color: #fff !important; }
+            .nav-icon-btn { font-size: 1.25rem !important; padding: 0.6rem !important; color: #000 !important; }
             .navbar-end { gap: 0.4rem !important; }
             .logo-navbar img { height: 32px; }
         }
@@ -254,8 +287,8 @@
             right: -300px;
             width: 280px;
             height: 100vh;
-            background: #0d0e12;
-            border-left: 1px solid rgba(255,255,255,0.06);
+            background: #ffffff;
+            border-left: 1px solid rgba(0,0,0,0.1);
             z-index: 999;
             padding: 1.5rem 1rem;
             display: flex;
@@ -278,7 +311,7 @@
             align-items: center;
             justify-content: center;
         }
-        .mobile-drawer-close:hover { color: #fff; background: rgba(255,255,255,0.06); }
+        .mobile-drawer-close:hover { color: #000; background: rgba(0,0,0,0.06); }
         .mobile-nav-btn {
             display: flex;
             align-items: center;
@@ -291,8 +324,8 @@
             font-size: 0.92rem;
             font-weight: 500;
         }
-        .mobile-nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .mobile-nav-btn.active { background: rgba(139,92,246,0.12); color: #fff; }
+        .mobile-nav-btn:hover { background: rgba(0,0,0,0.05); color: #000; }
+        .mobile-nav-btn.active { background: rgba(184,134,11,0.12); color: #000; }
         .mobile-nav-btn-icon { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.7; }
         .mobile-nav-btn:hover .mobile-nav-btn-icon { opacity: 1; }
         .mobile-drawer-divider {
@@ -311,24 +344,24 @@
             border-radius: 9999px !important;
             font-size: 0.82rem;
             font-weight: 500;
-            color: #d7dae0 !important;
-            background: rgba(255, 255, 255, 0.04) !important;
+            color: #000 !important;
+            background: rgba(0, 0, 0, 0.04) !important;
             border: 1px solid transparent !important;
             transition: all 0.18s ease !important;
             text-decoration: none;
             cursor: pointer;
         }
         .nav-btn:hover {
-            color: #fff !important;
-            background: rgba(99, 102, 241, 0.14) !important;
+            color: #000 !important;
+            background: rgba(184, 134, 11, 0.16) !important;
             transform: translateY(-1px) !important;
-            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12) !important;
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08) !important;
         }
         .nav-btn.active {
-            color: #fff !important;
-            background: rgba(139, 92, 246, 0.2) !important;
-            border-color: rgba(139, 92, 246, 0.18) !important;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 18px rgba(15, 23, 42, 0.14) !important;
+            color: #000 !important;
+            background: rgba(184, 134, 11, 0.22) !important;
+            border-color: rgba(184, 134, 11, 0.4) !important;
+            box-shadow: inset 0 0 0 1px rgba(184, 134, 11, 0.25) !important;
         }
         .nav-btn .nav-btn-icon {
             width: 16px;
@@ -343,7 +376,8 @@
     </style>
 </head>
 <body>
-    <nav class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
+    <nav aria-label="Navigasi utama" class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
         <div class="navbar-start gap-1 sm:gap-2">
             <a href="/" class="logo-navbar no-underline transition-transform hover:scale-[1.02]">
                 <img
@@ -451,13 +485,17 @@
                             </div>
                             <button id="nav-btn-speech" class="accessibility-toggle-btn" type="button">Aktifkan</button>
                         </div>
+
+                        <p class="accessibility-help-text">
+                            Jika Anda memakai pembaca layar (TalkBack/Braille) di HP, jangan aktifkan "Suara Pendamping" di sini agar suara tidak dobel. Semua pilihan tersimpan otomatis di perangkat ini.
+                        </p>
                     </div>
                 </div>
 
                 @if (session('auth_role'))
                     <!-- Notifications (Desktop) -->
                     <div class="nav-notification-wrapper" style="position: relative;">
-                        <button class="nav-icon-btn" onclick="toggleNotificationDropdown(event)" title="Notifikasi">
+                        <button class="nav-icon-btn" onclick="toggleNotificationDropdown(event)" onkeydown="handleDropdownKey(event, 'notification-dropdown', null)" title="Notifikasi" aria-label="Buka menu notifikasi" aria-haspopup="true" aria-controls="notification-dropdown" aria-expanded="false">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                         </button>
                         <div id="notification-dropdown" class="nav-dropdown" style="display: none; right: -50px; width: 260px;">
@@ -481,16 +519,16 @@
 
                     <!-- User Profile (Desktop) -->
                     <div class="avatar-dropdown-wrapper" style="position: relative;">
-                        <button class="avatar-btn" onclick="toggleAvatarDropdown(event)" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <button class="avatar-btn" onclick="toggleAvatarDropdown(event)" onkeydown="handleDropdownKey(event, 'avatar-dropdown', null)" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" aria-haspopup="true" aria-controls="avatar-dropdown" aria-expanded="false" aria-label="Buka menu profil">
                             <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.95rem; border: 2.2px solid rgba(255,255,255,0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.25);">
                                 {{ strtoupper(substr(session('auth_name'), 0, 1)) }}
                             </div>
-                            <span style="font-size: 0.85rem; color: #fff; font-weight: 600;" class="nav-user-name-text">{{ session('auth_name') }}</span>
+                            <span style="font-size: 0.85rem; color: #000; font-weight: 600;" class="nav-user-name-text">{{ session('auth_name') }}</span>
                             <span style="font-size: 0.6rem; color: var(--text-muted);">▼</span>
                         </button>
                         <div id="avatar-dropdown" class="nav-dropdown" style="display: none; right: 0; min-width: 190px;">
-                            <div class="dropdown-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.6rem; margin-bottom: 0.4rem;">
-                                <div style="font-weight: 700; color: #fff; font-size: 0.88rem;">{{ session('auth_name') }}</div>
+                            <div class="dropdown-header" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.6rem; margin-bottom: 0.4rem;">
+                                <div style="font-weight: 700; color: #000; font-size: 0.88rem;">{{ session('auth_name') }}</div>
                                 <div style="font-size: 0.7rem; color: var(--accent-primary); font-weight: bold; text-transform: uppercase; margin-top: 0.1rem;">{{ session('auth_role') }}</div>
                             </div>
                             
@@ -518,7 +556,7 @@
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                         <span class="nav-btn-text">Login</span>
                     </a>
-                    <a href="/register" class="btn btn-primary btn-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200 hover:scale-105">
+                    <a href="/register" class="btn btn-primary btn-sm shadow-lg shadow-[#b8860b]/25 hover:shadow-[#b8860b]/40 transition-all duration-200 hover:scale-105">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Daftar
                     </a>
                 @endif
@@ -544,7 +582,7 @@
                     {{ strtoupper(substr(session('auth_name'), 0, 1)) }}
                 </div>
                 <div style="overflow:hidden;">
-                    <div style="font-weight:700;color:#fff;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ session('auth_name') }}</div>
+                    <div style="font-weight:700;color:#000;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ session('auth_name') }}</div>
                     <div style="font-size:0.7rem;color:var(--accent-primary);font-weight:bold;text-transform:uppercase;">{{ session('auth_role') }}</div>
                 </div>
             </div>
@@ -609,7 +647,7 @@
         @endif
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+    <main id="main-content" tabindex="-1" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -625,7 +663,7 @@
         @yield('content')
     </main>
 
-    <footer style="text-align: center; padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-glass); background: rgba(0,0,0,0.2);">
+    <footer style="text-align: center; padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-glass); background: rgba(0,0,0,0.03);">
         <p style="margin: 0; font-size: 0.9rem;">&copy; {{ date('Y') }} Read Assist. Sistem Pendukung Belajar Mandiri untuk Penyandang Disabilitas Netra.</p>
     </footer>
 
@@ -674,7 +712,7 @@
             </div>
 
             <p class="accessibility-help-text">
-                Aktifkan suara pendamping, lalu fokuskan tombol atau teks untuk mendengar panduan. Semua pilihan tersimpan otomatis di perangkat ini.
+                Aktifkan suara pendamping, lalu fokuskan tombol atau teks untuk mendengar panduan. Jika Anda memakai pembaca layar (TalkBack/Braille) di HP, jangan aktifkan "Suara Pendamping" agar suara tidak dobel. Semua pilihan tersimpan otomatis di perangkat ini.
             </p>
         </div>
     </div>
@@ -687,10 +725,12 @@
             const notif = document.getElementById('notification-dropdown');
             const avatar = document.getElementById('avatar-dropdown');
             const accDrop = document.getElementById('accessibility-dropdown');
-            if (avatar) avatar.style.display = 'none';
-            if (accDrop) accDrop.style.display = 'none';
+            if (avatar) { avatar.style.display = 'none'; syncAriaExpanded('avatar-dropdown', document.querySelector('.avatar-btn')); }
+            if (accDrop) { accDrop.style.display = 'none'; const at = document.querySelector('.accessibility-nav-trigger'); if (at) at.setAttribute('aria-expanded', 'false'); }
             if (notif) {
                 notif.style.display = notif.style.display === 'none' ? 'flex' : 'none';
+                const trigger = document.querySelector('.nav-notification-wrapper .nav-icon-btn');
+                if (trigger) trigger.setAttribute('aria-expanded', notif.style.display !== 'none' ? 'true' : 'false');
             }
         }
 
@@ -699,10 +739,12 @@
             const avatar = document.getElementById('avatar-dropdown');
             const notif = document.getElementById('notification-dropdown');
             const accDrop = document.getElementById('accessibility-dropdown');
-            if (notif) notif.style.display = 'none';
-            if (accDrop) accDrop.style.display = 'none';
+            if (notif) { notif.style.display = 'none'; const t = document.querySelector('.nav-notification-wrapper .nav-icon-btn'); if (t) t.setAttribute('aria-expanded', 'false'); }
+            if (accDrop) { accDrop.style.display = 'none'; const at = document.querySelector('.accessibility-nav-trigger'); if (at) at.setAttribute('aria-expanded', 'false'); }
             if (avatar) {
                 avatar.style.display = avatar.style.display === 'none' ? 'flex' : 'none';
+                const trigger = document.querySelector('.avatar-btn');
+                if (trigger) trigger.setAttribute('aria-expanded', avatar.style.display !== 'none' ? 'true' : 'false');
             }
         }
 
@@ -731,6 +773,43 @@
             drawer.classList.toggle('open');
             overlay.classList.toggle('open');
             document.body.style.overflow = isOpen ? '' : 'hidden';
+            const hamburger = document.querySelector('.mobile-drawer-close');
+            if (!isOpen) {
+                // Move focus into the drawer when opened
+                const closeBtn = document.querySelector('.mobile-drawer-close');
+                if (closeBtn) closeBtn.focus();
+            }
+        }
+
+        // Keyboard handling for dropdown triggers (Enter/Space to open, Escape to close)
+        function handleDropdownKey(e, dropdownId, triggerSel) {
+            if (e.key === 'Escape') {
+                const dd = document.getElementById(dropdownId);
+                if (dd && dd.style.display !== 'none') {
+                    dd.style.display = 'none';
+                    const trigger = triggerSel ? document.querySelector(triggerSel) : e.target;
+                    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+                }
+                return;
+            }
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (dropdownId === 'notification-dropdown') {
+                    toggleNotificationDropdown(e);
+                } else if (dropdownId === 'avatar-dropdown') {
+                    toggleAvatarDropdown(e);
+                } else if (dropdownId === 'accessibility-dropdown') {
+                    toggleAccessibilityDropdown(e);
+                }
+            }
+        }
+
+        // Sync aria-expanded state after dropdown toggles
+        function syncAriaExpanded(dropdownId, trigger) {
+            const dd = document.getElementById(dropdownId);
+            if (dd && trigger) {
+                trigger.setAttribute('aria-expanded', dd.style.display !== 'none' ? 'true' : 'false');
+            }
         }
 
         // Close dropdowns on clicking anywhere outside
@@ -744,9 +823,13 @@
             
             if (!notifBtn && notif) {
                 notif.style.display = 'none';
+                const t = document.querySelector('.nav-notification-wrapper .nav-icon-btn');
+                if (t) t.setAttribute('aria-expanded', 'false');
             }
             if (!avatarBtn && avatar) {
                 avatar.style.display = 'none';
+                const at = document.querySelector('.avatar-btn');
+                if (at) at.setAttribute('aria-expanded', 'false');
             }
             if (!accBtn && accDrop) {
                 const wasOpen = accDrop.style.display !== 'none';
@@ -754,6 +837,31 @@
                 const accTrigger = document.querySelector('.accessibility-nav-trigger');
                 if (accTrigger) accTrigger.setAttribute('aria-expanded', 'false');
                 if (wasOpen) speakText("Menu opsi aksesibilitas ditutup.");
+            }
+        });
+
+        // Global Escape key: close any open dropdown, drawer, or dialog
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape') return;
+            ['notification-dropdown', 'avatar-dropdown', 'accessibility-dropdown'].forEach(function(id) {
+                const dd = document.getElementById(id);
+                if (dd && dd.style.display !== 'none') {
+                    dd.style.display = 'none';
+                }
+            });
+            const notifT = document.querySelector('.nav-notification-wrapper .nav-icon-btn');
+            if (notifT) notifT.setAttribute('aria-expanded', 'false');
+            const avaT = document.querySelector('.avatar-btn');
+            if (avaT) avaT.setAttribute('aria-expanded', 'false');
+            const accT = document.querySelector('.accessibility-nav-trigger');
+            if (accT) accT.setAttribute('aria-expanded', 'false');
+            const drawer = document.getElementById('mobile-drawer');
+            if (drawer && drawer.classList.contains('open')) {
+                toggleMobileDrawer();
+            }
+            if (typeof accMenu !== 'undefined' && accMenu && accMenu.style.display !== 'none') {
+                accMenu.style.display = 'none';
+                if (accToggleBtn) accToggleBtn.setAttribute('aria-expanded', 'false');
             }
         });
 
@@ -985,7 +1093,7 @@
 
     <div id="mini-audio-player">
         <div class="mini-player-details">
-            <div id="mini-player-cover-area" style="width: 40px; height: 40px; border-radius: 6px; overflow: hidden; flex-shrink: 0; background: #1e1b4b; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+            <div id="mini-player-cover-area" style="width: 40px; height: 40px; border-radius: 6px; overflow: hidden; flex-shrink: 0; background: rgba(184,134,11,0.1); border: 1px solid #b8860b; display: flex; align-items: center; justify-content: center;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
             </div>
             <div style="overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
@@ -994,7 +1102,7 @@
             </div>
         </div>
 
-        <div id="mini-audio-status-badge" style="font-size: 0.7rem; font-weight: bold; background: rgba(99,102,241,0.2); color: var(--accent-primary); border: 1px solid var(--accent-primary); padding: 2px 8px; border-radius: 12px; white-space: nowrap;">
+        <div id="mini-audio-status-badge" style="font-size: 0.7rem; font-weight: bold; background: rgba(184,134,11,0.15); color: var(--accent-primary); border: 1px solid var(--accent-primary); padding: 2px 8px; border-radius: 12px; white-space: nowrap;">
             Siap
         </div>
 
@@ -1006,16 +1114,16 @@
                 <div class="mini-wave-bar"></div>
             </div>
 
-            <button class="mini-player-btn" onclick="prevMiniSentence()" title="Kalimat Sebelumnya">
+            <button class="mini-player-btn" onclick="prevMiniSentence()" title="Kalimat Sebelumnya" aria-label="Kalimat sebelumnya">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
             </button>
-            <button class="mini-player-btn play-btn" id="mini-btn-play" onclick="toggleMiniPlay()" title="Putar">
+            <button class="mini-player-btn play-btn" id="mini-btn-play" onclick="toggleMiniPlay()" title="Putar" aria-label="Putar atau jeda">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </button>
-            <button class="mini-player-btn" onclick="nextMiniSentence()" title="Kalimat Berikutnya">
+            <button class="mini-player-btn" onclick="nextMiniSentence()" title="Kalimat Berikutnya" aria-label="Kalimat berikutnya">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
             </button>
-            <button class="mini-player-btn" onclick="closeMiniPlayer()" title="Tutup Pemutar" style="margin-left: 0.4rem;">
+            <button class="mini-player-btn" onclick="closeMiniPlayer()" title="Tutup Pemutar" aria-label="Tutup pemutar" style="margin-left: 0.4rem;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -1289,8 +1397,8 @@
                 warningId = setTimeout(() => {
                     const toast = document.createElement('div');
                     toast.id = 'session-toast';
-                    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:999999;background:#1e1b4b;border:1px solid #6366f1;color:#fff;padding:12px 20px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.5);display:flex;align-items:center;gap:12px;font-size:0.85rem;max-width:90%;width:400px;';
-                    toast.innerHTML = '<span>Sesi Anda akan segera berakhir karena tidak ada aktivitas.</span><button onclick="window.location.href=\'/login\'" style="background:#6366f1;border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;">Login Ulang</button>';
+                    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:999999;background:#ffffff;border:1px solid #b8860b;color:#000;padding:12px 20px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);display:flex;align-items:center;gap:12px;font-size:0.85rem;max-width:90%;width:400px;';
+                    toast.innerHTML = '<span>Sesi Anda akan segera berakhir karena tidak ada aktivitas.</span><button onclick="window.location.href=\'/login\'" style="background:#b8860b;border:none;color:#000;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;">Login Ulang</button>';
                     document.body.appendChild(toast);
                 }, SESSION_LIFETIME - WARNING_TIME);
 

@@ -1,14 +1,14 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
     <div class="mb-6">
-        <a href="/katalog-audio" class="text-slate-400 font-medium text-sm inline-flex items-center gap-2">
-            ← Kembali ke Katalog
+        <a href="/katalog-audio" class="text-slate-600 font-medium text-sm inline-flex items-center gap-2">
+            &larr; Kembali ke Katalog
         </a>
     </div>
 
-    <div class="card bg-base-300/50 border border-white/10 shadow-xl max-w-lg mx-auto p-6 sm:p-8">
-        <h2 class="text-2xl font-bold text-white mb-6">Tambah Buku Baru</h2>
+    <div class="card bg-white border border-black/10 shadow-xl max-w-lg mx-auto p-6 sm:p-8">
+        <h2 class="text-2xl font-bold text-black mb-6">Tambah Buku Baru</h2>
 
         @if ($errors->any())
             <div class="alert alert-error shadow-lg mb-6">
@@ -21,9 +21,9 @@
 
             <!-- Styled File Upload Area -->
             <div class="form-control w-full mb-4">
-                <span class="label-text text-slate-300 text-sm font-medium mb-2 block">File Buku (PDF/EPUB)</span>
-                <label for="book_file" class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-white/10 rounded-xl p-8 sm:p-10 text-center bg-base-300/30 cursor-pointer hover:border-indigo-500 hover:bg-indigo-500/5 transition-all duration-200 w-full" id="dropzone">
-                    <span class="text-indigo-400 mb-1 inline-block">
+                <span class="label-text text-slate-600 text-sm font-medium mb-2 block">File Buku (PDF/EPUB)</span>
+                <label for="book_file" class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-black/15 rounded-xl p-8 sm:p-10 text-center bg-black/[0.03] cursor-pointer hover:border-[#b8860b] hover:bg-[#b8860b]/10 transition-all duration-200 w-full" id="dropzone">
+                    <span class="text-[#b8860b] mb-1 inline-block">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </span>
                     <p class="font-semibold text-sm mb-1" id="file-status-title">Pilih file PDF atau EPUB</p>
@@ -34,8 +34,8 @@
 
             <!-- Title field -->
             <div class="form-control w-full mb-4">
-                <label for="title" class="label-text text-slate-300 text-sm font-medium mb-2 block">Judul Buku</label>
-                <input id="title" type="text" name="title" value="{{ old('title') }}" class="input input-bordered w-full bg-base-300/60 text-white placeholder:text-slate-500" placeholder="Biarkan kosong untuk menggunakan nama file otomatis">
+                <label for="title" class="label-text text-slate-600 text-sm font-medium mb-2 block">Judul Buku</label>
+                <input id="title" type="text" name="title" value="{{ old('title') }}" class="input input-bordered w-full bg-white text-black border-black/15" placeholder="Biarkan kosong untuk menggunakan nama file otomatis">
             </div>
 
             <button type="submit" class="btn btn-primary mt-4">
@@ -46,7 +46,7 @@
 
     <!-- Processing Overlay (Automated Feedback) -->
     <div id="processing-overlay" style="display: none; position: fixed; inset: 0; background: rgba(9, 9, 11, 0.9); z-index: 99999; align-items: center; justify-content: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-        <div class="card bg-base-300/50 border border-indigo-500/30 shadow-indigo-500/20 shadow-lg" style="max-width: 480px; width: 90%; padding: 2.5rem; text-align: center;">
+        <div class="card bg-base-300/50 border border-[#b8860b]/30 shadow-[#b8860b]/20 shadow-lg" style="max-width: 480px; width: 90%; padding: 2.5rem; text-align: center;">
                 <!-- Spinner -->
                 <div style="width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.1); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem auto;"></div>
                 

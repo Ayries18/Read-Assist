@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
         <div>
             <h1 class="text-gradient text-4xl font-extrabold tracking-tight">Katalog Buku Audio</h1>
-            <p class="text-slate-300 mt-1">Telusuri dan pelajari koleksi buku yang tersedia untuk belajar mandiri.</p>
+            <p class="text-slate-600 mt-1">Telusuri dan pelajari koleksi buku yang tersedia untuk belajar mandiri.</p>
         </div>
         
         @if (in_array(session('auth_role'), ['admin', 'user'], true))
@@ -15,26 +15,26 @@
     </div>
 
     <!-- Search & Filter Form -->
-    <div class="card border shadow-sm p-6 mb-8" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+    <div class="card border shadow-sm p-6 mb-8" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
         <form method="GET" action="/katalog-audio" class="flex gap-4 items-center flex-wrap">
             <div class="flex-1 min-w-[200px] relative">
                 <input
                     type="text"
                     id="search"
                     name="search"
-                    class="input input-bordered w-full bg-base-300/60 text-white placeholder:text-slate-500 pl-10"
+                    class="input input-bordered w-full bg-white text-black placeholder:text-slate-400 pl-10"
                     value="{{ $search ?? '' }}"
                     placeholder="Cari judul, penulis, atau kategori..."
                 >
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">Cari</span>
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs">Cari</span>
             </div>
-            <select name="category" class="select select-bordered bg-base-300/60 text-white min-w-[140px]">
+            <select name="category" aria-label="Filter kategori" class="select select-bordered bg-white text-black min-w-[140px]">
                 <option value="">Semua Kategori</option>
                 @foreach ($categories as $cat)
                     <option value="{{ $cat }}" @selected(($selectedCategory ?? '') === $cat)>{{ $cat }}</option>
                 @endforeach
             </select>
-            <select name="sort" class="select select-bordered bg-base-300/60 text-white min-w-[150px]">
+            <select name="sort" aria-label="Urutkan buku" class="select select-bordered bg-white text-black min-w-[150px]">
                 <option value="terbaru" @selected(($sort ?? 'terbaru') === 'terbaru')>Terbaru</option>
                 <option value="terlama" @selected(($sort ?? '') === 'terlama')>Terlama</option>
                 <option value="judul" @selected(($sort ?? '') === 'judul')>Judul A-Z</option>
@@ -50,7 +50,7 @@
     <!-- Books Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         @forelse ($audioBooks as $book)
-            <div class="card border shadow-sm p-6 flex flex-col justify-between" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+            <div class="card border shadow-sm p-6 flex flex-col justify-between" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
                 <div>
                     <!-- Book Cover -->
                     <div class="book-cover-wrapper">
@@ -63,24 +63,24 @@
                         @endif
                     </div>
 
-                    <h3 class="card-title text-white mt-2 mb-1 text-lg leading-snug">{{ $book->judul }}</h3>
+                    <h3 class="card-title text-black mt-2 mb-1 text-lg leading-snug">{{ $book->judul }}</h3>
                     
                     <!-- Metadata Buku -->
-                    <div class="text-xs text-slate-300 mb-3 flex flex-col gap-1">
+                    <div class="text-xs text-slate-600 mb-3 flex flex-col gap-1">
                         <div class="flex gap-3 items-center flex-wrap">
                             <span title="Kategori">{{ $book->kategori ?: 'Umum' }}</span>
                         </div>
-                        <span class="card-update-time text-xs text-slate-400" data-utc-updated="{{ $book->updated_at->toIso8601String() }}">
+                        <span class="card-update-time text-xs text-slate-500" data-utc-updated="{{ $book->updated_at->toIso8601String() }}">
                             Diperbarui: <strong></strong>
                         </span>
                     </div>
 
-                    <p class="text-sm text-slate-400 line-clamp-3 mb-4 leading-relaxed">
+                    <p class="text-sm text-slate-600 line-clamp-3 mb-4 leading-relaxed">
                         {{ $book->deskripsi ?: 'Tidak ada deskripsi yang tersedia untuk buku ini.' }}
                     </p>
                 </div>
 
-                <div class="flex flex-col gap-2 border-t border-white/10 pt-3 mt-auto z-10">
+                <div class="flex flex-col gap-2 border-t border-black/10 pt-3 mt-auto z-10">
                     <!-- Mini Player Trigger -->
                     <button type="button" data-play-mini data-title="{{ $book->judul }}" data-description="{{ $book->deskripsi }}" data-cover="{{ $book->cover ? '/storage/'.$book->cover : '' }}" class="btn btn-ghost w-full py-2 text-sm flex items-center justify-center gap-1">
                         Dengar Ringkasan
@@ -96,8 +96,8 @@
                 </div>
             </div>
         @empty
-            <div class="card border shadow-sm p-12 text-center col-span-full" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
-                <p class="text-slate-300 text-lg mb-4">Buku tidak ditemukan.</p>
+            <div class="card border shadow-sm p-12 text-center col-span-full" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+                <p class="text-slate-600 text-lg mb-4">Buku tidak ditemukan.</p>
                 <a href="{{ route('audio-books.index') }}" class="btn btn-ghost btn-sm">Lihat Semua Buku</a>
             </div>
         @endforelse

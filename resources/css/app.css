@@ -1,6 +1,26 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
-    themes: dark --default;
+    themes: light --default;
+}
+
+:root,
+[data-theme="light"] {
+    --color-primary: #b8860b;
+    --color-primary-content: #ffffff;
+    --color-secondary: #b8860b;
+    --color-secondary-content: #ffffff;
+    --color-accent: #b8860b;
+    --color-accent-content: #ffffff;
+    --color-neutral: #f3f4f6;
+    --color-neutral-content: #171717;
+    --color-base-100: #ffffff;
+    --color-base-200: #fafafa;
+    --color-base-300: #e5e7eb;
+    --color-base-content: #171717;
+    --color-info: #2563eb;
+    --color-success: #15803d;
+    --color-warning: #b45309;
+    --color-error: #b91c1c;
 }
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -14,20 +34,20 @@
 }
 
 :root {
-    --accent-primary: #8b5cf6;
-    --accent-secondary: #6366f1;
-    --accent-success: #10b981;
-    --accent-danger: #f43f5e;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border-glass: rgba(255, 255, 255, 0.04);
-    --bg-secondary: #0d0e12;
-    --bg-glass: rgba(18, 18, 22, 0.5);
+    --accent-primary: #b8860b;
+    --accent-secondary: #b8860b;
+    --accent-success: #b8860b;
+    --accent-danger: #b8860b;
+    --text-primary: #000000;
+    --text-secondary: #000000;
+    --text-muted: #b8860b;
+    --border-glass: #000000;
+    --bg-secondary: #ffffff;
+    --bg-glass: #ffffff;
 }
 
 .text-gradient {
-    background: linear-gradient(135deg, #ffffff, #a1a1aa);
+    background: #000000;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -38,8 +58,8 @@ button:focus,
 input:focus,
 select:focus,
 textarea:focus {
-    outline: 2px solid var(--accent-primary) !important;
-    outline-offset: 1px !important;
+    outline: 3px solid var(--accent-primary) !important;
+    outline-offset: 2px !important;
 }
 
 .wave-animation {
@@ -92,8 +112,8 @@ textarea:focus {
     transform: translateX(-50%);
     width: 90%;
     max-width: 600px;
-    background: #121316;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #ffffff;
+    border: 2px solid #000000;
     border-radius: 12px;
     padding: 0.7rem 1.1rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -158,15 +178,16 @@ textarea:focus {
     height: 32px;
 }
 
-.mini-player-btn:hover { background: rgba(255, 255, 255, 0.08); }
+.mini-player-btn:hover { background: rgba(0, 0, 0, 0.08); }
 
 .mini-player-btn.play-btn {
     background: var(--accent-primary);
+    color: #ffffff;
     width: 36px;
     height: 36px;
 }
 
-.mini-player-btn.play-btn:hover { background: #4338ca; }
+.mini-player-btn.play-btn:hover { background: #b8860b; }
 
 .mini-wave {
     display: flex;
@@ -215,14 +236,14 @@ textarea:focus {
 .book-cover-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1e1b4b, #09090b);
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 1.2rem;
     text-align: center;
-    border: 1px solid var(--border-glass);
+    border: 1px solid #000000;
     border-radius: 12px;
     transition: all 0.35s ease;
 }
@@ -329,10 +350,10 @@ body.accessibility-high-contrast .btn-ghost {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: #121316;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 2px solid #000000;
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 700;
@@ -342,15 +363,15 @@ body.accessibility-high-contrast .btn-ghost {
 .accessibility-floating-btn:hover,
 .accessibility-floating-btn:focus-visible {
     transform: translateY(-1px);
-    border-color: rgba(255, 255, 255, 0.2);
-    background: #1a1b1f;
+    border-color: #b8860b;
+    background: #ffffff;
 }
 
 .accessibility-panel {
-    background: #121316;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     color: var(--text-primary);
     flex-direction: column;
     gap: 0.85rem;
@@ -390,7 +411,7 @@ body.accessibility-high-contrast .btn-ghost {
 }
 
 .accessibility-title {
-    color: #ffffff;
+    color: #000000;
     font-size: 1rem;
     font-weight: 800;
     line-height: 1.2;
@@ -402,8 +423,8 @@ body.accessibility-high-contrast .btn-ghost {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 14px;
     padding: 0.78rem;
 }
@@ -419,15 +440,15 @@ body.accessibility-high-contrast .btn-ghost {
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 14px;
     padding: 0.78rem;
 }
 
 .accessibility-control-title {
     display: block;
-    color: #ffffff;
+    color: #000000;
     font-size: 0.86rem;
     font-weight: 800;
     line-height: 1.25;
@@ -435,7 +456,7 @@ body.accessibility-high-contrast .btn-ghost {
 
 .accessibility-control-desc {
     display: block;
-    color: #94a3b8;
+    color: #b8860b;
     font-size: 0.72rem;
     line-height: 1.3;
     margin-top: 0.18rem;
@@ -446,9 +467,9 @@ body.accessibility-high-contrast .btn-ghost {
     min-width: 44px;
     min-height: 38px;
     border-radius: 11px;
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    background: rgba(15, 23, 42, 0.76);
-    color: #e2e8f0;
+    border: 1px solid rgba(100, 116, 139, 0.4);
+    background: rgba(255, 255, 255, 0.9);
+    color: #1e293b;
     cursor: pointer;
     font-size: 0.78rem;
     font-weight: 800;
@@ -459,16 +480,17 @@ body.accessibility-high-contrast .btn-ghost {
 .accessibility-size-btn:hover,
 .accessibility-toggle-btn:focus-visible,
 .accessibility-size-btn:focus-visible {
-    background: rgba(99, 102, 241, 0.18);
-    border-color: rgba(129, 140, 248, 0.8);
-    color: #ffffff;
+    background: rgba(184, 134, 11, 0.15);
+    border-color: #b8860b;
+    color: #000000;
     transform: translateY(-1px);
 }
 
 .accessibility-toggle-btn.is-active {
-    background: rgba(16, 185, 129, 0.16);
-    border-color: rgba(16, 185, 129, 0.9);
-    color: #6ee7b7;
+    background: #b8860b;
+    border-color: #b8860b;
+    color: #ffffff;
+    font-weight: bold;
 }
 
 .accessibility-size-options {
@@ -490,18 +512,18 @@ body.accessibility-high-contrast .btn-ghost {
 }
 
 .accessibility-size-btn.is-active {
-    background: rgba(99, 102, 241, 0.26);
-    border-color: rgba(129, 140, 248, 0.95);
+    background: #b8860b;
+    border-color: #b8860b;
     color: #ffffff;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    font-weight: bold;
 }
 
 .accessibility-help-text {
-    color: #94a3b8;
+    color: #b8860b;
     font-size: 0.72rem;
     line-height: 1.55;
     margin: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #000000;
     padding-top: 0.78rem;
 }
 
@@ -590,11 +612,11 @@ body.accessibility-high-contrast .accessibility-size-btn.is-active {
     .grid-innovative { grid-template-columns: 1fr; }
 }
 
-/* Card and Button overrides to match Spotify / Notion / Linear style */
+/* Card and Button overrides untuk tema global putih-kuning */
 .card {
-    background-color: #121316 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    background-color: #ffffff !important;
+    border: 2px solid #000000 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
     border-radius: 8px !important;
 }
 
@@ -609,28 +631,286 @@ body.accessibility-high-contrast .accessibility-size-btn.is-active {
 
 .btn-primary {
     background-color: var(--accent-primary) !important;
-    border-color: var(--accent-primary) !important;
-    color: #fff !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    border-width: 2px !important;
 }
 .btn-primary:hover {
-    background-color: #6366f1 !important;
-    border-color: #6366f1 !important;
+    background-color: #b8860b !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
 }
 
 .btn-ghost:hover {
-    background-color: rgba(255, 255, 255, 0.06) !important;
+    background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.btn-ghost,
+.btn-outline,
+.btn-default {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+}
+
+.btn-error {
+    background-color: #b8860b !important;
+    border: 2px solid #000000 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
 }
 
 /* Fix spacing and glow on input focus */
 .input, .select, .textarea {
     border-radius: 6px !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    background-color: #16171b !important;
-    color: #fff !important;
+    border: 2px solid #000000 !important;
+    background-color: #ffffff !important;
+    color: #000 !important;
 }
 
 .input:focus, .select:focus, .textarea:focus {
     border-color: var(--accent-primary) !important;
     outline: none !important;
     box-shadow: none !important;
+}
+
+/* ─── Tema Global Putih-Kuning (override semua halaman) ──────────────────── */
+.navbar {
+    background: #ffffff !important;
+    border-bottom: 2px solid #000000 !important;
+    box-shadow: none !important;
+}
+
+.nav-dropdown,
+.mobile-drawer,
+.accessibility-panel {
+    background: #ffffff !important;
+    border: 2px solid #000000 !important;
+    color: #000000 !important;
+}
+
+.modal-box {
+    background-color: #ffffff !important;
+    border: 2px solid #000000 !important;
+    color: #000000 !important;
+}
+
+.dropdown-item-link,
+.dropdown-item,
+.dropdown-text {
+    color: #000000 !important;
+}
+.dropdown-header,
+.dropdown-time {
+    color: #b8860b !important;
+}
+
+.mobile-nav-btn,
+.nav-link,
+.nav-btn {
+    color: #000000 !important;
+}
+.mobile-nav-btn.active {
+    background: #b8860b !important;
+    color: #000000 !important;
+}
+.nav-btn.active {
+    background: #b8860b !important;
+    border-color: #b8860b !important;
+    color: #000000 !important;
+}
+
+.nav-icon-btn {
+    color: #000000 !important;
+}
+
+/* Teks utility → hitam (teks utama) / aksen kuning-gelap (dengan kontras AA di atas putih) */
+[class*="text-slate-"] { color: #000000 !important; }
+[class*="text-purple-"] { color: #7a5a00 !important; }
+[class*="text-indigo-"] { color: #7a5a00 !important; }
+[class*="text-violet-"] { color: #7a5a00 !important; }
+[class*="text-blue-"] { color: #7a5a00 !important; }
+[class*="text-emerald-"] { color: #7a5a00 !important; }
+[class*="text-green-"] { color: #7a5a00 !important; }
+[class*="text-red-"] { color: #7a5a00 !important; }
+
+/* Pengecualian: teks di atas overlay gelap (foto hero) harus tetap terang agar terlihat */
+.hero-visual figcaption span,
+.hero-visual figcaption p {
+    color: #e2e8f0 !important; /* slate-200 terang di atas gradasi gelap */
+}
+.hero-visual figcaption span[class*="text-violet-"] {
+    color: #a78bfa !important; /* violet-300 terang */
+}
+
+/* Background utility → putih (permukaan solid) */
+[class*="bg-white/"], .bg-white { background-color: #ffffff !important; }
+[class*="bg-base-300"] { background-color: #ffffff !important; }
+[class*="bg-slate-"] { background-color: #ffffff !important; }
+[class*="bg-purple-"] { background-color: #ffffff !important; }
+[class*="bg-indigo-"] { background-color: #ffffff !important; }
+[class*="bg-violet-"] { background-color: #ffffff !important; }
+
+/* Label-text daisyUI */
+.label-text { color: #000000 !important; }
+
+#session-toast {
+    background: #ffffff !important;
+    border: 2px solid #b8860b !important;
+    color: #000000 !important;
+}
+#session-toast button {
+    background: #b8860b !important;
+    border: none !important;
+    color: #ffffff !important;
+}
+
+/* Badge status mini-player: emas solid + teks hitam agar kontras cukup (6.4:1).
+   Di mode kontras tinggi biarkan aturan full-page HC yang menanganinya. */
+body:not(.accessibility-high-contrast) #mini-audio-status-badge {
+    color: #000000 !important;
+    background: #b8860b !important;
+    border: 1px solid #000000 !important;
+}
+
+/* Visually hidden (screen-reader only) text */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Live region helper for announcing TTS/reading status to screen readers */
+[aria-live] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    padding: 0;
+    margin: -1px;
+}
+
+/* ============================================================
+   MODE KONTRAS TINGGI FULL-HALAMAN (widget aksesibilitas)
+   Menimpa tema terang global (text-slate→hitam, bg-white→putih)
+   agar di mode kontras tinggi TIDAK ada teks yang tertelan:
+   latar hitam + teks kuning di seluruh halaman.
+   ============================================================ */
+body.accessibility-high-contrast {
+    --bg-primary: #000000 !important;
+    --bg-secondary: #000000 !important;
+    --bg-glass: #000000 !important;
+    --border-glass: #ffff00 !important;
+    --accent-primary: #ffff00 !important;
+    --accent-secondary: #ffff00 !important;
+    --text-primary: #ffff00 !important;
+    --text-secondary: #ffff00 !important;
+    --text-muted: #ffff00 !important;
+}
+
+/* Semua permukaan (termasuk yang dipaksa putih oleh tema terang) → hitam */
+body.accessibility-high-contrast .card,
+body.accessibility-high-contrast .navbar,
+body.accessibility-high-contrast .form-card,
+body.accessibility-high-contrast [class*="bg-white/"],
+body.accessibility-high-contrast .bg-white,
+body.accessibility-high-contrast [class*="bg-base-300"],
+body.accessibility-high-contrast [class*="bg-slate-"],
+body.accessibility-high-contrast [class*="bg-black"],
+body.accessibility-high-contrast [class*="bg-purple-"],
+body.accessibility-high-contrast [class*="bg-indigo-"],
+body.accessibility-high-contrast [class*="bg-violet-"],
+body.accessibility-high-contrast [style*="background"],
+body.accessibility-high-contrast #read-assist-container,
+body.accessibility-high-contrast #session-toast {
+    background-color: #000000 !important;
+    border: 2px solid #ffff00 !important;
+}
+
+/* Semua teks → kuning */
+body.accessibility-high-contrast p,
+body.accessibility-high-contrast span,
+body.accessibility-high-contrast div,
+body.accessibility-high-contrast h1,
+body.accessibility-high-contrast h2,
+body.accessibility-high-contrast h3,
+body.accessibility-high-contrast h4,
+body.accessibility-high-contrast h5,
+body.accessibility-high-contrast h6,
+body.accessibility-high-contrast label,
+body.accessibility-high-contrast a,
+body.accessibility-high-contrast strong,
+body.accessibility-high-contrast em,
+body.accessibility-high-contrast li,
+body.accessibility-high-contrast td,
+body.accessibility-high-contrast th,
+body.accessibility-high-contrast dt,
+body.accessibility-high-contrast dd,
+body.accessibility-high-contrast blockquote,
+body.accessibility-high-contrast caption,
+body.accessibility-high-contrast .label-text,
+body.accessibility-high-contrast .dropdown-item,
+body.accessibility-high-contrast .dropdown-text,
+body.accessibility-high-contrast .dropdown-header,
+body.accessibility-high-contrast .dropdown-time,
+body.accessibility-high-contrast [class*="text-"] {
+    color: #ffff00 !important;
+}
+
+body.accessibility-high-contrast a {
+    text-decoration: underline !important;
+}
+
+/* Field isian (input/select/textarea) → kuning di atas hitam */
+body.accessibility-high-contrast input,
+body.accessibility-high-contrast select,
+body.accessibility-high-contrast textarea {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+}
+body.accessibility-high-contrast input::placeholder,
+body.accessibility-high-contrast textarea::placeholder {
+    color: #ffff00 !important;
+    opacity: 1 !important;
+}
+
+/* Tombol umum → garis kuning, teks kuning */
+body.accessibility-high-contrast button,
+body.accessibility-high-contrast .btn,
+body.accessibility-high-contrast .btn-outline,
+body.accessibility-high-contrast .toggle,
+body.accessibility-high-contrast .badge {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+}
+/* Tombol aksi utama (CTA) → kuning penuh dengan teks hitam */
+body.accessibility-high-contrast .btn-primary {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border: 2px solid #ffff00 !important;
+    font-weight: bold !important;
 }

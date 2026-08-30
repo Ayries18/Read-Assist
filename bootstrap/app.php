@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\RestrictQrGuest::class,
+            \App\Http\Middleware\SetContentLength::class,
         ]);
 
         $middleware->trustProxies(at: '*');

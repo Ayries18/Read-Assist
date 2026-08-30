@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card bg-base-300/50 border border-white/10 shadow-xl max-w-lg mx-auto p-6 sm:p-8">
-        <h2 class="text-2xl font-bold text-center mb-6">Login Ke Akun</h2>
+        <h1 class="text-2xl font-bold text-center mb-6">Login Ke Akun</h1>
 
         @if ($errors->any())
             <div class="alert alert-error shadow-lg mb-6">

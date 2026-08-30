@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
     @php
@@ -17,12 +17,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
         <!-- Left Side: Book Details & TTS Player -->
         <div class="flex flex-col gap-7">
-            <div id="reader-main-card" class="card border shadow-sm p-6" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+            <div id="reader-main-card" class="card border shadow-sm p-6" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
                 <div>
                     <!-- Book Header with Cover and Metadata -->
                     <div class="flex gap-6 flex-wrap mb-6 items-start">
                         <!-- Book Cover -->
-                        <div class="w-[140px] h-[190px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
+                        <div class="w-[140px] h-[190px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-black/10">
                             @if ($book->cover)
                                 <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="w-full h-full object-cover">
                             @else
@@ -34,12 +34,12 @@
 
                         <!-- Title and Quick Stats -->
                         <div class="flex-1 flex flex-col justify-center">
-                            <h2 id="book-title" class="text-gradient text-3xl font-bold mb-2 leading-tight">
+                            <h1 id="book-title" class="text-gradient text-3xl font-bold mb-2 leading-tight">
                                 {{ $book->judul }}
-                            </h2>
+                            </h1>
 
                             <!-- Metadata bar -->
-                            <div class="text-sm text-slate-300 flex flex-col gap-1">
+                            <div class="text-sm text-slate-600 flex flex-col gap-1">
                                 <span>Kategori: <strong>{{ $book->kategori ?: 'Umum' }}</strong></span>
                                 <span id="upload-time" data-utc="{{ $book->created_at->toIso8601String() }}">Diunggah: <strong>{{ $book->created_at->format('d M Y, H:i') }}</strong></span>
                                 <span id="update-time-relative" data-utc-updated="{{ $book->updated_at->toIso8601String() }}">Diperbarui: <strong></strong></span>
@@ -48,29 +48,29 @@
                     </div>
 
                     <!-- Metadata Buku Grid -->
-                    <h4 class="text-base text-white font-semibold mb-3">Metadata Buku</h4>
+                    <h2 class="text-base text-black font-semibold mb-3">Metadata Buku</h2>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
-                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Karakter</span>
-                            <span class="text-lg font-bold text-blue-400">{{ strlen($book->deskripsi) }}</span>
+                        <div class="bg-black/5 border border-black/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-600 uppercase font-bold block mb-1">Karakter</span>
+                            <span class="text-lg font-bold text-blue-600">{{ strlen($book->deskripsi) }}</span>
                         </div>
-                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
-                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Jumlah Kata</span>
-                            <span class="text-lg font-bold text-indigo-400">{{ str_word_count($book->deskripsi) }}</span>
+                        <div class="bg-black/5 border border-black/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-600 uppercase font-bold block mb-1">Jumlah Kata</span>
+                            <span class="text-lg font-bold text-indigo-600">{{ str_word_count($book->deskripsi) }}</span>
                         </div>
-                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
-                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Estimasi Baca</span>
-                            <span class="text-lg font-bold text-emerald-400">{{ ceil(str_word_count($book->deskripsi) / 150) }} Menit</span>
+                        <div class="bg-black/5 border border-black/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-600 uppercase font-bold block mb-1">Estimasi Baca</span>
+                            <span class="text-lg font-bold text-emerald-600">{{ ceil(str_word_count($book->deskripsi) / 150) }} Menit</span>
                         </div>
-                        <div class="bg-white/[0.02] border border-white/10 rounded-lg p-3 text-center">
-                            <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Status Audio</span>
-                            <span class="text-base font-bold text-emerald-400 block mt-1">Siap</span>
+                        <div class="bg-black/5 border border-black/10 rounded-lg p-3 text-center">
+                            <span class="text-xs text-slate-600 uppercase font-bold block mb-1">Status Audio</span>
+                            <span class="text-base font-bold text-emerald-600 block mt-1">Siap</span>
                         </div>
                     </div>
 
                     @if ($book->user_id)
-                        <p class="text-slate-300 mb-6 text-sm flex items-center gap-2">
-                            <span class="text-slate-400">Pengunggah ID: {{ $book->user_id }}</span>
+                        <p class="text-slate-600 mb-6 text-sm flex items-center gap-2">
+                            <span class="text-slate-600">Pengunggah ID: {{ $book->user_id }}</span>
                         </p>
                     @endif
 
@@ -93,16 +93,17 @@
                         .high-contrast-mode button,
                         .high-contrast-mode select,
                         .high-contrast-mode input,
-                        .high-contrast-mode textarea {
+                        .high-contrast-mode textarea,
+                        .high-contrast-mode .btn,
+                        .high-contrast-mode a.btn {
                             background: #000 !important;
                             color: #ffff00 !important;
                             border: 2px solid #ffff00 !important;
                         }
-                        
                         .light-mode {
                             background: #ffffff !important;
-                            color: #1f2937 !important;
-                            border-color: #e5e7eb !important;
+                            color: #000000 !important;
+                            border-color: #000000 !important;
                         }
                         .light-mode h2,
                         .light-mode h3,
@@ -112,29 +113,38 @@
                         .light-mode label,
                         .light-mode strong,
                         .light-mode a {
-                            color: #1f2937 !important;
+                            color: #000000 !important;
                         }
                         .light-mode button,
                         .light-mode select,
                         .light-mode input,
                         .light-mode textarea {
-                            background: #f3f4f6 !important;
-                            color: #1f2937 !important;
-                            border-color: #d1d5db !important;
+                            background: #ffffff !important;
+                            color: #000000 !important;
+                            border: 2px solid #000000 !important;
+                        }
+                        .light-mode .highlight,
+                        .light-mode .accent {
+                            color: #b8860b !important;
                         }
                     </style>
 
-                    <h4 class="text-base text-white font-semibold mb-2">Deskripsi Buku</h4>
-                    <div class="bg-slate-900/40 border border-white/10 rounded-xl p-5 mb-6">
-                        <p id="display-description" class="text-slate-300 leading-relaxed text-sm whitespace-pre-line">
+                    <h2 class="text-base text-black font-semibold mb-2">Deskripsi Buku</h2>
+                    <div class="bg-black/5 border border-black/10 rounded-xl p-5 mb-6">
+                        <p id="display-description" class="text-slate-700 leading-relaxed text-sm whitespace-pre-line">
                             {{ isset($book->deskripsi) ? \Illuminate\Support\Str::limit($book->deskripsi, 600) : 'Tidak ada deskripsi.' }}
                         </p>
                         <div id="book-description" class="hidden">{{ $book->deskripsi ?? 'Tidak ada deskripsi.' }}</div>
                     </div>
 
+                    <a href="/read-assist?text={{ urlencode(\Illuminate\Support\Str::limit($book->deskripsi, 5000, '')) }}" target="_blank" rel="noopener" class="btn btn-primary w-full sm:w-auto px-7 py-3 text-sm mt-1 mb-6 inline-flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Analisis dengan Read Assist
+                    </a>
+
                     @if ($book->file_buku)
-                        <div class="bg-white/[0.03] border border-white/10 rounded-lg p-3 px-4 flex justify-between items-center mb-8">
-                            <span class="text-sm text-slate-300">File PDF/EPUB Terlampir</span>
+                        <div class="bg-black/5 border border-black/10 rounded-lg p-3 px-4 flex justify-between items-center mb-8">
+                            <span class="text-sm text-slate-600">File PDF/EPUB Terlampir</span>
                             <a href="/storage/{{ $book->file_buku }}" target="_blank" class="btn btn-ghost btn-sm py-1 px-4 text-sm">
                                 Buka File
                             </a>
@@ -142,8 +152,8 @@
                     @endif
 
                     <!-- Audio Player Area -->
-                    <div class="bg-indigo-500/5 border border-indigo-500/15 rounded-xl p-6 text-center">
-                        <h4 class="mb-2 text-base">Dengarkan di Laptop Ini</h4>
+                    <div class="bg-[#b8860b]/10 border border-[#b8860b]/25 rounded-xl p-6 text-center">
+                        <h2 class="mb-2 text-base">Dengarkan di Laptop Ini</h2>
 
                         @if ($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts')
                             <div class="mb-4">
@@ -161,8 +171,13 @@
                             </div>
                         @else
                             <div class="mb-5 flex justify-center items-center gap-2">
-                                <span class="text-sm text-slate-300">Status Audio:</span>
-                                <span id="audio-status-badge" class="badge badge-ghost badge-sm">Browser TTS</span>
+                                <span class="text-sm text-slate-600">Status Audio:</span>
+                                <span id="audio-status-badge" class="badge badge-sm bg-black/5 text-black border border-black/10">Browser TTS</span>
+                            </div>
+                            <div id="resume-banner" class="hidden flex flex-wrap items-center justify-center gap-3 mb-3 border-2 border-[#ffff00] rounded-xl p-3" style="display: none;">
+                                <span id="resume-banner-text" class="text-sm text-black font-semibold"></span>
+                                <button onclick="startTTS()" class="btn btn-ghost btn-xs border-2 border-white">Mulai Awal</button>
+                                <button onclick="resumeTTS()" class="btn btn-primary btn-xs">Lanjutkan</button>
                             </div>
                             <div class="flex flex-wrap gap-4 justify-center items-center">
                                 <button id="btn-start-show" onclick="startTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm" title="Mulai dari Awal">
@@ -178,6 +193,15 @@
                                     Berhenti
                                 </button>
                             </div>
+                            <div class="flex flex-wrap gap-3 justify-center items-center mt-3">
+                                <button id="btn-speed-show" onclick="cycleTTSRate()" class="btn btn-ghost btn-sm px-5 py-2.5 text-sm" title="Ubah kecepatan suara">
+                                    Kecepatan: 1.0x
+                                </button>
+                                <button id="btn-settings-show" onclick="openReaderSettings()" class="btn btn-ghost btn-sm px-5 py-2.5 text-sm" title="Pengaturan Membaca">
+                                    <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Pengaturan
+                                </button>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -186,7 +210,7 @@
             <!-- Admin Action Panel -->
             @if (session('auth_role') === 'admin')
                 <div class="card border shadow-sm p-6" style="background: rgba(239, 68, 68, 0.02); border-color: rgba(239, 68, 68, 0.15);">
-                    <h4 class="text-base text-red-400 font-semibold mb-3">Panel Kelola Admin</h4>
+                    <h2 class="text-base text-red-400 font-semibold mb-3">Panel Kelola Admin</h2>
                     <div class="flex gap-4 flex-wrap">
                         <a href="/katalog-audio/{{ $book->id }}/edit" class="btn btn-ghost btn-sm flex-1 border-slate-400 text-center flex items-center justify-center">
                             Edit Buku
@@ -201,7 +225,7 @@
                         @if ($book->audio_status === 'failed')
                             <form method="POST" action="/katalog-audio/{{ $book->id }}/retry-audio" class="w-full mt-2 m-0">
                                 @csrf
-                                <button type="submit" class="btn btn-ghost border-indigo-500/30 text-indigo-400 w-full">
+                                <button type="submit" class="btn btn-ghost border-[#b8860b]/30 text-indigo-400 w-full">
                                     Ulang Generate Audio
                                 </button>
                             </form>
@@ -214,9 +238,9 @@
         @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
         <!-- Right Side: QR Code -->
         <div class="flex flex-col gap-7">
-            <div class="card border shadow-sm p-6 text-center flex flex-col items-center" style="padding: 2.5rem 1.8rem; background: #121316; border-color: rgba(255, 255, 255, 0.08);">
-                <h3 class="text-xl font-bold mb-2 text-center">QR-Audio untuk Tunanetra</h3>
-                <p class="text-sm text-slate-300 mb-8">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
+            <div class="card border shadow-sm p-6 text-center flex flex-col items-center" style="padding: 2.5rem 1.8rem; background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+                <h3 class="text-xl font-bold mb-2 text-black text-center">QR-Audio untuk Tunanetra</h3>
+                <p class="text-sm text-slate-600 mb-8">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
 
                 <div class="bg-white p-5 rounded-xl inline-block shadow-xl">
                     <img
@@ -238,6 +262,49 @@
             </div>
         </div>
         @endif
+    </div>
+
+    <div id="reader-settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="Pengaturan Membaca" style="display: none;">
+        <div class="card border shadow-sm p-6 w-full max-w-md" style="background: #ffffff; border-color: #000000;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-black font-bold text-lg">Pengaturan Membaca</h3>
+                <button onclick="closeReaderSettings()" class="text-black border-2 border-black rounded-lg w-9 h-9 flex items-center justify-center hover:bg-black hover:text-white transition-colors" aria-label="Tutup Pengaturan">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="setting-rate-select" class="text-black font-medium block mb-1 text-sm">Kecepatan Suara (TTS Rate)</label>
+                    <select id="setting-rate-select" onchange="setReaderRate(this.value)" class="input input-bordered w-full text-base">
+                        <option value="0.75">0.75x (Lambat)</option>
+                        <option value="1">1.0x (Normal)</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x (Cepat)</option>
+                        <option value="1.75">1.75x</option>
+                        <option value="2">2.0x (Sangat Cepat)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="setting-font-select" class="text-black font-medium block mb-1 text-sm">Ukuran Font</label>
+                    <select id="setting-font-select" onchange="setReaderFont(this.value)" class="input input-bordered w-full text-base">
+                        <option value="small">Kecil (Small)</option>
+                        <option value="medium" selected>Sedang (Medium)</option>
+                        <option value="large">Besar (Large)</option>
+                        <option value="xlarge">Sangat Besar (X-Large)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="setting-contrast-select" class="text-black font-medium block mb-1 text-sm">Kontras</label>
+                    <select id="setting-contrast-select" onchange="setReaderContrast(this.value)" class="input input-bordered w-full text-base">
+                        <option value="normal">Normal (Putih-Kuning)</option>
+                        <option value="light">Terang (Putih-Kuning)</option>
+                        <option value="high-contrast">Kontras Tinggi (Kuning-Hitam maksimum)</option>
+                    </select>
+                </div>
+                <p class="text-xs text-[#b8860b]">Pengaturan tersimpan otomatis di perangkat ini.</p>
+                <button onclick="closeReaderSettings()" class="btn btn-primary w-full">Selesai</button>
+            </div>
+        </div>
     </div>
 
     @if (!($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts'))
@@ -369,6 +436,155 @@
 
         const statusBadge = document.getElementById('audio-status-badge');
 
+        // ── Pengaturan Membaca (gear), Kecepatan TTS, Progres & Lanjut Baca ──
+        const bookId = "{{ $book->id }}";
+        const progressKey = 'read_assist_progress_' + bookId;
+        const TTS_RATES = [0.75, 1, 1.25, 1.5, 2.0];
+        let serverSyncedIndex = -1;
+
+        function getSavedTTSRate() {
+            const v = parseFloat(localStorage.getItem('read_assist_tts_rate') || '1.0');
+            return isNaN(v) ? 1.0 : v;
+        }
+
+        function syncRateUI() {
+            const rate = getSavedTTSRate();
+            const btn = document.getElementById('btn-speed-show');
+            if (btn) btn.innerText = 'Kecepatan: ' + rate + 'x';
+            const sel = document.getElementById('setting-rate-select');
+            if (sel) sel.value = String(rate);
+        }
+
+        function cycleTTSRate() {
+            const idx = TTS_RATES.indexOf(getSavedTTSRate());
+            const next = TTS_RATES[(idx + 1) % TTS_RATES.length];
+            localStorage.setItem('read_assist_tts_rate', next);
+            syncRateUI();
+            if (statusBadge) {
+                statusBadge.innerText = 'Kecepatan: ' + next + 'x';
+                statusBadge.style.color = 'var(--accent-primary)';
+                statusBadge.style.borderColor = 'var(--accent-primary)';
+                statusBadge.style.background = 'rgba(255, 255, 0, 0.15)';
+            }
+        }
+
+        function syncSettingsUI() {
+            syncRateUI();
+            const fontSel = document.getElementById('setting-font-select');
+            const font = localStorage.getItem('read_assist_font_size') || 'medium';
+            if (fontSel) fontSel.value = font;
+            const conSel = document.getElementById('setting-contrast-select');
+            const contrast = localStorage.getItem('read_assist_contrast') || 'normal';
+            if (conSel) conSel.value = contrast;
+        }
+
+        function openReaderSettings() {
+            syncSettingsUI();
+            const modal = document.getElementById('reader-settings-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.remove('hidden');
+                const first = modal.querySelector('select, button');
+                if (first) first.focus();
+            }
+        }
+
+        function closeReaderSettings() {
+            const modal = document.getElementById('reader-settings-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.add('hidden');
+            }
+            const settingsBtn = document.getElementById('btn-settings-show');
+            if (settingsBtn) settingsBtn.focus();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('reader-settings-modal');
+            if (modal && modal.style.display === 'flex' && e.key === 'Escape') {
+                e.preventDefault();
+                closeReaderSettings();
+            }
+        });
+
+        function setReaderRate(v) {
+            localStorage.setItem('read_assist_tts_rate', v);
+            syncRateUI();
+        }
+
+        function setReaderFont(v) {
+            localStorage.setItem('read_assist_font_size', v);
+            loadReaderSettings();
+        }
+
+        function setReaderContrast(v) {
+            localStorage.setItem('read_assist_contrast', v);
+            loadReaderSettings();
+        }
+
+        function saveLocalProgress(index) {
+            localStorage.setItem(progressKey, index);
+        }
+
+        function syncProgressToServer(index, completed) {
+            if (index === serverSyncedIndex) return;
+            serverSyncedIndex = index;
+            const csrf = document.querySelector('meta[name="csrf-token"]');
+            fetch('/progress/sync/' + bookId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrf ? csrf.getAttribute('content') : ''
+                },
+                body: JSON.stringify({ sentence_index: index, completed: completed || false })
+            }).catch(function() {});
+        }
+
+        function resumeTTS() {
+            if (typeof closeMiniPlayer === 'function') closeMiniPlayer();
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
+            window.speechSynthesis.resume();
+            window.speechSynthesis.cancel();
+
+            const title = document.getElementById('book-title').innerText;
+            const description = document.getElementById('book-description').innerText;
+            if (chunks.length === 0) chunks = getSpeechChunks(title, description);
+
+            const saved = parseInt(localStorage.getItem(progressKey) || '0', 10);
+            currentChunkIndex = (saved > 0 && saved < chunks.length) ? saved : 0;
+            isSpeaking = true;
+            isPaused = false;
+
+            const banner = document.getElementById('resume-banner');
+            if (banner) {
+                banner.style.display = 'none';
+                banner.classList.add('hidden');
+            }
+
+            if (statusBadge) {
+                statusBadge.innerText = 'Melanjutkan...';
+                statusBadge.style.color = 'var(--accent-primary)';
+                statusBadge.style.borderColor = 'var(--accent-primary)';
+                statusBadge.style.background = 'rgba(255, 255, 0, 0.15)';
+            }
+            speakNext();
+            updateAudioButtons();
+        }
+
+        function showResumeBanner(saved) {
+            const banner = document.getElementById('resume-banner');
+            const textEl = document.getElementById('resume-banner-text');
+            if (!banner || !textEl) return;
+            if (!(saved > 0 && saved < chunks.length)) return;
+            textEl.innerText = 'Lanjut dari kalimat ' + (saved + 1) + ' dari ' + chunks.length + '?';
+            banner.style.display = 'flex';
+            banner.classList.remove('hidden');
+        }
+
         function updateAudioButtons() {
             const playBtn = document.getElementById('btn-play-show');
             const pauseBtn = document.getElementById('btn-pause-show');
@@ -404,11 +620,21 @@
             isSpeaking = true;
             isPaused = false;
 
+            localStorage.removeItem(progressKey);
+            serverSyncedIndex = 0;
+            syncProgressToServer(0, false);
+
+            const banner = document.getElementById('resume-banner');
+            if (banner) {
+                banner.style.display = 'none';
+                banner.classList.add('hidden');
+            }
+
             if (statusBadge) {
                 statusBadge.innerText = "Memulai...";
                 statusBadge.style.color = "var(--accent-primary)";
                 statusBadge.style.borderColor = "var(--accent-primary)";
-                statusBadge.style.background = "rgba(99, 102, 241, 0.15)";
+                statusBadge.style.background = "rgba(184, 134, 11, 0.15)";
             }
 
             speakNext();
@@ -445,7 +671,7 @@
                 statusBadge.innerText = "Memulai...";
                 statusBadge.style.color = "var(--accent-primary)";
                 statusBadge.style.borderColor = "var(--accent-primary)";
-                statusBadge.style.background = "rgba(99, 102, 241, 0.15)";
+                statusBadge.style.background = "rgba(184, 134, 11, 0.15)";
             }
 
             speakNext();
@@ -478,6 +704,8 @@
                 isSpeaking = false;
                 currentChunkIndex = 0;
                 updateAudioButtons();
+                localStorage.removeItem(progressKey);
+                syncProgressToServer(0, true);
 
                 if (statusBadge) {
                     statusBadge.innerText = "Selesai";
@@ -491,6 +719,9 @@
             const chunk = chunks[currentChunkIndex];
             const text = typeof chunk === 'string' ? chunk : chunk.text;
             const pause = (chunk && typeof chunk === 'object' && chunk.pause) ? chunk.pause : 300;
+
+            saveLocalProgress(currentChunkIndex);
+            syncProgressToServer(currentChunkIndex, false);
 
             if (statusBadge) {
                 statusBadge.innerText = `Memutar (${currentChunkIndex + 1}/${chunks.length})`;
@@ -556,6 +787,9 @@
             chunks = [];
             currentChunkIndex = 0;
             updateAudioButtons();
+            localStorage.removeItem(progressKey);
+            serverSyncedIndex = 0;
+            syncProgressToServer(0, false);
 
             if (statusBadge) {
                 statusBadge.innerText = 'Browser TTS';
@@ -573,11 +807,11 @@
                     <title>Cetak QR - {{ $book->judul }}</title>
                     <style>
                         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px; color: #000; background: #fff; }
-                        .container { border: 3px dashed #6366f1; padding: 30px; display: inline-block; border-radius: 15px; max-width: 350px; }
-                        h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #1e1b4b; }
+                        .container { border: 3px dashed #b8860b; padding: 30px; display: inline-block; border-radius: 15px; max-width: 350px; }
+                        h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #000; }
                         p { margin: 0 0 20px 0; font-size: 0.95rem; color: #4b5563; }
                         img { width: 220px; height: 220px; display: block; margin: 0 auto; border: 1px solid #e5e7eb; padding: 8px; border-radius: 8px; }
-                        .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #6366f1; letter-spacing: 1px; }
+                        .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #b8860b; letter-spacing: 1px; }
                     </style>
                 </head>
                 <body>
@@ -686,11 +920,13 @@
             // 2. Contrast
             const containerEl = document.getElementById('reader-main-card');
             if (containerEl) {
-                containerEl.classList.remove('high-contrast-mode', 'light-mode');
-                if (contrast === 'light') {
-                    containerEl.classList.add('light-mode');
-                } else if (contrast === 'high-contrast') {
+                containerEl.classList.remove('high-contrast-mode');
+                containerEl.classList.remove('light-mode');
+                if (contrast === 'high-contrast') {
                     containerEl.classList.add('high-contrast-mode');
+                } else {
+                    // normal & light sama-sama putih-kuning (default)
+                    containerEl.classList.add('light-mode');
                 }
             }
         }
@@ -699,6 +935,38 @@
             updateRelativeTimes();
             setInterval(updateRelativeTimes, 15000);
             loadReaderSettings();
+
+            // Resume: gabungkan progres lokal (perangkat) dengan progres akun (server)
+            const titleEl = document.getElementById('book-title');
+            const descElHidden = document.getElementById('book-description');
+            if (titleEl && descElHidden) {
+                chunks = getSpeechChunks(titleEl.innerText, descElHidden.innerText);
+                const localSaved = parseInt(localStorage.getItem(progressKey) || '0', 10);
+
+                fetch('/progress/' + bookId)
+                    .then(function(resp) { return resp.json(); })
+                    .then(function(data) {
+                        if (data && data.completed) {
+                            localStorage.removeItem(progressKey);
+                            return;
+                        }
+                        const serverSaved = (data && typeof data.sentence_index === 'number') ? data.sentence_index : 0;
+                        if (serverSaved > 0 && serverSaved > localSaved) {
+                            localStorage.setItem(progressKey, serverSaved);
+                            serverSyncedIndex = serverSaved;
+                            showResumeBanner(serverSaved);
+                        } else if (localSaved > 0) {
+                            serverSyncedIndex = localSaved;
+                            showResumeBanner(localSaved);
+                        }
+                    })
+                    .catch(function() {
+                        if (localSaved > 0) {
+                            serverSyncedIndex = localSaved;
+                            showResumeBanner(localSaved);
+                        }
+                    });
+            }
         });
 
         // Clean up when leaving page

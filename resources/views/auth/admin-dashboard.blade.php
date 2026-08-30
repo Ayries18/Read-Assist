@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 @php
@@ -13,7 +13,7 @@
 
     <div style="max-width: 800px; margin: 0 auto;">
         <!-- Welcome Card -->
-        <div class="card border shadow-sm" style="padding: 2.5rem; margin-bottom: 2rem; background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+        <div class="card border shadow-sm" style="padding: 2.5rem; margin-bottom: 2rem; background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
             <div class="card-body p-0">
                 <span class="badge badge-outline badge-primary mb-4">
                     Administrator Area
@@ -21,7 +21,7 @@
                 <h1 class="text-gradient text-4xl font-extrabold leading-tight mb-3">
                     Selamat Datang, {{ session('auth_name') }}!
                 </h1>
-                <p class="text-slate-300 max-w-lg" style="font-size: 1.05rem; line-height: 1.6;">
+                <p class="text-slate-600 max-w-lg" style="font-size: 1.05rem; line-height: 1.6;">
                     Sebagai administrator, Anda memiliki akses penuh ke katalog audio buku. Anda dapat menambahkan buku baru, mengedit metadata, serta menghapus buku dari katalog.
                 </p>
             </div>
@@ -33,72 +33,72 @@
         </h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1.2rem; margin-bottom: 2.5rem;">
             <!-- Stat 1 -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+            <div class="card bg-white border border-black/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-blue-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Buku Audio</span>
+                    <span class="text-xs uppercase text-slate-600 font-semibold tracking-wider">Buku Audio</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-blue-400">
                         {{ $stats['total_books'] }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 2 -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+            <div class="card bg-white border border-black/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-emerald-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Audio Siap</span>
+                    <span class="text-xs uppercase text-slate-600 font-semibold tracking-wider">Audio Siap</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-emerald-400">
                         {{ $stats['audio_completed'] }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 3 -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+            <div class="card bg-white border border-black/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-amber-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M12 6v6l3 2"/><path d="M21 3v6h-6"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Sedang Diproses</span>
+                    <span class="text-xs uppercase text-slate-600 font-semibold tracking-wider">Sedang Diproses</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-amber-400">
                         {{ $stats['audio_processing'] }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 4 -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+            <div class="card bg-white border border-black/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-rose-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Audio Gagal</span>
+                    <span class="text-xs uppercase text-slate-600 font-semibold tracking-wider">Audio Gagal</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-rose-400">
                         {{ $stats['audio_failed'] }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 5 -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+            <div class="card bg-white border border-black/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-cyan-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Anggota</span>
+                    <span class="text-xs uppercase text-slate-600 font-semibold tracking-wider">Anggota</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-cyan-400">
                         {{ $stats['total_users'] }}
                     </h2>
                 </div>
             </div>
             <!-- Stat 6 -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md text-center">
+            <div class="card bg-white border border-black/10 shadow-md text-center">
                 <div class="card-body">
                     <span class="block mb-1 text-purple-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </span>
-                    <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Unggahan Anggota</span>
+                    <span class="text-xs uppercase text-slate-600 font-semibold tracking-wider">Unggahan Anggota</span>
                     <h2 class="text-3xl font-extrabold mt-1 text-purple-400">
                         {{ $stats['user_uploads'] }}
                     </h2>
@@ -107,13 +107,13 @@
         </div>
 
         <!-- Audio Status Ringkasan -->
-        <div class="card bg-base-300/50 border border-white/10 shadow-md mb-2" style="padding: 1rem 1.5rem;">
+        <div class="card bg-white border border-black/10 shadow-md mb-2" style="padding: 1rem 1.5rem;">
             <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-                <span class="text-slate-400 font-semibold uppercase tracking-wider text-xs">Ringkasan Audio:</span>
-                <span class="text-slate-300"><strong class="text-emerald-400">{{ $stats['audio_completed'] }}</strong> siap</span>
-                <span class="text-slate-300"><strong class="text-amber-400">{{ $stats['audio_processing'] }}</strong> diproses</span>
-                <span class="text-slate-300"><strong class="text-rose-400">{{ $stats['audio_failed'] }}</strong> gagal</span>
-                <span class="text-slate-300"><strong class="text-blue-400">{{ $stats['total_progress'] }}</strong> progres tersimpan</span>
+                <span class="text-slate-600 font-semibold uppercase tracking-wider text-xs">Ringkasan Audio:</span>
+                <span class="text-slate-600"><strong class="text-emerald-400">{{ $stats['audio_completed'] }}</strong> siap</span>
+                <span class="text-slate-600"><strong class="text-amber-400">{{ $stats['audio_processing'] }}</strong> diproses</span>
+                <span class="text-slate-600"><strong class="text-rose-400">{{ $stats['audio_failed'] }}</strong> gagal</span>
+                <span class="text-slate-600"><strong class="text-blue-400">{{ $stats['total_progress'] }}</strong> progres tersimpan</span>
             </div>
         </div>
 
@@ -134,30 +134,30 @@
 
         <div class="grid-innovative">
             <!-- Left Side: Keyboard Shortcuts Cheatsheet (Accessibility) -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md">
+            <div class="card bg-white border border-black/10 shadow-md">
                 <div class="card-body">
                     <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-indigo-400">
                         Pintasan Keyboard Player (Aksesibilitas)
                     </h3>
-                    <p class="text-slate-300 text-sm mb-6">
+                    <p class="text-slate-600 text-sm mb-6">
                         Sistem pemutar audio pintar dilengkapi pintasan tombol keyboard untuk mempermudah rekan tunanetra bernavigasi secara mandiri:
                     </p>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; flex-grow: 1;">
-                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
-                            <span class="text-sm text-slate-400 font-medium">Main / Jeda Suara</span>
+                        <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-600 font-medium">Main / Jeda Suara</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Spasi</kbd>
                         </div>
-                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
-                            <span class="text-sm text-slate-400 font-medium">Kalimat Sebelumnya</span>
+                        <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-600 font-medium">Kalimat Sebelumnya</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">← Panah Kiri</kbd>
                         </div>
-                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
-                            <span class="text-sm text-slate-400 font-medium">Kalimat Selanjutnya</span>
+                        <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-600 font-medium">Kalimat Selanjutnya</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Panah Kanan →</kbd>
                         </div>
-                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center gap-3 justify-between">
-                            <span class="text-sm text-slate-400 font-medium">Ulangi Kalimat Aktif</span>
+                        <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
+                            <span class="text-sm text-slate-600 font-medium">Ulangi Kalimat Aktif</span>
                             <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Tombol R</kbd>
                         </div>
                     </div>
@@ -165,14 +165,14 @@
             </div>
 
             <!-- Right Side: Quick QR Generator -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+            <div class="card bg-white border border-black/10 shadow-md" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
                 <div class="card-body w-full">
                     <h3 class="text-lg font-bold mb-3 text-left">
                         Pintasan QR Code
                     </h3>
                     <div class="mb-4 text-left">
-                        <label for="quick-book-selector" class="text-xs font-bold text-slate-400 uppercase block mb-1">Pilih Buku:</label>
-                        <select id="quick-book-selector" onchange="updateQuickQR(this.value)" class="select select-bordered w-full bg-base-300/60 text-white text-sm mt-1">
+                        <label for="quick-book-selector" class="text-xs font-bold text-slate-600 uppercase block mb-1">Pilih Buku:</label>
+                        <select id="quick-book-selector" onchange="updateQuickQR(this.value)" class="select select-bordered w-full bg-white text-black text-sm mt-1">
                             @forelse (\App\Models\AudioBuku::all() as $b)
                                 <option value="{{ $b->qr_token }}" data-title="{{ $b->judul }}">
                                     {{ \Illuminate\Support\Str::limit($b->judul, 28) }}
@@ -222,10 +222,10 @@
                         <title>Cetak QR - ${title}</title>
                         <style>
                             body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px; color: #000; background: #fff; }
-                            .container { border: 3px dashed #6366f1; padding: 30px; display: inline-block; border-radius: 15px; max-width: 350px; }
-                            h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #1e1b4b; }
+                            .container { border: 3px dashed #b8860b; padding: 30px; display: inline-block; border-radius: 15px; max-width: 350px; }
+                            h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #000; }
                             img { width: 220px; height: 220px; display: block; margin: 0 auto; border: 1px solid #e5e7eb; padding: 8px; border-radius: 8px; }
-                            .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #6366f1; }
+                            .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #b8860b; }
                         </style>
                     </head>
                     <body>
@@ -277,13 +277,13 @@
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
             <!-- Action 1: Manage Catalog -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md">
+            <div class="card bg-white border border-black/10 shadow-md">
                 <div class="card-body">
                     <span class="block mb-3 text-blue-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
                     </span>
                     <h4 class="text-lg font-semibold mb-2">Kelola Katalog</h4>
-                    <p class="text-slate-400 text-sm mb-6" style="min-height: 40px;">
+                    <p class="text-slate-600 text-sm mb-6" style="min-height: 40px;">
                         Lihat daftar buku, edit deskripsi, dan hapus buku dari katalog publik.
                     </p>
                     <a href="{{ route('audio-books.index') }}" class="btn btn-primary">
@@ -293,13 +293,13 @@
             </div>
 
             <!-- Action 2: Add Book -->
-            <div class="card bg-base-300/50 border border-white/10 shadow-md">
+            <div class="card bg-white border border-black/10 shadow-md">
                 <div class="card-body">
                     <span class="block mb-3 text-indigo-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
                     </span>
                     <h4 class="text-lg font-semibold mb-2">Tambah Buku Baru</h4>
-                    <p class="text-slate-400 text-sm mb-6" style="min-height: 40px;">
+                    <p class="text-slate-600 text-sm mb-6" style="min-height: 40px;">
                         Unggah file PDF/EPUB buku baru untuk diekstrak teks dan suaranya.
                     </p>
                     <a href="{{ route('audio-books.create') }}" class="btn btn-ghost">

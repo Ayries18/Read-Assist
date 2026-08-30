@@ -41,6 +41,10 @@ class RestrictQrGuest
                 elseif ($request->is('api/*') || $request->is('progress/sync')) {
                     $allowed = true;
                 }
+                // 4b. Read-assist (guest may still analyze text after scanning a book)
+                elseif ($request->is('read-assist') || $request->is('proses-teks')) {
+                    $allowed = true;
+                }
                 // 5. Allowed pages and assets for the specific book
                 elseif ($request->is("katalog-audio/{$book->id}") || 
                         $request->is("katalog/{$book->qr_token}") || 

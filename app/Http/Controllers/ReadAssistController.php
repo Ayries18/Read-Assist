@@ -8,9 +8,15 @@ use Illuminate\Support\Facades\Log;
 
 class ReadAssistController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('read-assist.index');
+        $text = '';
+        $textQuery = $request->query('text');
+        if (is_string($textQuery) && strlen(trim($textQuery)) >= 10) {
+            $text = trim($textQuery);
+        }
+
+        return view('read-assist.index', ['text' => $text]);
     }
 
     public function process(Request $request)
@@ -58,7 +64,7 @@ Teks:
 
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
-                ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
+                ])->post("https://generativelanguage.googleapis.com/v1beta/models/" . config('services.gemini.model') . ":generateContent?key={$apiKey}", [
                     'contents' => [
                         [
                             'parts' => [
