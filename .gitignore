@@ -1,4 +1,7 @@
 *.log
+*.db
+*.sqlite
+*.sqlite3
 .DS_Store
 .env
 .env.backup
@@ -27,4 +30,7 @@ Homestead.yaml
 Thumbs.db
 /database/database.sqlite
 /storage/app/tunnel_*
-ip_output.txt
+curl_local.txt
+run_git.php
+tunnel_test.php
+AGENTS_RECAP.md
