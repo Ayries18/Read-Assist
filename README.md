@@ -26,7 +26,6 @@
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Blade](https://img.shields.io/badge/Blade_Template-F55247?style=for-the-badge&logo=laravel&logoColor=white)
 ![QR Code](https://img.shields.io/badge/QR_Code-000000?style=for-the-badge&logo=qrcode&logoColor=white)
-![Google Gemini](https://img.shields.io/badge/Gemini_AI-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 
 </div>
 
@@ -62,7 +61,6 @@ Pengguna cukup **memindai QR Code** pada buku menggunakan smartphone — aplikas
 | 🧩 | **QR Code otomatis** | Setiap buku mendapat QR unik untuk akses cepat via ponsel |
 | 🎧 | **Pemutar audio terintegrasi** | Pemutar halaman penuh + mini player yang tetap tampil saat berpindah halaman |
 | 🗂️ | **Manajemen katalog** | Dashboard admin untuk kelola buku & audio |
-| 🧠 | **Asisten baca AI** | Ringkasan & kata kunci otomatis dari teks via **Google Gemini** |
 | 📊 | **Progres belajar** | Pelacakan durasi mendengarkan per pengguna |
 
 ---
@@ -87,7 +85,6 @@ Aplikasi dibangun sesuai standar **WCAG 2.2** dan diverifikasi dengan **axe-core
 | **Database** | SQLite |
 | **Frontend** | Blade, Tailwind CSS, JavaScript (Vite) |
 | **Ekstraksi PDF** | poppler-utils (`pdftotext`) |
-| **AI** | Google Gemini (`gemini-2.5-flash`) |
 
 ---
 
@@ -144,8 +141,6 @@ Salin `.env.example` menjadi `.env`, lalu sesuaikan variabel penting ini:
 | `APP_URL` | URL aplikasi | `http://127.0.0.1:8000` |
 | `DB_CONNECTION` | Driver database | `sqlite` |
 | `SESSION_DRIVER` | Penyimpanan sesi | `database` |
-| `GEMINI_API_KEY` | API key Google Gemini (analisis teks) | `AIza...` |
-| `GEMINI_MODEL` | Model Gemini | `gemini-2.5-flash` |
 
 ---
 
