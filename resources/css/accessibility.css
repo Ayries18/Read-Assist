@@ -1,0 +1,405 @@
+/* ─── Teks besar (large / xlarge) ─────────────────────────── */
+body.accessibility-large-text {
+    font-size: 1.15rem;
+}
+
+body.accessibility-large-text .btn,
+body.accessibility-large-text .nav-link,
+body.accessibility-large-text .input,
+body.accessibility-large-text .select,
+body.accessibility-large-text .textarea {
+    font-size: 1.1rem;
+}
+
+body.accessibility-large-text .card-title {
+    font-size: 1.45rem;
+}
+
+body.accessibility-xlarge-text {
+    font-size: 1.3rem;
+}
+
+body.accessibility-xlarge-text .btn,
+body.accessibility-xlarge-text .nav-link,
+body.accessibility-xlarge-text .input,
+body.accessibility-xlarge-text .select,
+body.accessibility-xlarge-text .textarea {
+    font-size: 1.25rem;
+}
+
+body.accessibility-xlarge-text .card-title {
+    font-size: 1.6rem;
+}
+
+/* ─── Widget & panel aksesibilitas ────────────────────────── */
+.accessibility-nav-wrapper {
+    position: relative;
+}
+
+.accessibility-nav-trigger {
+    font-size: 0.95rem;
+    font-weight: 800;
+    min-width: 42px;
+    min-height: 42px;
+}
+
+.accessibility-widget {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+}
+
+.accessibility-floating-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #000000;
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+
+.accessibility-floating-btn:hover,
+.accessibility-floating-btn:focus-visible {
+    transform: translateY(-1px);
+    border-color: #b8860b;
+    background: #ffffff;
+}
+
+.accessibility-panel {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    color: var(--text-primary);
+    flex-direction: column;
+    gap: 0.85rem;
+    min-width: 292px;
+    padding: 1rem;
+}
+
+.accessibility-panel--nav {
+    right: -72px;
+    width: 300px;
+}
+
+.accessibility-panel--floating {
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    width: min(340px, calc(100vw - 32px));
+}
+
+.accessibility-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.8rem;
+}
+
+.accessibility-kicker {
+    display: block;
+    color: var(--accent-secondary);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+}
+
+.accessibility-title {
+    color: #000000;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.accessibility-control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 14px;
+    padding: 0.78rem;
+}
+
+.accessibility-control-row--stacked {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+}
+
+.accessibility-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 14px;
+    padding: 0.78rem;
+}
+
+.accessibility-control-title {
+    display: block;
+    color: #000000;
+    font-size: 0.86rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.accessibility-control-desc {
+    display: block;
+    color: #b8860b;
+    font-size: 0.72rem;
+    line-height: 1.3;
+    margin-top: 0.18rem;
+}
+
+.accessibility-toggle-btn,
+.accessibility-size-btn {
+    min-width: 44px;
+    min-height: 38px;
+    border-radius: 11px;
+    border: 1px solid rgba(100, 116, 139, 0.4);
+    background: rgba(255, 255, 255, 0.9);
+    color: #1e293b;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 800;
+    transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.accessibility-toggle-btn:hover,
+.accessibility-size-btn:hover,
+.accessibility-toggle-btn:focus-visible,
+.accessibility-size-btn:focus-visible {
+    background: rgba(184, 134, 11, 0.15);
+    border-color: #b8860b;
+    color: #000000;
+    transform: translateY(-1px);
+}
+
+.accessibility-toggle-btn.is-active {
+    background: #b8860b;
+    border-color: #b8860b;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.accessibility-size-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.45rem;
+}
+
+.accessibility-size-btn {
+    width: 100%;
+}
+
+.accessibility-size-btn--large {
+    font-size: 0.92rem;
+}
+
+.accessibility-size-btn--xlarge {
+    font-size: 1.05rem;
+}
+
+.accessibility-size-btn.is-active {
+    background: #b8860b;
+    border-color: #b8860b;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.accessibility-help-text {
+    color: #b8860b;
+    font-size: 0.72rem;
+    line-height: 1.55;
+    margin: 0;
+    border-top: 1px solid #000000;
+    padding-top: 0.78rem;
+}
+
+@keyframes pulse-badge {
+    0% { transform: scale(0.9); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+/* ─── Responsive widget / panel ───────────────────────────── */
+@media (max-width: 768px) {
+    .accessibility-widget {
+        left: 14px;
+        bottom: 14px;
+    }
+
+    .accessibility-floating-btn {
+        width: 54px;
+        height: 54px;
+    }
+
+    .accessibility-panel--floating {
+        bottom: 66px;
+        left: 0;
+        width: calc(100vw - 28px);
+        max-height: min(72vh, 520px);
+        overflow-y: auto;
+    }
+
+    .accessibility-panel--nav {
+        position: fixed;
+        top: 72px;
+        right: 14px;
+        left: 14px;
+        width: auto;
+        max-height: calc(100vh - 96px);
+        overflow-y: auto;
+    }
+}
+
+/* ═══ MODE KONTRAS TINGGI FULL-HALAMAN (widget aksesibilitas) ═══
+   Menimpa tema terang global (text-slate→hitam, bg-white→putih)
+   agar di mode kontras tinggi TIDAK ada teks yang tertelan:
+   latar hitam + teks kuning di seluruh halaman. */
+body.accessibility-high-contrast {
+    --bg-primary: #000000 !important;
+    --bg-secondary: #000000 !important;
+    --bg-glass: #000000 !important;
+    --border-glass: #ffff00 !important;
+    --accent-primary: #ffff00 !important;
+    --accent-secondary: #ffff00 !important;
+    --accent-success: #ffff00 !important;
+    --accent-danger: #ffff00 !important;
+    --text-primary: #ffff00 !important;
+    --text-secondary: #ffff00 !important;
+    --text-muted: #ffff00 !important;
+}
+
+/* Semua permukaan (termasuk yang dipaksa putih oleh tema terang) → hitam */
+body.accessibility-high-contrast .card,
+body.accessibility-high-contrast .navbar,
+body.accessibility-high-contrast .form-card,
+body.accessibility-high-contrast [class*="bg-white/"],
+body.accessibility-high-contrast .bg-white,
+body.accessibility-high-contrast [class*="bg-base-300"],
+body.accessibility-high-contrast [class*="bg-slate-"],
+body.accessibility-high-contrast [class*="bg-black"],
+body.accessibility-high-contrast [class*="bg-purple-"],
+body.accessibility-high-contrast [class*="bg-indigo-"],
+body.accessibility-high-contrast [class*="bg-violet-"],
+body.accessibility-high-contrast [style*="background"],
+body.accessibility-high-contrast #read-assist-container,
+body.accessibility-high-contrast #session-toast {
+    background-color: #000000 !important;
+    border: 2px solid #ffff00 !important;
+}
+
+/* Semua teks → kuning */
+body.accessibility-high-contrast p,
+body.accessibility-high-contrast span,
+body.accessibility-high-contrast div,
+body.accessibility-high-contrast h1,
+body.accessibility-high-contrast h2,
+body.accessibility-high-contrast h3,
+body.accessibility-high-contrast h4,
+body.accessibility-high-contrast h5,
+body.accessibility-high-contrast h6,
+body.accessibility-high-contrast label,
+body.accessibility-high-contrast a,
+body.accessibility-high-contrast strong,
+body.accessibility-high-contrast em,
+body.accessibility-high-contrast li,
+body.accessibility-high-contrast td,
+body.accessibility-high-contrast th,
+body.accessibility-high-contrast dt,
+body.accessibility-high-contrast dd,
+body.accessibility-high-contrast blockquote,
+body.accessibility-high-contrast caption,
+body.accessibility-high-contrast .label-text,
+body.accessibility-high-contrast .dropdown-item,
+body.accessibility-high-contrast .dropdown-text,
+body.accessibility-high-contrast .dropdown-header,
+body.accessibility-high-contrast .dropdown-time,
+body.accessibility-high-contrast [class*="text-"] {
+    color: #ffff00 !important;
+}
+
+body.accessibility-high-contrast a {
+    text-decoration: underline !important;
+}
+
+/* Field isian (input/select/textarea) → kuning di atas hitam */
+body.accessibility-high-contrast input,
+body.accessibility-high-contrast select,
+body.accessibility-high-contrast textarea {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+}
+body.accessibility-high-contrast input::placeholder,
+body.accessibility-high-contrast textarea::placeholder {
+    color: #ffff00 !important;
+    opacity: 1 !important;
+}
+
+/* Tombol umum → garis kuning, teks kuning */
+body.accessibility-high-contrast button,
+body.accessibility-high-contrast .btn,
+body.accessibility-high-contrast .btn-outline,
+body.accessibility-high-contrast .toggle,
+body.accessibility-high-contrast .badge {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+}
+/* Tombol aksi utama (CTA) → kuning penuh dengan teks hitam */
+body.accessibility-high-contrast .btn-primary {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border: 2px solid #ffff00 !important;
+    font-weight: bold !important;
+}
+
+/* Panel / kontrol aksesibilitas di mode kontras tinggi */
+body.accessibility-high-contrast .accessibility-panel,
+body.accessibility-high-contrast .accessibility-control-row,
+body.accessibility-high-contrast .accessibility-control-group {
+    background: #000000 !important;
+    border: 2px solid #ffff00 !important;
+    color: #ffff00 !important;
+}
+
+body.accessibility-high-contrast .accessibility-control-desc,
+body.accessibility-high-contrast .accessibility-help-text,
+body.accessibility-high-contrast .accessibility-kicker {
+    color: #ffff00 !important;
+}
+
+body.accessibility-high-contrast .accessibility-toggle-btn,
+body.accessibility-high-contrast .accessibility-size-btn,
+body.accessibility-high-contrast .accessibility-floating-btn {
+    background: #000000 !important;
+    border: 2px solid #ffff00 !important;
+    color: #ffff00 !important;
+}
+
+body.accessibility-high-contrast .accessibility-toggle-btn.is-active,
+body.accessibility-high-contrast .accessibility-size-btn.is-active {
+    background: #ffff00 !important;
+    border-color: #ffff00 !important;
+    color: #000000 !important;
+}

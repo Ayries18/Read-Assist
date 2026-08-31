@@ -1,8 +1,7 @@
 <?php
 
-
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AudioBukuController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\ReadAssistController;
 use Illuminate\Support\Facades\Route;
@@ -15,9 +14,9 @@ Route::get('/read-assist', [ReadAssistController::class, 'index'])->name('read.i
 Route::post('/proses-teks', [ReadAssistController::class, 'process'])->name('read.process');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.process');
+Route::post('/login', [AuthController::class, 'login'])->name('login.process')->middleware('throttle:5,1');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.process');
+Route::post('/register', [AuthController::class, 'register'])->name('register.process')->middleware('throttle:3,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/admin/dashboard', [AuthController::class, 'adminDashboard'])->name('admin.dashboard');
 Route::get('/user/dashboard', [AuthController::class, 'userDashboard'])->name('user.dashboard');
@@ -28,9 +27,9 @@ Route::put('/profile/password', [AuthController::class, 'updatePassword'])->name
 
 // Reset password routes
 Route::get('/lupa-password', [AuthController::class, 'showForgotPassword'])->name('password.forgot');
-Route::post('/lupa-password', [AuthController::class, 'sendResetLink'])->name('password.send');
+Route::post('/lupa-password', [AuthController::class, 'sendResetLink'])->name('password.send')->middleware('throttle:3,1');
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset.process');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset.process')->middleware('throttle:5,1');
 
 // Audio Book routes
 Route::get('/katalog-audio', [AudioBukuController::class, 'index'])->name('audio-books.index');

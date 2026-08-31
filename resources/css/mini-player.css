@@ -1,0 +1,174 @@
+.wave-animation {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+    margin: 1rem 0;
+}
+
+.wave-bar {
+    width: 3px;
+    height: 6px;
+    background: var(--accent-primary);
+    border-radius: 2px;
+    animation: bounce 1.2s ease-in-out infinite alternate;
+    transition: height 0.3s ease;
+}
+
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { animation-delay: 0.5s; }
+.wave-bar:nth-child(7) { animation-delay: 0.6s; }
+.wave-bar:nth-child(8) { animation-delay: 0.1s; }
+.wave-bar:nth-child(9) { animation-delay: 0.2s; }
+.wave-bar:nth-child(10) { animation-delay: 0.3s; }
+
+.wave-animation.paused .wave-bar {
+    animation-play-state: paused;
+    height: 4px;
+    opacity: 0.3;
+}
+
+@keyframes bounce {
+    0% { height: 6px; }
+    100% { height: 36px; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#mini-audio-player {
+    position: fixed;
+    bottom: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 600px;
+    background: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 12px;
+    padding: 0.7rem 1.1rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#mini-audio-player.active { bottom: 24px; }
+
+.mini-player-details {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex: 1;
+    overflow: hidden;
+}
+
+.mini-player-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+}
+
+.mini-player-author {
+    font-size: 0.75rem;
+    color: var(--accent-secondary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-player-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.mini-player-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0.3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    transition: background 0.2s;
+    width: 32px;
+    height: 32px;
+}
+
+.mini-player-btn:hover { background: rgba(0, 0, 0, 0.08); }
+
+.mini-player-btn.play-btn {
+    background: var(--accent-primary);
+    color: #ffffff;
+    width: 36px;
+    height: 36px;
+}
+
+.mini-player-btn.play-btn:hover { background: #b8860b; }
+
+.mini-wave {
+    display: flex;
+    align-items: flex-end;
+    gap: 2.5px;
+    width: 24px;
+    height: 16px;
+}
+
+.mini-wave-bar {
+    width: 3px;
+    background: var(--accent-success);
+    height: 4px;
+    border-radius: 1px;
+}
+
+#mini-audio-player.playing .mini-wave-bar {
+    animation: mini-wave-pulse 1s ease-in-out infinite alternate;
+}
+
+#mini-audio-player.playing .mini-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+#mini-audio-player.playing .mini-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+#mini-audio-player.playing .mini-wave-bar:nth-child(4) { animation-delay: 0.45s; }
+
+@keyframes mini-wave-pulse {
+    0% { height: 4px; }
+    100% { height: 16px; }
+}
+
+/* Badge status mini-player: emas solid + teks hitam agar kontras cukup (6.4:1).
+   Di mode kontras tinggi biarkan aturan full-page HC yang menanganinya. */
+body:not(.accessibility-high-contrast) #mini-audio-status-badge {
+    color: #000000;
+    background: #b8860b;
+    border: 1px solid #000000;
+}
+
+/* Responsive mini-player */
+@media (max-width: 768px) {
+    #mini-audio-player {
+        width: calc(100% - 20px);
+        left: 10px;
+        transform: none;
+        bottom: -150px;
+    }
+    #mini-audio-player.active { bottom: 12px; }
+    .mini-player-details { flex: 1; }
+}

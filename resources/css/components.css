@@ -1,0 +1,168 @@
+/* ─── Layout helper ───────────────────────────────────────── */
+.grid-innovative {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .grid-innovative { grid-template-columns: 1fr; }
+}
+
+/* ─── Card ────────────────────────────────────────────────── */
+.card {
+    background-color: #ffffff !important;
+    border: 2px solid #000000 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 8px !important;
+}
+
+/* ─── Button ──────────────────────────────────────────────── */
+.btn {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    box-shadow: none !important;
+    transition: all 0.15s ease !important;
+}
+
+.btn-primary {
+    background-color: var(--accent-primary) !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    border-width: 2px !important;
+}
+.btn-primary:hover {
+    background-color: #b8860b !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.btn-ghost:hover {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.btn-ghost,
+.btn-outline,
+.btn-default {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+}
+
+.btn-error {
+    background-color: #b8860b !important;
+    border: 2px solid #000000 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+}
+
+/* ─── Input / select / textarea ───────────────────────────── */
+.input, .select, .textarea {
+    border-radius: 6px !important;
+    border: 2px solid #000000 !important;
+    background-color: #ffffff !important;
+    color: #000 !important;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+    border-color: var(--accent-primary) !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* ─── Navbar / dropdown / modal / drawer ──────────────────── */
+.navbar {
+    background: #ffffff !important;
+    border-bottom: 2px solid #000000 !important;
+    box-shadow: none !important;
+}
+
+.nav-dropdown,
+.mobile-drawer,
+.accessibility-panel {
+    background: #ffffff !important;
+    border: 2px solid #000000 !important;
+    color: #000000 !important;
+}
+
+.modal-box {
+    background-color: #ffffff !important;
+    border: 2px solid #000000 !important;
+    color: #000000 !important;
+}
+
+.dropdown-item-link,
+.dropdown-item,
+.dropdown-text {
+    color: #000000 !important;
+}
+.dropdown-header,
+.dropdown-time {
+    color: #b8860b !important;
+}
+
+.mobile-nav-btn,
+.nav-link,
+.nav-btn {
+    color: #000000 !important;
+}
+.mobile-nav-btn.active {
+    background: #b8860b !important;
+    color: #000000 !important;
+}
+.nav-btn.active {
+    background: #b8860b !important;
+    border-color: #b8860b !important;
+    color: #000000 !important;
+}
+
+.nav-icon-btn {
+    color: #000000 !important;
+}
+
+/* ─── Teks & background utility → tema terang ─────────────── */
+/* Teks utility → hitam (teks utama) / aksen kuning-gelap (kontras AA di atas putih) */
+[class*="text-slate-"] { color: #000000 !important; }
+[class*="text-purple-"] { color: #7a5a00 !important; }
+[class*="text-indigo-"] { color: #7a5a00 !important; }
+[class*="text-violet-"] { color: #7a5a00 !important; }
+[class*="text-blue-"] { color: #7a5a00 !important; }
+[class*="text-emerald-"] { color: #7a5a00 !important; }
+[class*="text-green-"] { color: #7a5a00 !important; }
+[class*="text-red-"] { color: #7a5a00 !important; }
+
+/* Pengecualian: teks di atas overlay gelap (foto hero) harus tetap terang */
+.hero-visual figcaption span,
+.hero-visual figcaption p {
+    color: #e2e8f0 !important; /* slate-200 terang di atas gradasi gelap */
+}
+.hero-visual figcaption span[class*="text-violet-"] {
+    color: #a78bfa !important; /* violet-300 terang */
+}
+
+/* Background utility → putih (permukaan solid) */
+[class*="bg-white/"], .bg-white { background-color: #ffffff !important; }
+[class*="bg-base-300"] { background-color: #ffffff !important; }
+[class*="bg-slate-"] { background-color: #ffffff !important; }
+[class*="bg-purple-"] { background-color: #ffffff !important; }
+[class*="bg-indigo-"] { background-color: #ffffff !important; }
+[class*="bg-violet-"] { background-color: #ffffff !important; }
+
+/* Label-text daisyUI */
+.label-text { color: #000000 !important; }
+
+/* ─── Session toast ───────────────────────────────────────── */
+#session-toast {
+    background: #ffffff !important;
+    border: 2px solid #b8860b !important;
+    color: #000000 !important;
+}
+#session-toast button {
+    background: #b8860b !important;
+    border: none !important;
+    color: #ffffff !important;
+}

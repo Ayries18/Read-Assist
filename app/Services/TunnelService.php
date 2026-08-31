@@ -7,10 +7,15 @@ use Illuminate\Support\Facades\Log;
 class TunnelService
 {
     protected string $urlFile;
+
     protected string $pidFile;
+
     protected int $port;
+
     protected string $sshPath;
+
     protected $process;
+
     protected array $pipes = [];
 
     public function __construct()
@@ -24,6 +29,7 @@ class TunnelService
     protected function resolveSshPath(): string
     {
         $sshPath = trim(shell_exec('powershell -NoProfile -Command "Get-Command ssh | Select-Object -ExpandProperty Source"') ?: '');
+
         return $sshPath ?: 'ssh';
     }
 
@@ -47,7 +53,7 @@ class TunnelService
         $descriptorspec = [
             0 => ['pipe', 'r'],                  // stdin
             1 => ['pipe', 'w'],                  // stdout (pipe untuk menghindari buffering file OS)
-            2 => ['file', $errFile, 'w']         // stderr
+            2 => ['file', $errFile, 'w'],         // stderr
         ];
 
         // bypass_shell sangat penting di Windows agar memanggil executable secara langsung tanpa dibungkus cmd.exe
@@ -66,6 +72,7 @@ class TunnelService
             file_put_contents($this->pidFile, $pid);
         } else {
             Log::error('SSH tunnel failed to start via proc_open');
+
             return null;
         }
 
@@ -98,7 +105,7 @@ class TunnelService
 
             // Jika proses SSH ternyata sudah mati di tengah jalan, hentikan loop
             $status = proc_get_status($process);
-            if (!$status['running']) {
+            if (! $status['running']) {
                 break;
             }
         }
@@ -107,12 +114,14 @@ class TunnelService
             // Tulis URL ke file agar bisa diakses oleh request web lain
             file_put_contents($this->urlFile, $detectedUrl);
             @unlink($errFile);
+
             return $detectedUrl;
         }
 
         // Jika gagal mendapatkan URL setelah 30 detik, stop tunnel agar proses tidak menggantung,
         // tapi JANGAN hapus $errFile agar command bisa menampilkan detail errornya kepada user.
         $this->stop();
+
         return null;
     }
 
@@ -120,11 +129,10 @@ class TunnelService
     {
         $pid = $this->getPid();
         if ($pid) {
-            shell_exec("taskkill /PID {$pid} /F 2>NUL");
+            // Matikan anak proses (child) dari PID tunnel dahulu, lalu PID itu sendiri.
+            // Hindari taskkill /IM ssh.exe karena itu mematikan SEMUA proses ssh di sistem.
+            shell_exec("taskkill /PID {$pid} /T /F 2>NUL");
         }
-
-        // Paksa matikan semua ssh.exe di Windows untuk mencegah proses yatim (orphan)
-        shell_exec('taskkill /F /IM ssh.exe 2>NUL');
 
         foreach ($this->pipes as $pipe) {
             if (is_resource($pipe)) {
@@ -144,7 +152,7 @@ class TunnelService
 
     public function getUrl(): ?string
     {
-        if (!file_exists($this->urlFile) || filesize($this->urlFile) === 0) {
+        if (! file_exists($this->urlFile) || filesize($this->urlFile) === 0) {
             return null;
         }
 
@@ -169,12 +177,12 @@ class TunnelService
     public function isRunning(): bool
     {
         $pid = $this->getPid();
-        if (!$pid) {
+        if (! $pid) {
             return false;
         }
 
         $output = shell_exec("tasklist /NH /FI \"PID eq {$pid}\" 2>NUL");
-        if (!$output) {
+        if (! $output) {
             return false;
         }
 
@@ -185,10 +193,11 @@ class TunnelService
 
     public function getPid(): ?string
     {
-        if (!file_exists($this->pidFile)) {
+        if (! file_exists($this->pidFile)) {
             return null;
         }
         $pid = trim(file_get_contents($this->pidFile) ?: '');
+
         return $pid ?: null;
     }
 
@@ -200,7 +209,9 @@ class TunnelService
     public function getLocalIp(): ?string
     {
         $output = shell_exec('ipconfig 2>NUL');
-        if (!$output) return null;
+        if (! $output) {
+            return null;
+        }
 
         $lines = explode("\n", $output);
         $ip = null;
@@ -208,11 +219,12 @@ class TunnelService
             $line = trim($line);
             if (preg_match('/IPv4.*:\s*(\d+\.\d+\.\d+\.\d+)/', $line, $m)) {
                 $ip = $m[1];
-                if (!str_contains($line, 'VirtualBox') && !str_contains($line, 'VMware') && !str_contains($line, 'WSL')) {
+                if (! str_contains($line, 'VirtualBox') && ! str_contains($line, 'VMware') && ! str_contains($line, 'WSL')) {
                     break;
                 }
             }
         }
+
         return $ip;
     }
 
@@ -235,7 +247,7 @@ class TunnelService
         try {
             // Fast check (0.1s timeout) to see if Ngrok is even listening
             $connection = @fsockopen('127.0.0.1', 4040, $errno, $errstr, 0.1);
-            if (!$connection) {
+            if (! $connection) {
                 return null;
             }
             fclose($connection);
@@ -246,17 +258,18 @@ class TunnelService
                 return null;
             }
             $data = json_decode($result, true);
-            if (!$data || !isset($data['tunnels'])) {
+            if (! $data || ! isset($data['tunnels'])) {
                 return null;
             }
             foreach ($data['tunnels'] as $tunnel) {
-                if (!empty($tunnel['public_url'])) {
+                if (! empty($tunnel['public_url'])) {
                     return $tunnel['public_url'];
                 }
             }
         } catch (\Exception $e) {
             return null;
         }
+
         return null;
     }
 }

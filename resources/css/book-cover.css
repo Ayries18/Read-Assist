@@ -1,0 +1,43 @@
+.book-cover-wrapper {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.book-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-cover-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    text-align: center;
+    border: 1px solid #000000;
+    border-radius: 12px;
+    transition: all 0.35s ease;
+}
+
+.book-cover-placeholder-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Admin;
 use App\Models\AudioBuku;
+use App\Models\PasswordResetToken;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -160,5 +161,72 @@ class AudioBukuTest extends TestCase
         $response->assertSee('6'); // total books
         $response->assertSee('2'); // my uploads & completed
         $response->assertSee('Ringkasan Mendengar');
+    }
+
+    public function test_login_does_not_create_account_for_hardcoded_email()
+    {
+        // Backdoor lama: login dengan email hardcoded auto-membuat akun.
+        // Setelah diperbaiki, login harus gagal & TIDAK membuat akun baru.
+        $response = $this->post('/login', [
+            'role' => 'user',
+            'email' => 'muwarisin@gmail.com',
+            'password' => 'Aris1234',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertDatabaseMissing('users', ['email' => 'muwarisin@gmail.com']);
+    }
+
+    public function test_login_is_rate_limited()
+    {
+        $user = User::factory()->create(['password' => bcrypt('password123')]);
+
+        // throttle:5,1 → maksimal 5 percobaan per menit.
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/login', [
+                'role' => 'user',
+                'email' => $user->email,
+                'password' => 'wrongpass',
+            ]);
+        }
+
+        $response = $this->post('/login', [
+            'role' => 'user',
+            'email' => $user->email,
+            'password' => 'wrongpass',
+        ]);
+
+        $response->assertStatus(429);
+    }
+
+    public function test_password_reset_token_expires()
+    {
+        $user = User::factory()->create();
+
+        $token = PasswordResetToken::create([
+            'email' => $user->email,
+            'token' => 'expired-token-abc',
+            'role' => 'user',
+            'created_at' => now()->subMinutes(120), // lebih dari TTL (60 menit)
+        ]);
+
+        $response = $this->get('/reset-password/expired-token-abc');
+        $response->assertRedirect('/login');
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_password_reset_token_is_valid_within_ttl()
+    {
+        $user = User::factory()->create();
+
+        $token = PasswordResetToken::create([
+            'email' => $user->email,
+            'token' => 'fresh-token-abc',
+            'role' => 'user',
+            'created_at' => now(),
+        ]);
+
+        $response = $this->get('/reset-password/fresh-token-abc');
+        $response->assertStatus(200);
     }
 }

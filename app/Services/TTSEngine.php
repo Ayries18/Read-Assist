@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class TTSEngine
 {
     protected Client $http;
+
     protected int $timeout;
 
     public function __construct()
@@ -25,14 +26,24 @@ class TTSEngine
     {
         $this->ensureDir(dirname($outputPath));
 
+        $provider = config('tts.provider', 'google');
+
+        // Dispatch ke provider yang dikonfigurasi. Tambahkan case baru di sini
+        // saat provider TTS lain ditambahkan (mis. openai, elevenlabs, dll).
         try {
-            $result = $this->generateWithGoogleTts($text, $outputPath);
+            $result = match ($provider) {
+                'google' => $this->generateWithGoogleTts($text, $outputPath),
+                default => $this->generateWithGoogleTts($text, $outputPath),
+            };
+
             if ($result) {
-                Log::info("TTS: Google TTS berhasil untuk kalimat #{$index}");
+                Log::info("TTS: provider '{$provider}' berhasil untuk kalimat #{$index}");
+
                 return true;
             }
+            Log::warning("TTS: provider '{$provider}' mengembalikan hasil kosong untuk kalimat #{$index}");
         } catch (\Throwable $e) {
-            Log::error("TTS: Google TTS gagal untuk kalimat #{$index}: {$e->getMessage()}");
+            Log::error("TTS: provider '{$provider}' gagal untuk kalimat #{$index}: {$e->getMessage()}");
         }
 
         return false;
@@ -40,28 +51,34 @@ class TTSEngine
 
     protected function generateWithGoogleTts(string $text, string $outputPath): bool
     {
-        $maxLen = 180;
+        $maxLen = (int) config('tts.google.max_chars', 180);
         $text = trim($text);
-        if ($text === '') return false;
+        if ($text === '') {
+            return false;
+        }
 
         if (mb_strlen($text) > $maxLen) {
             $words = preg_split('/\s+/', $text);
             $parts = [];
             $buf = '';
             foreach ($words as $word) {
-                $candidate = trim($buf . ' ' . $word);
+                $candidate = trim($buf.' '.$word);
                 if (mb_strlen($candidate) <= $maxLen) {
                     $buf = $candidate;
                 } else {
-                    if ($buf !== '') $parts[] = $buf;
+                    if ($buf !== '') {
+                        $parts[] = $buf;
+                    }
                     $buf = $word;
                 }
             }
-            if ($buf !== '') $parts[] = $buf;
+            if ($buf !== '') {
+                $parts[] = $buf;
+            }
 
             $combined = '';
             foreach ($parts as $i => $part) {
-                $partPath = $outputPath . '.part' . $i . '.mp3';
+                $partPath = $outputPath.'.part'.$i.'.mp3';
                 $success = $this->downloadTts($part, $partPath);
                 if ($success) {
                     $combined .= file_get_contents($partPath);
@@ -69,11 +86,15 @@ class TTSEngine
                 }
             }
 
-            if ($combined === '') return false;
+            if ($combined === '') {
+                return false;
+            }
             file_put_contents($outputPath, $combined);
         } else {
             $success = $this->downloadTts($text, $outputPath);
-            if (!$success) return false;
+            if (! $success) {
+                return false;
+            }
         }
 
         return file_exists($outputPath) && filesize($outputPath) > 0;
@@ -81,7 +102,7 @@ class TTSEngine
 
     protected function downloadTts(string $text, string $outputPath): bool
     {
-        $url = 'https://translate.google.com/translate_tts';
+        $url = config('tts.google.url', 'https://translate.google.com/translate_tts');
         $query = http_build_query([
             'ie' => 'UTF-8',
             'q' => $text,
@@ -89,16 +110,19 @@ class TTSEngine
             'client' => 'tw-ob',
         ]);
 
-        $response = $this->http->get($url . '?' . $query);
+        $response = $this->http->get($url.'?'.$query);
 
         if ($response->getStatusCode() !== 200) {
             return false;
         }
 
         $body = $response->getBody()->getContents();
-        if (empty($body)) return false;
+        if (empty($body)) {
+            return false;
+        }
 
         file_put_contents($outputPath, $body);
+
         return true;
     }
 
@@ -106,10 +130,14 @@ class TTSEngine
     {
         $this->ensureDir(dirname($outputPath));
 
-        if (empty($sentenceFiles)) return false;
+        if (empty($sentenceFiles)) {
+            return false;
+        }
 
-        $existingFiles = array_values(array_filter($sentenceFiles, fn($f) => file_exists($f) && filesize($f) > 0));
-        if (empty($existingFiles)) return false;
+        $existingFiles = array_values(array_filter($sentenceFiles, fn ($f) => file_exists($f) && filesize($f) > 0));
+        if (empty($existingFiles)) {
+            return false;
+        }
 
         if (count($existingFiles) === 1) {
             return copy($existingFiles[0], $outputPath);
@@ -120,48 +148,60 @@ class TTSEngine
             $combined .= file_get_contents($file);
         }
 
-        if (empty($combined)) return false;
+        if (empty($combined)) {
+            return false;
+        }
 
         file_put_contents($outputPath, $combined);
+
         return file_exists($outputPath) && filesize($outputPath) > 0;
     }
 
     protected function ensureDir(string $dir): void
     {
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
     }
 
     public static function splitSentences(string $text, string $title = 'Buku'): array
     {
+        $ideLen = (int) config('tts.google.ide_chars', 150);
         $sentences = [];
 
-        $sentences[] = 'Membaca buku: ' . $title . '.';
+        $sentences[] = 'Membaca buku: '.$title.'.';
 
         $paragraphs = preg_split('/\R+/', $text);
         foreach ($paragraphs as $para) {
             $trimmed = trim($para);
-            if ($trimmed === '') continue;
+            if ($trimmed === '') {
+                continue;
+            }
 
             $parts = preg_split('/(?<=[.!?])\s+/', $trimmed);
             foreach ($parts as $part) {
                 $part = trim($part);
-                if ($part === '') continue;
+                if ($part === '') {
+                    continue;
+                }
 
-                if (mb_strlen($part) > 150) {
+                if (mb_strlen($part) > $ideLen) {
                     $words = preg_split('/\s+/', $part);
                     $buf = '';
                     foreach ($words as $word) {
-                        $candidate = trim($buf . ' ' . $word);
-                        if (mb_strlen($candidate) <= 150) {
+                        $candidate = trim($buf.' '.$word);
+                        if (mb_strlen($candidate) <= $ideLen) {
                             $buf = $candidate;
                         } else {
-                            if ($buf !== '') $sentences[] = $buf;
+                            if ($buf !== '') {
+                                $sentences[] = $buf;
+                            }
                             $buf = $word;
                         }
                     }
-                    if ($buf !== '') $sentences[] = $buf;
+                    if ($buf !== '') {
+                        $sentences[] = $buf;
+                    }
                 } else {
                     $sentences[] = $part;
                 }
