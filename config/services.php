@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'ninerouter' => [
+        'base_url' => env('NINEROUTER_BASE_URL', 'http://localhost:20128'),
+        'api_url' => env('NINEROUTER_API_URL', 'http://localhost:20128/v1'),
+        'key' => env('NINEROUTER_KEY'),
+        'dashboard_url' => env('NINEROUTER_DASHBOARD_URL', 'http://localhost:20128/dashboard/combos'),
+    ],
+
 ];

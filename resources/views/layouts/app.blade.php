@@ -16,6 +16,29 @@
     <link rel="icon" type="image/png" href="/logo.png">
     <link rel="apple-touch-icon" href="/logo.png">
     <link rel="manifest" href="/manifest.json">
+    <script>
+        // Tema (Terang/Gelap/System) + dominasi kontras tinggi — dijalankan sebelum paint
+        (function () {
+            try {
+                var highContrast = localStorage.getItem('acc_contrast') === 'true';
+                var theme = localStorage.getItem('read_assist_theme') || 'system';
+                var isDark = false;
+                if (theme === 'dark') {
+                    isDark = true;
+                } else if (theme === 'system') {
+                    isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                }
+                // Mode kontras tinggi MENDOMINASI: jangan terapkan gelap saat aktif
+                if (isDark && !highContrast) {
+                    document.documentElement.classList.add('dark-mode');
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+        window.__readAssistTheme = (function () {
+            try { return localStorage.getItem('read_assist_theme') || 'system'; } catch (e) { return 'system'; }
+        })();
+    </script>
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));
         $hasHot = file_exists(public_path('hot'));
@@ -562,6 +585,23 @@
                 @endif
             @endif
 
+            <!-- Tema (Terang/Gelap/System) -->
+            <div class="nav-theme-wrapper" style="position: relative; display: flex; align-items: center; gap: 2px;">
+                <button class="nav-icon-btn" id="theme-toggle-btn" title="Ganti terang / gelap" aria-label="Sakelar mode gelap terang">
+                    <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                    <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                </button>
+                <button class="nav-icon-btn" id="theme-caret-btn" style="width: 22px; padding: 0.55rem 0.15rem;" title="Pilihan tema" aria-label="Buka pilihan tema: terang, gelap, atau ikuti sistem" aria-haspopup="true" aria-controls="theme-menu" aria-expanded="false" onkeydown="handleThemeMenuKey(event)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div id="theme-menu" class="nav-dropdown" style="display: none; right: 0; width: 170px;">
+                    <div class="dropdown-header" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.4rem;">Tema Tampilan</div>
+                    <button class="dropdown-item-link theme-option" data-theme-option="light" style="width:100%; border:none; background:none; text-align:left;" type="button">Terang</button>
+                    <button class="dropdown-item-link theme-option" data-theme-option="dark" style="width:100%; border:none; background:none; text-align:left;" type="button">Gelap</button>
+                    <button class="dropdown-item-link theme-option" data-theme-option="system" style="width:100%; border:none; background:none; text-align:left;" type="button">Ikuti Sistem</button>
+                </div>
+            </div>
+
             <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
             <button class="nav-icon-btn" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -928,6 +968,105 @@
             });
         }
 
+        // ─── Tema Tampilan (Terang / Gelap / System) ───────────────
+        let currentTheme = localStorage.getItem('read_assist_theme') || 'system';
+        window.__readAssistTheme = currentTheme;
+
+        function resolveDark() {
+            if (currentTheme === 'dark') return true;
+            if (currentTheme === 'light') return false;
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+
+        function applyReadAssistTheme() {
+            const dark = resolveDark();
+            const hcOn = document.body.classList.contains('accessibility-high-contrast');
+            // Mode kontras tinggi MENDOMINASI: jangan terapkan gelap saat aktif
+            const applyDark = dark && !hcOn;
+            document.documentElement.classList.toggle('dark-mode', applyDark);
+            if (applyDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            const sun = document.getElementById('theme-icon-sun');
+            const moon = document.getElementById('theme-icon-moon');
+            if (sun) sun.style.display = applyDark ? 'none' : 'inline';
+            if (moon) moon.style.display = applyDark ? 'inline' : 'none';
+            const themeColor = document.querySelector('meta[name="theme-color"]');
+            if (themeColor) themeColor.setAttribute('content', applyDark ? '#121212' : '#ffffff');
+            document.querySelectorAll('.theme-option').forEach(function (opt) {
+                const sel = opt.getAttribute('data-theme-option') === currentTheme;
+                opt.style.fontWeight = sel ? '800' : 'normal';
+                opt.setAttribute('aria-current', sel ? 'true' : 'false');
+            });
+        }
+
+        function setReadAssistTheme(t) {
+            currentTheme = t;
+            window.__readAssistTheme = t;
+            localStorage.setItem('read_assist_theme', t);
+            applyReadAssistTheme();
+            const menu = document.getElementById('theme-menu');
+            if (menu) menu.style.display = 'none';
+            const btn = document.getElementById('theme-caret-btn');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+
+        // Klik langsung: pindah Terang <-> Gelap tanpa membuka menu
+        function toggleReadAssistTheme() {
+            const next = currentTheme === 'dark' ? 'light' : 'dark';
+            setReadAssistTheme(next);
+        }
+
+        function toggleThemeMenu(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            const menu = document.getElementById('theme-menu');
+            const btn = document.getElementById('theme-caret-btn');
+            if (!menu || !btn) return;
+            const opening = menu.style.display === 'none';
+            menu.style.display = opening ? 'flex' : 'none';
+            btn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+        }
+
+        function handleThemeMenuKey(e) {
+            if (e.key === 'Escape') {
+                const menu = document.getElementById('theme-menu');
+                const btn = document.getElementById('theme-caret-btn');
+                if (menu) menu.style.display = 'none';
+                if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+                e.preventDefault();
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            const menu = document.getElementById('theme-menu');
+            const btn = document.getElementById('theme-caret-btn');
+            if (menu && menu.style.display !== 'none') {
+                if (e.target.closest && !e.target.closest('.nav-theme-wrapper')) {
+                    menu.style.display = 'none';
+                    if (btn) btn.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+
+        document.querySelectorAll('.theme-option').forEach(function (opt) {
+            opt.addEventListener('click', function () {
+                setReadAssistTheme(opt.getAttribute('data-theme-option'));
+            });
+        });
+
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleReadAssistTheme);
+        const themeCaretBtn = document.getElementById('theme-caret-btn');
+        if (themeCaretBtn) themeCaretBtn.addEventListener('click', toggleThemeMenu);
+
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+                if (currentTheme === 'system') applyReadAssistTheme();
+            });
+        }
+
         // Apply saved states on load
         if (highContrastActive) {
             document.body.classList.add('accessibility-high-contrast');
@@ -952,6 +1091,8 @@
             }
         }
         updateAccessibilityButtonStates();
+        // Tema diterapkan setelah status kontras tinggi dimuat (dominasi terjaga)
+        applyReadAssistTheme();
 
         if (accToggleBtn) {
             accToggleBtn.addEventListener('click', () => {
@@ -987,6 +1128,8 @@
                     navBtnContrast.style.borderColor = 'var(--accent-danger)';
                 }
                 updateAccessibilityButtonStates();
+                // Kontras tinggi mendominasi: matikan tema gelap
+                applyReadAssistTheme();
                 speakText("Mode kontras tinggi diaktifkan.");
             } else {
                 document.body.classList.remove('accessibility-high-contrast');
@@ -999,6 +1142,8 @@
                     navBtnContrast.style.borderColor = '';
                 }
                 updateAccessibilityButtonStates();
+                // Pulihkan tema (gelap jika dipilih)
+                applyReadAssistTheme();
                 speakText("Mode kontras tinggi dimatikan.");
             }
         }
@@ -1066,6 +1211,10 @@
                 window.speechSynthesis.cancel();
                 const utter = new SpeechSynthesisUtterance(text);
                 utter.lang = 'id-ID';
+                // Pilih suara bahasa Indonesia (sama seperti TTS baca) agar pasti berbunyi
+                const idVoice = (window.speechSynthesis.getVoices() || [])
+                    .find(voice => voice.lang && voice.lang.toLowerCase().includes('id'));
+                if (idVoice) utter.voice = idVoice;
                 window.speechSynthesis.speak(utter);
             }
         }
