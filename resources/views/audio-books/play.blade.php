@@ -151,7 +151,7 @@
 
             <!-- Subtitles -->
             <div id="subtitles-card" class="bg-slate-900/60 border border-white/10 rounded-xl p-3 sm:p-4 text-center mb-4 min-h-[60px] flex flex-col items-center justify-center" style="display: none;">
-                <p id="current-spoken-text" class="text-sm sm:text-lg font-medium text-white leading-relaxed m-0"></p>
+                <p id="current-spoken-text" class="text-sm sm:text-lg font-medium text-white leading-relaxed m-0" aria-live="polite" aria-atomic="true"></p>
             </div>
 
             <!-- Progress -->
@@ -239,7 +239,7 @@
                     <option value="high-contrast">Kontras Tinggi (Kuning-Hitam maksimum)</option>
                 </select>
             </div>
-            <p class="text-xs text-[#b8860b]">Pengaturan tersimpan otomatis di perangkat ini.</p>
+            <p class="text-xs text-[#7a5a00]">Pengaturan tersimpan otomatis di perangkat ini.</p>
             <button onclick="closeReaderSettings()" class="btn btn-primary w-full">Selesai</button>
         </div>
     </div>

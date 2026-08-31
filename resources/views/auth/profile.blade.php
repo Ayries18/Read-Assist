@@ -5,8 +5,8 @@
 
         <!-- Alerts -->
         @if ($errors->any())
-            <div class="alert alert-error shadow-lg mb-6 bg-red-500/10 border border-red-500/20 text-red-600 rounded-2xl text-sm flex gap-3 p-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div class="alert alert-error shadow-lg mb-6 bg-red-500/10 border border-red-500/20 text-red-600 rounded-2xl text-sm flex gap-3 p-4" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <div>{{ $errors->first() }}</div>
             </div>
         @endif
@@ -42,7 +42,7 @@
                         Administrator
                     </span>
                 @else
-                    <span class="px-3.5 py-1 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#b8860b] text-[10px] font-bold rounded-full uppercase tracking-wider">
+                    <span class="px-3.5 py-1 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#7a5a00] text-[10px] font-bold rounded-full uppercase tracking-wider">
                         Member
                     </span>
                 @endif
@@ -69,7 +69,7 @@
                 <!-- Card 1: Account Information -->
                 <div class="card bg-white border border-black/10 p-6 sm:p-8 rounded-2xl shadow-xl">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl bg-[#b8860b]/10 flex items-center justify-center text-[#b8860b] flex-shrink-0">
+                        <div class="w-10 h-10 rounded-xl bg-[#b8860b]/10 flex items-center justify-center text-[#7a5a00] flex-shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         </div>
                         <div>
@@ -84,14 +84,14 @@
 
                         <div class="form-control w-full">
                             <label for="name" class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 block">Nama Lengkap</label>
-                            <input type="text" id="name" name="name" value="{{ old('name', $role === 'admin' ? $account->nama : $account->name) }}" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" required>
-                            @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            <input type="text" id="name" name="name" value="{{ old('name', $role === 'admin' ? $account->nama : $account->name) }}" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl @error('name') border-red-500 @enderror focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" required @error('name') aria-invalid="true" @enderror>
+                            @error('name') <span class="text-red-500 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-control w-full">
                             <label for="email" class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 block">Alamat Email</label>
-                            <input type="email" id="email" name="email" value="{{ old('email', $account->email) }}" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" required>
-                            @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            <input type="email" id="email" name="email" value="{{ old('email', $account->email) }}" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl @error('email') border-red-500 @enderror focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" required @error('email') aria-invalid="true" @enderror>
+                            @error('email') <span class="text-red-500 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="pt-2">
@@ -105,7 +105,7 @@
                 <!-- Card 2: Password Management -->
                 <div class="card bg-white border border-black/10 p-6 sm:p-8 rounded-2xl shadow-xl">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl bg-[#b8860b]/10 flex items-center justify-center text-[#b8860b] flex-shrink-0">
+                        <div class="w-10 h-10 rounded-xl bg-[#b8860b]/10 flex items-center justify-center text-[#7a5a00] flex-shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         </div>
                         <div>
@@ -120,15 +120,15 @@
 
                         <div class="form-control w-full">
                             <label for="current_password" class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 block">Password Saat Ini</label>
-                            <input type="password" id="current_password" name="current_password" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" required>
-                            @error('current_password') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            <input type="password" id="current_password" name="current_password" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl @error('current_password') border-red-500 @enderror focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" required @error('current_password') aria-invalid="true" @enderror>
+                            @error('current_password') <span class="text-red-500 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="form-control w-full">
                                 <label for="password" class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 block">Password Baru</label>
-                                <input type="password" id="password" name="password" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" minlength="6" required>
-                                @error('password') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                <input type="password" id="password" name="password" class="input input-bordered w-full bg-white text-black border-black/15 rounded-xl @error('password') border-red-500 @enderror focus:border-[#b8860b] focus:ring-2 focus:ring-[#b8860b]/25 focus:outline-none transition-all duration-300" minlength="6" required @error('password') aria-invalid="true" @enderror>
+                                @error('password') <span class="text-red-500 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-control w-full">

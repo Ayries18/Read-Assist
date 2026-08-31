@@ -78,7 +78,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="card border shadow-sm p-6 relative transition-all duration-300" style="background: #ffffff; border-color: #000000; border-radius: 8px;">
-                    <div class="w-10 h-10 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#b8860b] rounded flex items-center justify-center font-extrabold text-base mb-6">
+                    <div class="w-10 h-10 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#7a5a00] rounded flex items-center justify-center font-extrabold text-base mb-6">
                         1
                     </div>
                     <h3 class="text-base font-bold text-black m-0 mb-3">Pendaftaran Buku</h3>
@@ -87,7 +87,7 @@
                     </p>
                 </div>
                 <div class="card border shadow-sm p-6 relative transition-all duration-300" style="background: #ffffff; border-color: #000000; border-radius: 8px;">
-                    <div class="w-10 h-10 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#b8860b] rounded flex items-center justify-center font-extrabold text-base mb-6">
+                    <div class="w-10 h-10 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#7a5a00] rounded flex items-center justify-center font-extrabold text-base mb-6">
                         2
                     </div>
                     <h3 class="text-base font-bold text-black m-0 mb-3">Pemasangan Kode QR</h3>
@@ -96,7 +96,7 @@
                     </p>
                 </div>
                 <div class="card border shadow-sm p-6 relative transition-all duration-300" style="background: #ffffff; border-color: #000000; border-radius: 8px;">
-                    <div class="w-10 h-10 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#b8860b] rounded flex items-center justify-center font-extrabold text-base mb-6">
+                    <div class="w-10 h-10 bg-[#b8860b]/10 border border-[#b8860b]/25 text-[#7a5a00] rounded flex items-center justify-center font-extrabold text-base mb-6">
                         3
                     </div>
                     <h3 class="text-base font-bold text-black m-0 mb-3">Pemindaian & Pemutaran</h3>

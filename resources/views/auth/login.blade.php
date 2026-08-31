@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold text-center mb-6">Login Ke Akun</h1>
 
         @if ($errors->any())
-            <div class="alert alert-error shadow-lg mb-6">
+            <div class="alert alert-error shadow-lg mb-6" role="alert">
                 {{ $errors->first() }}
             </div>
         @endif
@@ -15,23 +15,23 @@
 
             <div class="form-control w-full mb-4">
                 <label for="role" class="label-text text-slate-300 text-sm font-medium mb-2 block">Masuk sebagai</label>
-                <select id="role" name="role" class="select select-bordered w-full bg-base-300/60 text-white @error('role') border-red-500 @enderror" required>
+                <select id="role" name="role" class="select select-bordered w-full bg-base-300/60 text-white @error('role') border-red-500 @enderror" required @error('role') aria-invalid="true" @enderror>
                     <option value="user" @selected(old('role') === 'user')>User</option>
                     <option value="admin" @selected(old('role') === 'admin')>Admin</option>
                 </select>
-                @error('role') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                @error('role') <span class="text-red-400 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-control w-full mb-4">
                 <label for="email" class="label-text text-slate-300 text-sm font-medium mb-2 block">Alamat Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" class="input input-bordered w-full bg-base-300/60 text-white placeholder:text-slate-500 @error('email') border-red-500 @enderror" placeholder="Masukkan email Anda" required>
-                @error('email') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                <input type="email" id="email" name="email" value="{{ old('email') }}" class="input input-bordered w-full bg-base-300/60 text-white placeholder:text-slate-500 @error('email') border-red-500 @enderror" placeholder="Masukkan email Anda" required @error('email') aria-invalid="true" @enderror>
+                @error('email') <span class="text-red-400 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-control w-full mb-4">
                 <label for="password" class="label-text text-slate-300 text-sm font-medium mb-2 block">Password</label>
-                <input type="password" id="password" name="password" class="input input-bordered w-full bg-base-300/60 text-white placeholder:text-slate-500 @error('password') border-red-500 @enderror" placeholder="Masukkan password Anda" required>
-                @error('password') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                <input type="password" id="password" name="password" class="input input-bordered w-full bg-base-300/60 text-white placeholder:text-slate-500 @error('password') border-red-500 @enderror" placeholder="Masukkan password Anda" required @error('password') aria-invalid="true" @enderror>
+                @error('password') <span class="text-red-400 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
             </div>
 
             <button type="submit" class="btn btn-primary w-full mt-4" id="login-btn">

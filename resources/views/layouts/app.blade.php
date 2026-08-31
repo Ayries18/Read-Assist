@@ -39,13 +39,13 @@
         /* Modern, minimal layout styling */
         :root {
             --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            --accent-primary: #b8860b;
-            --accent-secondary: #b8860b;
+            --accent-primary: #7a5a00;
+            --accent-secondary: #7a5a00;
             --accent-success: #b8860b;
             --accent-danger: #b8860b;
             --text-primary: #000000;
             --text-secondary: #000000;
-            --text-muted: #b8860b;
+            --text-muted: #7a5a00;
             --border-glass: #000000;
             --bg-secondary: #ffffff;
             --bg-glass: #ffffff;
@@ -393,46 +393,46 @@
         <div class="navbar-center flex">
             <ul class="menu menu-horizontal px-1 gap-1">
                 <li>
-                    <a href="/" class="nav-btn {{ request()->is('/') ? 'active' : '' }}">
+                    <a href="/" class="nav-btn {{ request()->is('/') ? 'active' : '' }}" aria-current="{{ request()->is('/') ? 'page' : '' }}">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
                         <span class="nav-btn-text">Beranda</span>
                     </a>
                 </li>
                 <li>
-                    <a href="/katalog-audio" class="nav-btn {{ request()->is('katalog-audio') ? 'active' : '' }}">
+                    <a href="/katalog-audio" class="nav-btn {{ request()->is('katalog-audio') ? 'active' : '' }}" aria-current="{{ request()->is('katalog-audio') ? 'page' : '' }}">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
                         <span class="nav-btn-text">Katalog Buku</span>
                     </a>
                 </li>
                 @if (session('auth_role') === 'admin')
                     <li>
-                        <a href="/katalog-audio/tambah" class="nav-btn {{ request()->is('katalog-audio/tambah') ? 'active' : '' }}">
+                        <a href="/katalog-audio/tambah" class="nav-btn {{ request()->is('katalog-audio/tambah') ? 'active' : '' }}" aria-current="{{ request()->is('katalog-audio/tambah') ? 'page' : '' }}">
                             <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                             <span class="nav-btn-text">Tambah Buku</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/admin/dashboard" class="nav-btn {{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                        <a href="/admin/dashboard" class="nav-btn {{ request()->is('admin/dashboard') ? 'active' : '' }}" aria-current="{{ request()->is('admin/dashboard') ? 'page' : '' }}">
                             <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
                             <span class="nav-btn-text">Dashboard Admin</span>
                         </a>
                     </li>
                 @elseif (session('auth_role') === 'user')
                     <li>
-                        <a href="/user/tambah-buku" class="nav-btn {{ request()->is('user/tambah-buku') ? 'active' : '' }}">
+                        <a href="/user/tambah-buku" class="nav-btn {{ request()->is('user/tambah-buku') ? 'active' : '' }}" aria-current="{{ request()->is('user/tambah-buku') ? 'page' : '' }}">
                             <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                             <span class="nav-btn-text">Tambah Buku Saya</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/user/dashboard" class="nav-btn {{ request()->is('user/dashboard') ? 'active' : '' }}">
+                        <a href="/user/dashboard" class="nav-btn {{ request()->is('user/dashboard') ? 'active' : '' }}" aria-current="{{ request()->is('user/dashboard') ? 'page' : '' }}">
                             <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
                             <span class="nav-btn-text">Dashboard User</span>
                         </a>
                     </li>
                 @endif
                 <li>
-                    <a href="/read-assist" class="nav-btn {{ request()->is('read-assist') || request()->is('read-assist*') ? 'active' : '' }}">
+                    <a href="/read-assist" class="nav-btn {{ request()->is('read-assist') || request()->is('read-assist*') ? 'active' : '' }}" aria-current="{{ request()->is('read-assist') || request()->is('read-assist*') ? 'page' : '' }}">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
                         <span class="nav-btn-text">Read Assist</span>
                     </a>
@@ -552,7 +552,7 @@
                     </div>
                 @else
                     <!-- Login/Daftar (Desktop) -->
-                    <a href="/login" class="nav-btn {{ request()->is('login') ? 'active' : '' }}">
+                    <a href="/login" class="nav-btn {{ request()->is('login') ? 'active' : '' }}" aria-current="{{ request()->is('login') ? 'page' : '' }}">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                         <span class="nav-btn-text">Login</span>
                     </a>
@@ -589,34 +589,34 @@
             <hr class="mobile-drawer-divider">
         @endif
 
-        <a href="/" class="mobile-nav-btn {{ request()->is('/') ? 'active' : '' }}">
+        <a href="/" class="mobile-nav-btn {{ request()->is('/') ? 'active' : '' }}" aria-current="{{ request()->is('/') ? 'page' : '' }}">
             <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
             Beranda
         </a>
-        <a href="/katalog-audio" class="mobile-nav-btn {{ request()->is('katalog-audio') ? 'active' : '' }}">
+        <a href="/katalog-audio" class="mobile-nav-btn {{ request()->is('katalog-audio') ? 'active' : '' }}" aria-current="{{ request()->is('katalog-audio') ? 'page' : '' }}">
             <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
             Katalog Buku
         </a>
         @if (session('auth_role') === 'admin')
-            <a href="/katalog-audio/tambah" class="mobile-nav-btn {{ request()->is('katalog-audio/tambah') ? 'active' : '' }}">
+            <a href="/katalog-audio/tambah" class="mobile-nav-btn {{ request()->is('katalog-audio/tambah') ? 'active' : '' }}" aria-current="{{ request()->is('katalog-audio/tambah') ? 'page' : '' }}">
                 <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 Tambah Buku
             </a>
-            <a href="/admin/dashboard" class="mobile-nav-btn {{ request()->is('admin/dashboard') ? 'active' : '' }}">
+            <a href="/admin/dashboard" class="mobile-nav-btn {{ request()->is('admin/dashboard') ? 'active' : '' }}" aria-current="{{ request()->is('admin/dashboard') ? 'page' : '' }}">
                 <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
                 Dashboard Admin
             </a>
         @elseif (session('auth_role') === 'user')
-            <a href="/user/tambah-buku" class="mobile-nav-btn {{ request()->is('user/tambah-buku') ? 'active' : '' }}">
+            <a href="/user/tambah-buku" class="mobile-nav-btn {{ request()->is('user/tambah-buku') ? 'active' : '' }}" aria-current="{{ request()->is('user/tambah-buku') ? 'page' : '' }}">
                 <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 Tambah Buku
             </a>
-            <a href="/user/dashboard" class="mobile-nav-btn {{ request()->is('user/dashboard') ? 'active' : '' }}">
+            <a href="/user/dashboard" class="mobile-nav-btn {{ request()->is('user/dashboard') ? 'active' : '' }}" aria-current="{{ request()->is('user/dashboard') ? 'page' : '' }}">
                 <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
                 Dashboard User
             </a>
         @endif
-        <a href="/read-assist" class="mobile-nav-btn {{ request()->is('read-assist') || request()->is('read-assist*') ? 'active' : '' }}">
+        <a href="/read-assist" class="mobile-nav-btn {{ request()->is('read-assist') || request()->is('read-assist*') ? 'active' : '' }}" aria-current="{{ request()->is('read-assist') || request()->is('read-assist*') ? 'page' : '' }}">
             <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
             Read Assist
         </a>
@@ -633,7 +633,7 @@
             </a>
         @else
             <hr class="mobile-drawer-divider">
-            <a href="/profile" class="mobile-nav-btn {{ request()->is('profile') ? 'active' : '' }}">
+            <a href="/profile" class="mobile-nav-btn {{ request()->is('profile') ? 'active' : '' }}" aria-current="{{ request()->is('profile') ? 'page' : '' }}">
                 <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                 Profil Saya
             </a>
@@ -773,13 +773,40 @@
             drawer.classList.toggle('open');
             overlay.classList.toggle('open');
             document.body.style.overflow = isOpen ? '' : 'hidden';
-            const hamburger = document.querySelector('.mobile-drawer-close');
+            const closeBtn = document.querySelector('.mobile-drawer-close');
             if (!isOpen) {
                 // Move focus into the drawer when opened
-                const closeBtn = document.querySelector('.mobile-drawer-close');
+                drawer.setAttribute('role', 'dialog');
+                drawer.setAttribute('aria-modal', 'true');
+                drawer.setAttribute('aria-label', 'Menu navigasi');
+                drawer.setAttribute('aria-hidden', 'false');
                 if (closeBtn) closeBtn.focus();
+            } else {
+                drawer.removeAttribute('aria-modal');
+                drawer.removeAttribute('role');
+                drawer.removeAttribute('aria-label');
+                drawer.setAttribute('aria-hidden', 'true');
+                const hamburger = document.querySelector('.nav-icon-btn[onclick="toggleMobileDrawer()"]');
+                if (hamburger) hamburger.focus();
             }
         }
+
+        // Focus trap for the open mobile drawer
+        document.addEventListener('keydown', function(e) {
+            const drawer = document.getElementById('mobile-drawer');
+            if (!drawer || !drawer.classList.contains('open') || e.key !== 'Tab') return;
+            const focusable = drawer.querySelectorAll(
+                'a[href], button, [tabindex]:not([tabindex="-1"])'
+            );
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+                if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
 
         // Keyboard handling for dropdown triggers (Enter/Space to open, Escape to close)
         function handleDropdownKey(e, dropdownId, triggerSel) {

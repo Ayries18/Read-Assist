@@ -99,7 +99,7 @@
             margin-top: 12px;
         }
         .btn-secondary:active { transform: scale(0.97); }
-        .footer { margin-top: 32px; font-size: 0.7rem; color: #b8860b; }
+        .footer { margin-top: 32px; font-size: 0.7rem; color: #7a5a00; }
     </style>
 </head>
 <body>

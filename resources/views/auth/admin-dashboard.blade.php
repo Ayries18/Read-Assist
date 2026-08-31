@@ -225,7 +225,7 @@
                             .container { border: 3px dashed #b8860b; padding: 30px; display: inline-block; border-radius: 15px; max-width: 350px; }
                             h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #000; }
                             img { width: 220px; height: 220px; display: block; margin: 0 auto; border: 1px solid #e5e7eb; padding: 8px; border-radius: 8px; }
-                            .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #b8860b; }
+                            .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #7a5a00; }
                         </style>
                     </head>
                     <body>

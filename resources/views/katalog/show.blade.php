@@ -125,7 +125,7 @@
                         }
                         .light-mode .highlight,
                         .light-mode .accent {
-                            color: #b8860b !important;
+                            color: #7a5a00 !important;
                         }
                     </style>
 
@@ -301,7 +301,7 @@
                         <option value="high-contrast">Kontras Tinggi (Kuning-Hitam maksimum)</option>
                     </select>
                 </div>
-                <p class="text-xs text-[#b8860b]">Pengaturan tersimpan otomatis di perangkat ini.</p>
+                <p class="text-xs text-[#7a5a00]">Pengaturan tersimpan otomatis di perangkat ini.</p>
                 <button onclick="closeReaderSettings()" class="btn btn-primary w-full">Selesai</button>
             </div>
         </div>
@@ -501,9 +501,30 @@
 
         document.addEventListener('keydown', (e) => {
             const modal = document.getElementById('reader-settings-modal');
-            if (modal && modal.style.display === 'flex' && e.key === 'Escape') {
+            if (!modal || modal.style.display !== 'flex') return;
+            if (e.key === 'Escape') {
                 e.preventDefault();
                 closeReaderSettings();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const focusable = modal.querySelectorAll(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey) {
+                    if (document.activeElement === first || document.activeElement === modal) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
             }
         });
 
@@ -811,7 +832,7 @@
                         h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #000; }
                         p { margin: 0 0 20px 0; font-size: 0.95rem; color: #4b5563; }
                         img { width: 220px; height: 220px; display: block; margin: 0 auto; border: 1px solid #e5e7eb; padding: 8px; border-radius: 8px; }
-                        .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #b8860b; letter-spacing: 1px; }
+                        .footer { margin-top: 20px; font-size: 0.8rem; border-top: 1px solid #e5e7eb; padding-top: 15px; font-weight: bold; color: #7a5a00; letter-spacing: 1px; }
                     </style>
                 </head>
                 <body>

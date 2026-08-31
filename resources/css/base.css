@@ -1,11 +1,13 @@
 :root {
-    --accent-primary: #b8860b;
-    --accent-secondary: #b8860b;
+    /* Aksen teks memakai #7a5a00 (kontras ≥ 6.1:1 di atas putih/base, ≥ AA 4.5:1).
+       #b8860b hanya untuk aksen visual non-teks (wave bar, dot, badge latar). */
+    --accent-primary: #7a5a00;
+    --accent-secondary: #7a5a00;
     --accent-success: #b8860b;
     --accent-danger: #b8860b;
     --text-primary: #000000;
     --text-secondary: #000000;
-    --text-muted: #b8860b;
+    --text-muted: #7a5a00;
     --border-glass: #000000;
     --bg-secondary: #ffffff;
     --bg-glass: #ffffff;

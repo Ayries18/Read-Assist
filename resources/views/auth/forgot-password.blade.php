@@ -5,7 +5,7 @@
         <h2 class="text-2xl font-bold text-center mb-6">Lupa Password</h2>
 
         @if ($errors->any())
-            <div class="alert alert-error shadow-lg mb-6">
+            <div class="alert alert-error shadow-lg mb-6" role="alert">
                 {{ $errors->first() }}
             </div>
         @endif
@@ -27,8 +27,8 @@
 
             <div class="form-control w-full mb-4">
                 <label for="email" class="label-text text-slate-300 text-sm font-medium mb-2 block">Alamat Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" class="input input-bordered w-full bg-base-300/60 text-white" placeholder="nama@email.com" required>
-                @error('email') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                <input type="email" id="email" name="email" value="{{ old('email') }}" class="input input-bordered w-full bg-base-300/60 text-white @error('email') border-red-500 @enderror" placeholder="nama@email.com" required @error('email') aria-invalid="true" @enderror>
+                @error('email') <span class="text-red-400 text-xs mt-1 block" role="alert">{{ $message }}</span> @enderror
             </div>
 
             <button type="submit" class="btn btn-primary w-full mt-4">Kirim Tautan Reset</button>
