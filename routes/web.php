@@ -46,5 +46,6 @@ Route::get('/katalog/{slug}', [AudioBukuController::class, 'play'])->name('audio
 Route::get('/audio-stream/{audioBook}', [AudioBukuController::class, 'streamAudio'])->name('audio.stream');
 Route::post('/progress/sync/{audioBook}', [AudioBukuController::class, 'syncProgress'])->name('progress.sync');
 Route::get('/progress/{audioBook}', [AudioBukuController::class, 'getProgress'])->name('progress.get');
+Route::get('/audio-progress/{audioBook}', [AudioBukuController::class, 'audioProgress'])->name('audio.progress');
 Route::get('/user/tambah-buku', [AudioBukuController::class, 'create'])->name('user.books.create');
 Route::post('/user/tambah-buku', [AudioBukuController::class, 'store'])->name('user.books.store');

@@ -15,9 +15,13 @@
             </div>
 
             <a href="{{ $resetUrl }}" class="btn btn-primary">Buka Form Reset Password</a>
-        @else
+        @elseif(!empty($emailSent))
             <div class="bg-base-300/80 border border-white/10 rounded-lg p-4 mb-6 text-sm text-slate-300">
-                Silakan periksa kotak masuk atau folder spam email Anda untuk tautan verifikasi.
+                Tautan reset password telah dikirim ke kotak masuk email Anda. Silakan periksa kotak masuk atau folder spam.
+            </div>
+        @else
+            <div class="bg-red-950/40 border border-red-500/30 rounded-lg p-4 mb-6 text-sm text-slate-300">
+                Email gagal terkirim. Silakan hubungi administrator untuk bantuan, atau coba kembali beberapa saat lagi.
             </div>
         @endif
 

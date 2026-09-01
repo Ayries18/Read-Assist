@@ -22,6 +22,8 @@ class AudioBuku extends Model
         'file_buku',
         'file_audio',
         'audio_status',
+        'audio_progress',
+        'audio_message',
         'qr_token',
     ];
 

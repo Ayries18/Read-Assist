@@ -30,13 +30,20 @@ class GenerateBookAudio implements ShouldQueue
 
     public function handle(TTSEngine $tts): void
     {
-        $this->audioBook->update(['audio_status' => 'processing']);
+        $this->audioBook->update([
+            'audio_status' => 'processing',
+            'audio_progress' => 0,
+            'audio_message' => 'Mengekstrak teks buku...',
+        ]);
 
         $bookId = $this->audioBook->id;
         $text = $this->getFullBookText();
 
         if (empty(trim($text))) {
-            $this->audioBook->update(['audio_status' => 'failed']);
+            $this->audioBook->update([
+                'audio_status' => 'failed',
+                'audio_message' => 'Teks buku kosong.',
+            ]);
             Log::warning("GenerateBookAudio #{$bookId}: teks buku kosong.");
 
             return;
@@ -47,7 +54,10 @@ class GenerateBookAudio implements ShouldQueue
 
         $sentences = TTSEngine::splitSentences($text, $this->audioBook->judul);
         if (empty($sentences)) {
-            $this->audioBook->update(['audio_status' => 'failed']);
+            $this->audioBook->update([
+                'audio_status' => 'failed',
+                'audio_message' => 'Tidak ada kalimat untuk dibacakan.',
+            ]);
             Log::warning("GenerateBookAudio #{$bookId}: tidak ada kalimat.");
 
             return;
@@ -70,6 +80,11 @@ class GenerateBookAudio implements ShouldQueue
                 Log::error("GenerateBookAudio #{$bookId}: kalimat {$index}/{$total} gagal.");
             }
 
+            $this->audioBook->update([
+                'audio_progress' => (int) round(($index / $total) * 100),
+                'audio_message' => "Menyintesis kalimat {$index} dari {$total}...",
+            ]);
+
             // Small delay between requests to prevent rate-limiting on external TTS endpoints
             if ($i < $total - 1) {
                 usleep(150000);
@@ -77,11 +92,18 @@ class GenerateBookAudio implements ShouldQueue
         }
 
         if (empty($sentenceFiles)) {
-            $this->audioBook->update(['audio_status' => 'failed']);
+            $this->audioBook->update([
+                'audio_status' => 'failed',
+                'audio_message' => 'Semua kalimat gagal disintesis.',
+            ]);
             Log::error("GenerateBookAudio #{$bookId}: semua kalimat gagal.");
 
             return;
         }
+
+        $this->audioBook->update([
+            'audio_message' => 'Menggabungkan potongan audio...',
+        ]);
 
         $fullAudioPath = $storagePath.DIRECTORY_SEPARATOR.'full.mp3';
         $concatSuccess = $tts->concatAudio($sentenceFiles, $fullAudioPath);
@@ -90,10 +112,15 @@ class GenerateBookAudio implements ShouldQueue
             $this->audioBook->update([
                 'file_audio' => $audioDir.'/full.mp3',
                 'audio_status' => 'completed',
+                'audio_progress' => 100,
+                'audio_message' => 'Selesai.',
             ]);
             Log::info("GenerateBookAudio #{$bookId}: selesai. File: {$audioDir}/full.mp3");
         } else {
-            $this->audioBook->update(['audio_status' => 'failed']);
+            $this->audioBook->update([
+                'audio_status' => 'failed',
+                'audio_message' => 'Gagal menggabungkan audio.',
+            ]);
             Log::error("GenerateBookAudio #{$bookId}: concat gagal.");
         }
     }
@@ -199,7 +226,10 @@ class GenerateBookAudio implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
-        $this->audioBook->update(['audio_status' => 'failed']);
+        $this->audioBook->update([
+            'audio_status' => 'failed',
+            'audio_message' => 'Gagal memproses audio: '.Str::limit($exception->getMessage(), 120),
+        ]);
         Log::error("GenerateBookAudio #{$this->audioBook->id} job failed: ".$exception->getMessage());
     }
 }

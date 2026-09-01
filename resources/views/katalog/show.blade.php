@@ -161,6 +161,14 @@
                                     <source src="{{ route('audio.stream', $book) }}" type="audio/mpeg">
                                     Browser Anda tidak mendukung pemutar audio.
                                 </audio>
+                                <div class="flex items-center justify-center gap-3 mt-3">
+                                    <button type="button" onclick="skipGeneratedAudio(-10)" title="Mundur 10 detik" aria-label="Mundur 10 detik" class="flex items-center justify-center w-11 h-11 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all">
+                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/><path d="M10.29 16.38h-1.1v-3.82l-1.07.6v-1.01l2.17-1.32v5.55z"/><path d="M13.42 10.98c1.7 0 3.03 1.34 3.03 3 0 1.66-1.33 3-3.03 3-1.7 0-3.03-1.34-3.03-3 0-1.66 1.33-3 3.03-3zm0 4.83c.83 0 1.5-.6 1.5-1.83 0-1.23-.67-1.83-1.5-1.83s-1.5.6-1.5 1.83c0 1.23.67 1.83 1.5 1.83z"/></svg>
+                                    </button>
+                                    <button type="button" onclick="skipGeneratedAudio(10)" title="Maju 10 detik" aria-label="Maju 10 detik" class="flex items-center justify-center w-11 h-11 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all">
+                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/><path d="M10.29 16.38h-1.1v-3.82l-1.07.6v-1.01l2.17-1.32v5.55z"/><path d="M13.42 10.98c1.7 0 3.03 1.34 3.03 3 0 1.66-1.33 3-3.03 3-1.7 0-3.03-1.34-3.03-3 0-1.66 1.33-3 3.03-3zm0 4.83c.83 0 1.5-.6 1.5-1.83 0-1.23-.67-1.83-1.5-1.83s-1.5.6-1.5 1.83c0 1.23.67 1.83 1.5 1.83z"/></svg>
+                                    </button>
+                                </div>
                                 <div style="margin-top: 0.5rem;">
                                     <a href="{{ route('audio.stream', $book) }}" download class="btn btn-primary btn-sm px-7 py-3 text-sm">
                                     Download MP3
@@ -169,36 +177,64 @@
                                     Buka Mode Tunanetra
                                 </a>
                             </div>
+                        </div>
+
+                        <script>
+                            function skipGeneratedAudio(seconds) {
+                                const audio = document.getElementById('generated-audio-player');
+                                if (!audio) return;
+                                audio.currentTime = Math.max(0, (audio.currentTime || 0) + seconds);
+                            }
+                        </script>
                         @else
                             <div class="mb-5 flex justify-center items-center gap-2">
                                 <span class="text-sm text-slate-600">Status Audio:</span>
                                 <span id="audio-status-badge" class="badge badge-sm bg-black/5 text-black border border-black/10">Browser TTS</span>
                             </div>
+                            @if (in_array($book->audio_status, ['pending', 'processing']))
+                            <div id="audio-gen-progress-wrap" class="w-full max-w-md mx-auto mb-4" role="group" aria-label="Progres pembuatan audio">
+                                <div class="flex justify-between items-center text-xs mb-1">
+                                    <span id="audio-gen-message" class="text-slate-600">Menunggu antrian...</span>
+                                    <span id="audio-gen-percent" class="font-bold text-indigo-600">0%</span>
+                                </div>
+                                <div class="w-full bg-black/10 rounded-full h-2.5 overflow-hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 persen" aria-label="Progres pembuatan audio">
+                                    <div id="audio-gen-bar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2">Halaman akan diperbarui otomatis saat audio selesai.</p>
+                            </div>
+                            @endif
                             <div id="resume-banner" class="hidden flex flex-wrap items-center justify-center gap-3 mb-3 border-2 border-[#ffff00] rounded-xl p-3" style="display: none;">
                                 <span id="resume-banner-text" class="text-sm text-black font-semibold"></span>
                                 <button onclick="startTTS()" class="btn btn-ghost btn-xs border-2 border-white">Mulai Awal</button>
                                 <button onclick="resumeTTS()" class="btn btn-primary btn-xs">Lanjutkan</button>
                             </div>
-                            <div class="flex flex-wrap gap-4 justify-center items-center">
-                                <button id="btn-start-show" onclick="startTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm" title="Mulai dari Awal">
-                                    Mulai (Start)
+                            <div class="flex items-center justify-center gap-3 sm:gap-4">
+                                <button id="btn-prev-show" onclick="prevTTS()" class="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all" title="Kalimat Sebelumnya" aria-label="Kalimat sebelumnya">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                                 </button>
-                                <button id="btn-play-show" onclick="playTTS()" class="btn btn-primary btn-sm px-7 py-3 text-sm">
-                                    Putar Suara (Play)
+                                <button id="btn-start-show" onclick="startTTS()" class="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all" title="Mulai dari Awal" aria-label="Mulai dari Awal">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                                 </button>
-                                <button id="btn-pause-show" onclick="pauseTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm" style="display: none;">
-                                    Jeda (Pause)
+                                <button id="btn-play-show" onclick="playTTS()" class="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#1DB954] text-black shadow-lg active:scale-90 transition-all duration-150" title="Putar" aria-label="Putar">
+                                    <svg id="icon-play-show" class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                                 </button>
-                                <button id="btn-stop-show" onclick="stopTTS()" class="btn btn-ghost btn-sm px-7 py-3 text-sm">
-                                    Berhenti
+                                <button id="btn-pause-show" onclick="pauseTTS()" class="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#1DB954] text-black shadow-lg active:scale-90 transition-all duration-150" title="Jeda" aria-label="Jeda" style="display: none;">
+                                    <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                                </button>
+                                <button id="btn-stop-show" onclick="stopTTS()" class="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 text-slate-700 hover:border-red-500 hover:text-red-500 active:scale-90 transition-all" title="Berhenti & Reset" aria-label="Berhenti">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
+                                </button>
+                                <button id="btn-next-show" onclick="nextTTS()" class="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all" title="Kalimat Berikutnya" aria-label="Kalimat berikutnya">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
                                 </button>
                             </div>
-                            <div class="flex flex-wrap gap-3 justify-center items-center mt-3">
-                                <button id="btn-speed-show" onclick="cycleTTSRate()" class="btn btn-ghost btn-sm px-5 py-2.5 text-sm" title="Ubah kecepatan suara">
-                                    Kecepatan: 1.0x
+                            <div class="flex items-center justify-center gap-3 mt-4">
+                                <button id="btn-speed-show" onclick="cycleTTSRate()" class="flex items-center gap-1.5 text-xs font-medium border-2 border-slate-300 text-slate-700 rounded-full px-4 py-2 hover:border-indigo-500 hover:text-indigo-600 active:scale-95 transition-all" title="Ubah kecepatan suara">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20c4 0 8-3.6 8-8v-1l-2-1-1.5 3-2.5.5V6l2.5-.5.8-2.2A18 18 0 0 0 12 3c-4.9 0-9 3.6-9 8s4 9 9 9z"/><path d="M4.5 11.5c.5-2 2-3.5 3.5-4"/></svg>
+                                    <strong id="speed-label-show">1.0x</strong>
                                 </button>
-                                <button id="btn-settings-show" onclick="openReaderSettings()" class="btn btn-ghost btn-sm px-5 py-2.5 text-sm" title="Pengaturan Membaca">
-                                    <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <button id="btn-settings-show" onclick="openReaderSettings()" class="flex items-center gap-1.5 text-xs font-medium border-2 border-slate-300 text-slate-700 rounded-full px-4 py-2 hover:border-indigo-500 hover:text-indigo-600 active:scale-95 transition-all" title="Pengaturan Membaca">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                                     Pengaturan
                                 </button>
                             </div>
@@ -309,6 +345,61 @@
 
     @if (!($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts'))
     <script>
+        // Poll audio generation progress in real time
+        document.addEventListener('DOMContentLoaded', function () {
+            const bookId = {{ $book->id }};
+            const progressWrap = document.getElementById('audio-gen-progress-wrap');
+            if (!progressWrap) return;
+
+            const messageEl = document.getElementById('audio-gen-message');
+            const percentEl = document.getElementById('audio-gen-percent');
+            const barEl = document.getElementById('audio-gen-bar');
+            const statusBadge = document.getElementById('audio-status-badge');
+
+            function updateProgressBar(data) {
+                const pct = Math.max(0, Math.min(100, parseInt(data.audio_progress || 0, 10)));
+                if (barEl) barEl.style.width = pct + '%';
+                if (barEl) barEl.setAttribute('aria-valuenow', String(pct));
+                if (barEl) barEl.setAttribute('aria-valuetext', pct + ' persen');
+                if (percentEl) percentEl.innerText = pct + '%';
+                if (messageEl) messageEl.innerText = data.audio_message || 'Sedang diproses...';
+                if (statusBadge) {
+                    statusBadge.innerText = 'Memproses (' + pct + '%)';
+                    statusBadge.style.color = '#4338ca';
+                    statusBadge.style.borderColor = '#4338ca';
+                }
+
+                if (data.audio_status === 'completed') {
+                    window.location.reload();
+                }
+                if (data.audio_status === 'failed') {
+                    if (messageEl) messageEl.innerText = 'Proses gagal. Silakan coba lagi.';
+                    if (percentEl) percentEl.innerText = 'Gagal';
+                    if (statusBadge) {
+                        statusBadge.innerText = 'Gagal';
+                        statusBadge.style.color = '#dc2626';
+                        statusBadge.style.borderColor = '#dc2626';
+                    }
+                }
+            }
+
+            function pollProgress() {
+                fetch('/audio-progress/' + bookId)
+                    .then(function (resp) { return resp.json(); })
+                    .then(function (data) {
+                        updateProgressBar(data);
+                        if (data.audio_status === 'pending' || data.audio_status === 'processing') {
+                            setTimeout(pollProgress, 2000);
+                        }
+                    })
+                    .catch(function () {
+                        setTimeout(pollProgress, 3000);
+                    });
+            }
+
+            setTimeout(pollProgress, 1000);
+        });
+
         // Realtime & Localized Upload Time Formatter
         document.addEventListener('DOMContentLoaded', function () {
             const uploadTimeEl = document.getElementById('upload-time');
@@ -449,8 +540,8 @@
 
         function syncRateUI() {
             const rate = getSavedTTSRate();
-            const btn = document.getElementById('btn-speed-show');
-            if (btn) btn.innerText = 'Kecepatan: ' + rate + 'x';
+            const label = document.getElementById('speed-label-show');
+            if (label) label.innerText = rate + 'x';
             const sel = document.getElementById('setting-rate-select');
             if (sel) sel.value = String(rate);
         }
@@ -612,11 +703,11 @@
 
             if (isSpeaking && !isPaused) {
                 if (playBtn) playBtn.style.display = 'none';
-                if (pauseBtn) pauseBtn.style.display = 'inline-flex';
+                if (pauseBtn) pauseBtn.style.display = 'flex';
             } else {
                 if (playBtn) {
-                    playBtn.style.display = 'inline-flex';
-                    playBtn.innerHTML = isPaused ? 'Lanjutkan (Play)' : 'Putar Suara (Play)';
+                    playBtn.style.display = 'flex';
+                    playBtn.innerHTML = '<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
                 }
                 if (pauseBtn) pauseBtn.style.display = 'none';
             }
@@ -818,6 +909,52 @@
                 statusBadge.style.borderColor = '';
                 statusBadge.style.background = '';
             }
+        }
+
+        function prevTTS() {
+            if (chunks.length === 0) return;
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
+            window.speechSynthesis.resume();
+            window.speechSynthesis.cancel();
+            if (currentChunkIndex > 0) {
+                currentChunkIndex--;
+            }
+            isSpeaking = true;
+            isPaused = false;
+            const banner = document.getElementById('resume-banner');
+            if (banner) {
+                banner.style.display = 'none';
+                banner.classList.add('hidden');
+            }
+            speakNext();
+            updateAudioButtons();
+        }
+
+        function nextTTS() {
+            if (chunks.length === 0) return;
+            if (currentChunkIndex >= chunks.length - 1) {
+                stopTTS();
+                return;
+            }
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+            }
+            window.speechSynthesis.resume();
+            window.speechSynthesis.cancel();
+            currentChunkIndex++;
+            isSpeaking = true;
+            isPaused = false;
+            const banner = document.getElementById('resume-banner');
+            if (banner) {
+                banner.style.display = 'none';
+                banner.classList.add('hidden');
+            }
+            speakNext();
+            updateAudioButtons();
         }
 
         function printQR() {

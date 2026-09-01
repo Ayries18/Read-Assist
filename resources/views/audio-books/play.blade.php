@@ -67,10 +67,26 @@
                 <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
                 Browser Anda tidak mendukung pemutar audio.
             </audio>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button type="button" onclick="skipGeneratedAudio(-10)" title="Mundur 10 detik" aria-label="Mundur 10 detik" class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/><path d="M10.29 16.38h-1.1v-3.82l-1.07.6v-1.01l2.17-1.32v5.55z"/><path d="M13.42 10.98c1.7 0 3.03 1.34 3.03 3 0 1.66-1.33 3-3.03 3-1.7 0-3.03-1.34-3.03-3 0-1.66 1.33-3 3.03-3zm0 4.83c.83 0 1.5-.6 1.5-1.83 0-1.23-.67-1.83-1.5-1.83s-1.5.6-1.5 1.83c0 1.23.67 1.83 1.5 1.83z"/></svg>
+                </button>
+                <button type="button" onclick="skipGeneratedAudio(10)" title="Maju 10 detik" aria-label="Maju 10 detik" class="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/><path d="M10.29 16.38h-1.1v-3.82l-1.07.6v-1.01l2.17-1.32v5.55z"/><path d="M13.42 10.98c1.7 0 3.03 1.34 3.03 3 0 1.66-1.33 3-3.03 3-1.7 0-3.03-1.34-3.03-3 0-1.66 1.33-3 3.03-3zm0 4.83c.83 0 1.5-.6 1.5-1.83 0-1.23-.67-1.83-1.5-1.83s-1.5.6-1.5 1.83c0 1.23.67 1.83 1.5 1.83z"/></svg>
+                </button>
+            </div>
             <div style="margin-top: 0.2rem;">
                 <a href="{{ route('audio.stream', $audioBook) }}" download class="text-indigo-600 underline text-sm">Download MP3</a>
             </div>
         </div>
+
+        <script>
+            function skipGeneratedAudio(seconds) {
+                const audio = document.getElementById('generated-audio-player');
+                if (!audio) return;
+                audio.currentTime = Math.max(0, (audio.currentTime || 0) + seconds);
+            }
+        </script>
     @else
         <!-- TTS Player Section -->
         <div id="play-reader-card" class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
@@ -82,6 +98,18 @@
                 <span class="text-xs text-slate-400">Status:</span>
                 <span id="audio-status-badge" class="badge badge-sm text-xs bg-black/5 text-black border border-black/10">Browser TTS</span>
             </div>
+
+            @if (in_array($audioBook->audio_status, ['pending', 'processing']))
+            <div id="audio-gen-progress-wrap" class="w-full max-w-md mx-auto mb-4" role="group" aria-label="Progres pembuatan audio">
+                <div class="flex justify-between items-center text-xs mb-1">
+                    <span id="audio-gen-message" class="text-slate-400">Menunggu antrian...</span>
+                    <span id="audio-gen-percent" class="font-bold text-[#ffff00]">0%</span>
+                </div>
+                <div class="w-full bg-white/10 rounded-full h-2.5 overflow-hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 persen" aria-label="Progres pembuatan audio">
+                    <div id="audio-gen-bar" class="bg-[#ffff00] h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+            @endif
 
             <style>
                 #play-reader-card.high-contrast-mode {
@@ -191,7 +219,16 @@
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                     Pengaturan
                 </button>
+                <button id="btn-voice" onclick="toggleVoiceCommand()" class="flex items-center gap-1.5 text-xs text-white border-2 border-white rounded-full px-4 py-2 hover:border-[#ffff00] active:scale-95 transition-all" title="Kontrol Suara (perintah via mikrofon)" aria-label="Aktifkan kontrol suara" aria-pressed="false">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                    Kontrol Suara
+                </button>
             </div>
+
+            <!-- Voice Command Hint -->
+            <p id="voice-hint" class="text-[0.65rem] text-slate-500 mt-1 mb-3" role="status" aria-live="polite">
+                Perintah suara: "putar", "jeda", "lanjut", "ulang", "berhenti", "kecepatan", "pengaturan"
+            </p>
 
             <!-- Stop -->
             <button id="btn-stop" onclick="stopTTS()" class="flex items-center gap-1.5 text-xs text-slate-500 hover:text-red-400 active:scale-95 transition-all mx-auto" title="Berhenti" style="display: none;">
@@ -248,6 +285,32 @@
 @if (!($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts'))
 <script>
     const bookId = "{{ $audioBook->id }}";
+
+    // Poll audio generation progress in real time
+    (function pollAudioProgress() {
+        const progressWrap = document.getElementById('audio-gen-progress-wrap');
+        if (!progressWrap) return;
+        fetch('/audio-progress/' + bookId)
+            .then(function (resp) { return resp.json(); })
+            .then(function (data) {
+                const messageEl = document.getElementById('audio-gen-message');
+                const percentEl = document.getElementById('audio-gen-percent');
+                const barEl = document.getElementById('audio-gen-bar');
+                const pct = Math.max(0, Math.min(100, parseInt(data.audio_progress || 0, 10)));
+                if (barEl) barEl.style.width = pct + '%';
+                if (percentEl) percentEl.innerText = pct + '%';
+                if (messageEl) messageEl.innerText = data.audio_message || 'Sedang diproses...';
+                if (data.audio_status === 'completed') {
+                    window.location.reload();
+                    return;
+                }
+                if (data.audio_status === 'pending' || data.audio_status === 'processing') {
+                    setTimeout(pollAudioProgress, 2000);
+                }
+            })
+            .catch(function () { setTimeout(pollAudioProgress, 3000); });
+    })();
+
     let chunks = [];
     let currentChunkIndex = parseInt(localStorage.getItem('read_assist_progress_' + bookId) || '0', 10);
     let isSpeaking = false;
@@ -701,6 +764,12 @@
         applyReaderSettings();
         syncRateUI();
 
+        if (!isSpeechRecognitionSupported()) {
+            if (btnVoice) btnVoice.style.display = 'none';
+            const voiceHint = document.getElementById('voice-hint');
+            if (voiceHint) voiceHint.style.display = 'none';
+        }
+
         const localIndex = parseInt(localStorage.getItem(progressKey) || '0', 10);
         fetch('/progress/' + bookId)
             .then((resp) => resp.json())
@@ -736,6 +805,168 @@
             };
         }
     });
+
+    // ── Kontrol Suara (Voice Commands) ──
+    let voiceRecognition = null;
+    let voiceListening = false;
+    let allowVoiceRestart = false;
+    const btnVoice = document.getElementById('btn-voice');
+
+    function isSpeechRecognitionSupported() {
+        return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    }
+
+    function setVoiceState(active) {
+        voiceListening = active;
+        const hint = document.getElementById('voice-hint');
+        if (btnVoice) {
+            btnVoice.setAttribute('aria-pressed', active ? 'true' : 'false');
+            btnVoice.style.borderColor = active ? '#ffff00' : '';
+            btnVoice.style.color = active ? '#ffff00' : '';
+        }
+        if (hint) {
+            hint.innerText = active
+                ? 'Mendengarkan... Ucapkan perintah suara.'
+                : 'Perintah suara: "putar", "jeda", "lanjut", "ulang", "berhenti", "kecepatan", "pengaturan"';
+        }
+    }
+
+    function toggleVoiceCommand() {
+        if (!isSpeechRecognitionSupported()) {
+            if (statusMessage) statusMessage.innerText = 'Browser tidak mendukung kontrol suara.';
+            return;
+        }
+        if (voiceListening) {
+            stopVoiceCommand();
+        } else {
+            startVoiceCommand();
+        }
+    }
+
+    function startVoiceCommand() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return;
+
+        voiceRecognition = new SR();
+        voiceRecognition.lang = 'id-ID';
+        voiceRecognition.continuous = true;
+        voiceRecognition.interimResults = false;
+        voiceRecognition.maxAlternatives = 1;
+
+        voiceRecognition.onstart = () => {
+            allowVoiceRestart = true;
+            setVoiceState(true);
+            if (statusMessage) statusMessage.innerText = 'Kontrol suara aktif — silakan ucapkan perintah.';
+        };
+
+        voiceRecognition.onend = () => {
+            if (voiceListening && allowVoiceRestart) {
+                try {
+                    voiceRecognition.start();
+                } catch (e) {}
+            } else {
+                setVoiceState(false);
+            }
+        };
+
+        voiceRecognition.onerror = (event) => {
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                allowVoiceRestart = false;
+                voiceListening = false;
+                setVoiceState(false);
+                if (statusMessage) statusMessage.innerText = 'Izin mikrofon ditolak.';
+            } else if (event.error === 'audio-capture') {
+                allowVoiceRestart = false;
+                voiceListening = false;
+                setVoiceState(false);
+                if (statusMessage) statusMessage.innerText = 'Mikrofon tidak tersedia.';
+            }
+        };
+
+        voiceRecognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i] && event.results[i][0]) {
+                    transcript += event.results[i][0].transcript;
+                }
+            }
+            handleVoiceCommand(transcript);
+        };
+
+        try {
+            voiceRecognition.start();
+        } catch (e) {}
+    }
+
+    function stopVoiceCommand() {
+        allowVoiceRestart = false;
+        voiceListening = false;
+        if (voiceRecognition) {
+            voiceRecognition.onend = null;
+            try { voiceRecognition.stop(); } catch (e) {}
+            voiceRecognition = null;
+        }
+        setVoiceState(false);
+        if (statusMessage) statusMessage.innerText = 'Kontrol suara dimatikan.';
+    }
+
+    function handleVoiceCommand(transcript) {
+        const t = (transcript || '').toLowerCase().trim();
+
+        if (t.includes('berikutnya') || t.includes('selanjutnya') || t.includes('kalimat berikut') || t.includes('lanjut ke')) {
+            runVoiceAction('next');
+            return;
+        }
+        if (t.includes('sebelumnya') || t.includes('ulang') || t.includes('kalimat sebelum') || t.includes('mundur')) {
+            runVoiceAction('prev');
+            return;
+        }
+        if (t.includes('berhenti') || t.includes('stop') || t.includes('reset')) {
+            runVoiceAction('stop');
+            return;
+        }
+        if (t.includes('jeda') || t.includes('pause') || t.includes('diam sejenak')) {
+            runVoiceAction('pause');
+            return;
+        }
+        if (t.includes('kecepatan') || t.includes('cepat') || t.includes('lambat') || t.includes('perlahan')) {
+            runVoiceAction('speed');
+            return;
+        }
+        if (t.includes('pengaturan') || t.includes('setting')) {
+            runVoiceAction('settings');
+            return;
+        }
+        if (t.includes('main') || t.includes('putar') || t.includes('mulai') || t.includes('lanjut')) {
+            runVoiceAction('play');
+        }
+    }
+
+    function runVoiceAction(action) {
+        switch (action) {
+            case 'play':
+                if (!isSpeaking || isPaused) playTTS();
+                break;
+            case 'pause':
+                if (isSpeaking && !isPaused) pauseTTS();
+                break;
+            case 'next':
+                nextTTS();
+                break;
+            case 'prev':
+                prevTTS();
+                break;
+            case 'stop':
+                stopTTS();
+                break;
+            case 'speed':
+                cycleTTSRate();
+                break;
+            case 'settings':
+                openReaderSettings();
+                break;
+        }
+    }
 
     document.addEventListener('keydown', (e) => {
         const settingsModal = document.getElementById('reader-settings-modal');

@@ -134,6 +134,8 @@ class AudioBukuController extends Controller
             'file_buku' => $bookPath,
             'file_audio' => 'tts',
             'audio_status' => 'pending',
+            'audio_progress' => 0,
+            'audio_message' => 'Menunggu antrian...',
             'qr_token' => (string) Str::uuid(),
         ]);
 
@@ -304,6 +306,15 @@ class AudioBukuController extends Controller
         ]);
     }
 
+    public function audioProgress(AudioBuku $audioBook)
+    {
+        return response()->json([
+            'audio_status' => $audioBook->audio_status,
+            'audio_progress' => (int) $audioBook->audio_progress,
+            'audio_message' => $audioBook->audio_message,
+        ]);
+    }
+
     public function edit(AudioBuku $audioBook)
     {
         if (! $this->canManageBook($audioBook)) {
@@ -353,6 +364,8 @@ class AudioBukuController extends Controller
         $audioBook->update([
             'file_audio' => 'tts',
             'audio_status' => 'pending',
+            'audio_progress' => 0,
+            'audio_message' => 'Menunggu antrian...',
         ]);
 
         GenerateBookAudio::dispatch($audioBook);

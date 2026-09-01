@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PasswordResetMail;
 use App\Models\Admin;
 use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
@@ -9,6 +10,8 @@ use App\Models\PasswordResetToken;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -265,12 +268,21 @@ class AuthController extends Controller
         }
 
         $resetUrl = url("/reset-password/{$token}");
-        \Illuminate\Support\Facades\Log::info("Password reset requested for {$validated['email']} ({$validated['role']}): {$resetUrl}");
+        Log::info("Password reset requested for {$validated['email']} ({$validated['role']}): {$resetUrl}");
 
-        $showDebugLink = config('app.debug', false) || app()->environment('local');
+        $emailSent = false;
+        try {
+            Mail::to($account->email)->send(new PasswordResetMail($token, $account->email, $validated['role']));
+            $emailSent = true;
+        } catch (\Throwable $e) {
+            Log::error("Gagal mengirim email reset password ke {$validated['email']}: ".$e->getMessage());
+        }
+
+        $showDebugLink = (config('app.debug', false) || app()->environment('local')) && ! $emailSent;
 
         return view('auth.reset-link-sent', [
             'resetUrl' => $showDebugLink ? $resetUrl : null,
+            'emailSent' => $emailSent,
             'validated' => $validated,
         ]);
     }
