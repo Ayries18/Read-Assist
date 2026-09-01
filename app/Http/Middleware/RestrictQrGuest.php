@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AudioBuku;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,20 +12,20 @@ class RestrictQrGuest
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (session()->has('qr_restricted_token') && !session()->has('auth_role')) {
+        if (session()->has('qr_restricted_token') && ! session()->has('auth_role')) {
             $allowedToken = session('qr_restricted_token');
-            
+
             // Check if this token still exists in the database and retrieve the book
-            $book = \App\Models\AudioBuku::where('qr_token', $allowedToken)->first();
-            if (!$book) {
+            $book = AudioBuku::where('qr_token', $allowedToken)->first();
+            if (! $book) {
                 session()->forget('qr_restricted_token');
             } else {
                 $allowed = false;
-                
+
                 // 1. Static files or containing dot
                 if (str_contains($request->path(), '.')) {
                     $allowed = true;
@@ -38,7 +39,7 @@ class RestrictQrGuest
                     $allowed = true;
                 }
                 // 4. API and progress sync routes
-                elseif ($request->is('api/*') || $request->is('progress/sync')) {
+                elseif ($request->is('api/*') || $request->is('progress/sync') || $request->is('progress/sync/*')) {
                     $allowed = true;
                 }
                 // 4b. Read-assist (guest may still analyze text after scanning a book)
@@ -46,14 +47,16 @@ class RestrictQrGuest
                     $allowed = true;
                 }
                 // 5. Allowed pages and assets for the specific book
-                elseif ($request->is("katalog-audio/{$book->id}") || 
-                        $request->is("katalog/{$book->qr_token}") || 
-                        $request->is("audio-stream/{$book->id}") || 
+                elseif ($request->is("katalog-audio/{$book->id}") ||
+                        $request->is("katalog/{$book->qr_token}") ||
+                        $request->is("katalog/{$book->slug}") ||
+                        $request->is('katalog/*') ||
+                        $request->is("audio-stream/{$book->id}") ||
                         $request->is("progress/{$book->id}")) {
                     $allowed = true;
                 }
-                
-                if (!$allowed) {
+
+                if (! $allowed) {
                     // Force redirect back to the book show page they scanned
                     return redirect()->route('katalog.show', ['id' => $book->id]);
                 }

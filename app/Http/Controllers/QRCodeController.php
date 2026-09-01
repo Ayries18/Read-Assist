@@ -12,7 +12,7 @@ class QRCodeController extends Controller
         $data = $request->query('data');
         $size = (int) ($request->query('size', 320));
 
-        if (!$data) {
+        if (! $data) {
             abort(400, 'Missing data parameter');
         }
 

@@ -9,19 +9,21 @@ use Illuminate\Support\Facades\Log;
 class NineRouterService
 {
     protected Client $http;
+
     protected string $apiUrl;
+
     protected string $key;
 
     public function __construct()
     {
-        $this->apiUrl = rtrim(config('services.ninerouter.api_url'), '/') . '/';
+        $this->apiUrl = rtrim(config('services.ninerouter.api_url'), '/').'/';
         $this->key = config('services.ninerouter.key');
 
         $this->http = new Client([
             'base_uri' => $this->apiUrl,
             'timeout' => 120,
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->key,
+                'Authorization' => 'Bearer '.$this->key,
                 'Content-Type' => 'application/json',
                 'HTTP-Referer' => config('app.url'),
                 'X-Title' => config('app.name'),
@@ -32,9 +34,9 @@ class NineRouterService
     /**
      * Send a chat completion request to NineRouter.
      *
-     * @param string $model Model identifier (e.g., 'openai/gpt-4', 'anthropic/claude-3-opus')
-     * @param array $messages Array of message objects [{role, content}]
-     * @param array $options Additional options (temperature, max_tokens, etc.)
+     * @param  string  $model  Model identifier (e.g., 'openai/gpt-4', 'anthropic/claude-3-opus')
+     * @param  array  $messages  Array of message objects [{role, content}]
+     * @param  array  $options  Additional options (temperature, max_tokens, etc.)
      * @return array Response from the API
      */
     public function chatCompletion(string $model, array $messages, array $options = []): array
@@ -50,10 +52,10 @@ class NineRouterService
     /**
      * Send a chat completion request with streaming.
      *
-     * @param string $model Model identifier
-     * @param array $messages Array of message objects
-     * @param callable $onChunk Callback function for each chunk
-     * @param array $options Additional options
+     * @param  string  $model  Model identifier
+     * @param  array  $messages  Array of message objects
+     * @param  callable  $onChunk  Callback function for each chunk
+     * @param  array  $options  Additional options
      * @return array Final accumulated response
      */
     public function chatCompletionStream(string $model, array $messages, callable $onChunk, array $options = []): array
@@ -72,7 +74,7 @@ class NineRouterService
         $body = $response->getBody();
         $fullContent = '';
 
-        while (!$body->eof()) {
+        while (! $body->eof()) {
             $line = $body->readLine();
             if (str_starts_with($line, 'data: ')) {
                 $data = substr($line, 6);
@@ -125,7 +127,7 @@ class NineRouterService
 
             return json_decode($body, true) ?? ['raw' => $body];
         } catch (GuzzleException $e) {
-            Log::error('NineRouter API error: ' . $e->getMessage());
+            Log::error('NineRouter API error: '.$e->getMessage());
             throw $e;
         }
     }
@@ -135,6 +137,6 @@ class NineRouterService
      */
     public function isConfigured(): bool
     {
-        return !empty($this->key);
+        return ! empty($this->key);
     }
 }

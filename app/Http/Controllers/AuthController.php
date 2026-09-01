@@ -265,9 +265,14 @@ class AuthController extends Controller
         }
 
         $resetUrl = url("/reset-password/{$token}");
+        \Illuminate\Support\Facades\Log::info("Password reset requested for {$validated['email']} ({$validated['role']}): {$resetUrl}");
 
-        // Since no mail config, show the link directly on page
-        return view('auth.reset-link-sent', compact('resetUrl', 'validated'));
+        $showDebugLink = config('app.debug', false) || app()->environment('local');
+
+        return view('auth.reset-link-sent', [
+            'resetUrl' => $showDebugLink ? $resetUrl : null,
+            'validated' => $validated,
+        ]);
     }
 
     public function showResetForm($token)

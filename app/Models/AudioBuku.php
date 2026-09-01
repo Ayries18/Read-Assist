@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class AudioBuku extends Model
 {
     use HasFactory;
+
     protected $table = 'audio_buku';
 
     protected $fillable = [
@@ -63,7 +64,7 @@ class AudioBuku extends Model
 
     public function getQrCodeAttribute()
     {
-        return 'qr/qr-book-' . $this->id . '.svg';
+        return 'qr/qr-book-'.$this->id.'.svg';
     }
 
     public function user()

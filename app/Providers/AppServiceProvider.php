@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\TunnelService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,35 +19,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
-            // 1. Detect public URL from tunnel or request host (if already running)
+            // Detect public URL from tunnel or request host if available
             $publicUrl = $this->detectPublicUrl();
 
-            if (!$publicUrl) {
-                // Do not auto-fallback to a local IP address. Local network URLs should not overwrite
-                // APP_URL because they break QR scanning from external devices.
-                return;
-            }
-
-            $targetAppUrl = $publicUrl;
-            config(['app.url' => $targetAppUrl]);
-
-            // Avoid writing to .env on Windows since that can cause app restarts or permission issues.
-            // Use the dynamic runtime URL only for QR generation during the current request.
-
-            // Only regenerate QR codes, skip heavy cache clears
-            $books = \App\Models\AudioBuku::all();
-            $qrDir = storage_path('app/public/qr');
-            if (!is_dir($qrDir)) {
-                mkdir($qrDir, 0755, true);
-            }
-
-            foreach ($books as $book) {
-                $qrUrl = "{$targetAppUrl}/scan/book/{$book->qr_token}";
-                $svg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)
-                    ->margin(2)
-                    ->errorCorrection('M')
-                    ->generate($qrUrl);
-                file_put_contents($qrDir . '/qr-book-' . $book->id . '.svg', $svg);
+            if ($publicUrl) {
+                config(['app.url' => $publicUrl]);
             }
         } catch (\Exception $e) {
             // Silently fail to not block boot
@@ -61,10 +39,11 @@ class AppServiceProvider extends ServiceProvider
                 $host = $request->getHost();
                 if ($host && $host !== 'localhost' && $host !== '127.0.0.1' && $host !== '0.0.0.0') {
                     $isLocalIp = preg_match('/^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/', $host);
-                    if (!$isLocalIp && !filter_var($host, FILTER_VALIDATE_IP)) {
+                    if (! $isLocalIp && ! filter_var($host, FILTER_VALIDATE_IP)) {
                         $scheme = $request->isSecure() ? 'https' : 'http';
                         $port = $request->getPort();
                         $portSuffix = ($port && $port != 80 && $port != 443) ? ":{$port}" : '';
+
                         return "{$scheme}://{$host}{$portSuffix}";
                     }
                 }
@@ -74,8 +53,8 @@ class AppServiceProvider extends ServiceProvider
 
         // 2. Detect from running localhost.run SSH tunnel
         try {
-            if (class_exists(\App\Services\TunnelService::class)) {
-                $tunnelService = new \App\Services\TunnelService();
+            if (class_exists(TunnelService::class)) {
+                $tunnelService = new TunnelService;
                 $tunnelUrl = $tunnelService->getUrl();
                 if ($tunnelUrl) {
                     return rtrim($tunnelUrl, '/');
@@ -86,8 +65,10 @@ class AppServiceProvider extends ServiceProvider
 
         // 3. Fallback from cache
         try {
-            $cached = \Illuminate\Support\Facades\Cache::get('app_url_fallback');
-            if ($cached) return $cached;
+            $cached = Cache::get('app_url_fallback');
+            if ($cached) {
+                return $cached;
+            }
         } catch (\Exception $e) {
         }
 

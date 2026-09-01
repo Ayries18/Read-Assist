@@ -7,6 +7,7 @@ use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
 use App\Services\TunnelService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -91,12 +92,15 @@ class AudioBukuController extends Controller
         }
 
         $validated = $request->validate([
-            'book_file' => ['required', 'file', 'max:51200'],
+            'book_file' => ['required', 'file', 'mimes:pdf,epub', 'max:51200'],
             'title' => ['nullable', 'string', 'max:255'],
+        ], [
+            'book_file.mimes' => 'File buku harus berformat PDF atau EPUB.',
+            'book_file.max' => 'Ukuran file buku maksimal 50 MB.',
         ]);
 
         $bookFile = $request->file('book_file');
-        $extension = strtolower($bookFile->getClientOriginalExtension());
+        $extension = strtolower($bookFile->getClientOriginalExtension() ?: $bookFile->guessExtension());
 
         if (! in_array($extension, ['pdf', 'epub'], true)) {
             return back()
@@ -161,60 +165,64 @@ class AudioBukuController extends Controller
 
     public static function getLocalIps(): array
     {
-        $ips = [];
-        try {
-            $output = shell_exec('ipconfig');
-            if ($output) {
-                $output = str_replace("\r\n", "\n", $output);
-                $blocks = explode("\n\n", $output);
-                foreach ($blocks as $block) {
-                    $lines = explode("\n", trim($block));
-                    if (empty($lines)) {
-                        continue;
-                    }
+        return Cache::remember('local_network_ips', 60, function () {
+            $ips = [];
+            try {
+                if (PHP_OS_FAMILY === 'Windows') {
+                    $output = shell_exec('ipconfig');
+                    if ($output) {
+                        $output = str_replace("\r\n", "\n", $output);
+                        $blocks = explode("\n\n", $output);
+                        foreach ($blocks as $block) {
+                            $lines = explode("\n", trim($block));
+                            if (empty($lines)) {
+                                continue;
+                            }
 
-                    $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
-                    if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
-                        continue;
-                    }
+                            $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
+                            if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
+                                continue;
+                            }
 
-                    $lowerName = strtolower($adapterName);
-                    if (str_contains($lowerName, 'virtualbox') ||
-                        str_contains($lowerName, 'vmware') ||
-                        str_contains($lowerName, 'wsl') ||
-                        str_contains($lowerName, 'vethernet') ||
-                        str_contains($lowerName, 'host-only') ||
-                        str_contains($lowerName, 'loopback') ||
-                        str_contains($lowerName, 'hyper-v')) {
-                        continue;
-                    }
+                            $lowerName = strtolower($adapterName);
+                            if (str_contains($lowerName, 'virtualbox') ||
+                                str_contains($lowerName, 'vmware') ||
+                                str_contains($lowerName, 'wsl') ||
+                                str_contains($lowerName, 'vethernet') ||
+                                str_contains($lowerName, 'host-only') ||
+                                str_contains($lowerName, 'loopback') ||
+                                str_contains($lowerName, 'hyper-v')) {
+                                continue;
+                            }
 
-                    foreach ($lines as $line) {
-                        if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
-                            $ip = trim($match[1]);
-                            if ($ip !== '127.0.0.1' && ! in_array($ip, $ips, true)) {
-                                $ips[$adapterName] = $ip;
+                            foreach ($lines as $line) {
+                                if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
+                                    $ip = trim($match[1]);
+                                    if ($ip !== '127.0.0.1' && ! in_array($ip, $ips, true)) {
+                                        $ips[$adapterName] = $ip;
+                                    }
+                                }
                             }
                         }
                     }
                 }
+            } catch (\Exception $e) {
+                // Fallback
             }
-        } catch (\Exception $e) {
-            // Fallback
-        }
 
-        if (empty($ips)) {
-            $hostIp = gethostbyname(gethostname());
-            if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
-                $ips['Host DNS'] = $hostIp;
+            if (empty($ips)) {
+                $hostIp = gethostbyname(gethostname());
+                if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
+                    $ips['Host DNS'] = $hostIp;
+                }
             }
-        }
 
-        if (empty($ips)) {
-            $ips['Localhost'] = '127.0.0.1';
-        }
+            if (empty($ips)) {
+                $ips['Localhost'] = '127.0.0.1';
+            }
 
-        return $ips;
+            return $ips;
+        });
     }
 
     public static function getDetectedIp(): string
@@ -252,10 +260,11 @@ class AudioBukuController extends Controller
             'completed' => ['boolean'],
         ]);
 
+        $role = session('auth_role');
         $userId = session('auth_id');
 
-        if (! $userId) {
-            return response()->json(['error' => 'Unauthenticated'], 401);
+        if (! $userId || $role !== 'user') {
+            return response()->json(['success' => true, 'persisted' => false]);
         }
 
         ListeningProgress::updateOrCreate(
@@ -269,14 +278,15 @@ class AudioBukuController extends Controller
             ]
         );
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'persisted' => true]);
     }
 
     public function getProgress(AudioBuku $audioBook)
     {
+        $role = session('auth_role');
         $userId = session('auth_id');
 
-        if (! $userId) {
+        if (! $userId || $role !== 'user') {
             return response()->json(['sentence_index' => 0, 'completed' => false]);
         }
 
@@ -332,13 +342,12 @@ class AudioBukuController extends Controller
     {
         if (! $this->canManageBook($audioBook)) {
             return redirect()->route('katalog.show', $audioBook->id)
-                ->withErrors(['audio' => 'Hanya admin yang dapat mengulang generate audio.']);
+                ->withErrors(['audio' => 'Hanya admin atau pemilik buku yang dapat mengulang generate audio.']);
         }
 
-        $audioDir = storage_path("app/public/audio/{$audioBook->id}");
-        if (is_dir($audioDir)) {
-            array_map('unlink', glob("$audioDir/*.*"));
-            rmdir($audioDir);
+        $audioDir = "audio/{$audioBook->id}";
+        if (Storage::disk('public')->exists($audioDir)) {
+            Storage::disk('public')->deleteDirectory($audioDir);
         }
 
         $audioBook->update([
@@ -532,7 +541,18 @@ class AudioBukuController extends Controller
 
     private function canManageBook(AudioBuku $audioBook): bool
     {
-        return session('auth_role') === 'admin';
+        $role = session('auth_role');
+        $userId = session('auth_id');
+
+        if ($role === 'admin') {
+            return true;
+        }
+
+        if ($role === 'user' && ! empty($userId)) {
+            return (int) $audioBook->user_id === (int) $userId;
+        }
+
+        return false;
     }
 
     private function extractBookText(string $path, string $extension): string
@@ -546,10 +566,10 @@ class AudioBukuController extends Controller
 
     private function extractPdfText(string $path): string
     {
-        $tempDirectory = storage_path('app/temp');
+        $tempDirectory = storage_path('app/private/temp');
 
         if (! is_dir($tempDirectory)) {
-            mkdir($tempDirectory, 0777, true);
+            mkdir($tempDirectory, 0755, true);
         }
 
         $outputPath = $tempDirectory.DIRECTORY_SEPARATOR.Str::uuid().'.txt';
@@ -579,6 +599,7 @@ class AudioBukuController extends Controller
         }
 
         $text = '';
+        $maxChars = 5000000;
 
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $name = $zip->getNameIndex($i);
@@ -595,6 +616,10 @@ class AudioBukuController extends Controller
             }
 
             $text .= ' '.strip_tags($content);
+
+            if (strlen($text) > $maxChars) {
+                break;
+            }
         }
 
         $zip->close();

@@ -8,12 +8,14 @@ use Illuminate\Console\Command;
 class TunnelStopCommand extends Command
 {
     protected $signature = 'tunnel:stop';
+
     protected $description = 'Hentikan SSH tunnel';
 
     public function handle(TunnelService $tunnel): void
     {
-        if (!$tunnel->isRunning()) {
+        if (! $tunnel->isRunning()) {
             $this->warn('Tunnel tidak sedang berjalan.');
+
             return;
         }
 

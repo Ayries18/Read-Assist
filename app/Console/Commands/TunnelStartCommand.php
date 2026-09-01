@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class TunnelStartCommand extends Command
 {
     protected $signature = 'tunnel:start|start:tunnel';
+
     protected $description = 'Mulai SSH tunnel (localhost.run) agar QR bisa discan dari jaringan luar';
 
     public function handle(TunnelService $tunnel): void
@@ -34,7 +35,7 @@ class TunnelStartCommand extends Command
         $url = $tunnel->start();
 
         if ($url) {
-            $this->info("✅ Tunnel berhasil! URL publik:");
+            $this->info('✅ Tunnel berhasil! URL publik:');
             $this->line("   {$url}");
             $this->newLine();
 
@@ -49,7 +50,7 @@ class TunnelStartCommand extends Command
             $this->call('qr:regenerate');
 
             $this->newLine();
-            $this->line("Tunnel akan tetap berjalan sampai dihentikan (Tekan Ctrl+C untuk keluar).");
+            $this->line('Tunnel akan tetap berjalan sampai dihentikan (Tekan Ctrl+C untuk keluar).');
 
             // Registrasi shutdown function untuk mematikan tunnel saat script selesai/Ctrl+C
             register_shutdown_function(function () use ($tunnel) {
@@ -72,7 +73,7 @@ class TunnelStartCommand extends Command
                     $this->line('');
                 }
             }
-            $this->line('Coba manual: ssh -o StrictHostKeyChecking=no -R 80:127.0.0.1:' . $port . ' nokey@localhost.run');
+            $this->line('Coba manual: ssh -o StrictHostKeyChecking=no -R 80:127.0.0.1:'.$port.' nokey@localhost.run');
         }
     }
 }

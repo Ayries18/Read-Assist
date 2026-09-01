@@ -229,4 +229,55 @@ class AudioBukuTest extends TestCase
         $response = $this->get('/reset-password/fresh-token-abc');
         $response->assertStatus(200);
     }
+
+    public function test_owner_can_edit_and_update_their_own_book()
+    {
+        $user = User::factory()->create();
+        $book = AudioBuku::factory()->create([
+            'user_id' => $user->id,
+            'judul' => 'Judul Awal',
+        ]);
+
+        $response = $this->withSession([
+            'auth_id' => $user->id,
+            'auth_role' => 'user',
+            'auth_name' => $user->name,
+        ])->get("/katalog-audio/{$book->id}/edit");
+
+        $response->assertStatus(200);
+
+        $updateResponse = $this->withSession([
+            'auth_id' => $user->id,
+            'auth_role' => 'user',
+            'auth_name' => $user->name,
+        ])->put("/katalog-audio/{$book->id}", [
+            'title' => 'Judul Baru Diubah',
+            'description' => 'Deskripsi baru',
+        ]);
+
+        $updateResponse->assertRedirect("/katalog-audio/{$book->id}");
+        $this->assertDatabaseHas('audio_buku', [
+            'id' => $book->id,
+            'judul' => 'Judul Baru Diubah',
+        ]);
+    }
+
+    public function test_non_owner_cannot_edit_book()
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $book = AudioBuku::factory()->create([
+            'user_id' => $owner->id,
+            'judul' => 'Judul Milik Owner',
+        ]);
+
+        $response = $this->withSession([
+            'auth_id' => $otherUser->id,
+            'auth_role' => 'user',
+            'auth_name' => $otherUser->name,
+        ])->get("/katalog-audio/{$book->id}/edit");
+
+        $response->assertRedirect("/katalog-audio/{$book->id}");
+        $response->assertSessionHasErrors('audio');
+    }
 }

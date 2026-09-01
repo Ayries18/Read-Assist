@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Admin;
+use App\Models\AudioBuku;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,13 +21,6 @@ class DatabaseSeeder extends Seeder
     {
         User::updateOrCreate([
             'email' => 'muwarisin@gmail.com',
-        ], [
-            'name' => 'Muwarisin',
-            'password' => Hash::make('Aris1234'),
-        ]);
-
-        User::updateOrCreate([
-            'email' => 'muwarisin@gamil.com',
         ], [
             'name' => 'Muwarisin',
             'password' => Hash::make('Aris1234'),
@@ -52,7 +47,7 @@ Read Assist juga mendukung navigasi keyboard. Tekan spasi untuk memutar atau men
 
 Kami harap Anda menikmati aplikasi Read Assist. Terima kasih telah menggunakan layanan kami. Selamat membaca dan mendengarkan.';
 
-        \App\Models\AudioBuku::updateOrCreate([
+        AudioBuku::updateOrCreate([
             'id' => 1,
         ], [
             'admin_id' => $admin->id,
@@ -61,7 +56,7 @@ Kami harap Anda menikmati aplikasi Read Assist. Terima kasih telah menggunakan l
             'kategori' => 'Panduan',
             'deskripsi' => $sampleDescription,
             'file_audio' => 'tts',
-            'qr_token' => \Illuminate\Support\Str::uuid(),
+            'qr_token' => Str::uuid(),
         ]);
     }
 }

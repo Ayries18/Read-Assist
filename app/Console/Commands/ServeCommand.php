@@ -35,11 +35,11 @@ class ServeCommand extends BaseServeCommand
         if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
             // Jalankan secara asynchronous menggunakan 'start /B' agar TIDAK memblokir artisan serve.
             // ping -n 3 memberikan jeda sekitar 2 detik agar server Laravel sempat booting terlebih dahulu.
-            pclose(popen("start /B cmd /C \"ping 127.0.0.1 -n 3 >nul && start http://{$displayHost}:{$port}\"", "r"));
+            pclose(popen("start /B cmd /C \"ping 127.0.0.1 -n 3 >nul && start http://{$displayHost}:{$port}\"", 'r'));
         } else {
             // Unix/Mac: jalankan di background menggunakan '&'
             $openCmd = stripos(PHP_OS, 'DARWIN') !== false ? 'open' : 'xdg-open';
-            pclose(popen("sleep 2 && {$openCmd} http://{$displayHost}:{$port} > /dev/null 2>&1 &", "r"));
+            pclose(popen("sleep 2 && {$openCmd} http://{$displayHost}:{$port} > /dev/null 2>&1 &", 'r'));
         }
 
         // 2. Jalankan server bawaan Laravel

@@ -110,20 +110,31 @@ class TTSEngine
             'client' => 'tw-ob',
         ]);
 
-        $response = $this->http->get($url.'?'.$query);
+        $maxAttempts = 3;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                $response = $this->http->get($url.'?'.$query);
 
-        if ($response->getStatusCode() !== 200) {
-            return false;
+                if ($response->getStatusCode() === 200) {
+                    $body = $response->getBody()->getContents();
+                    if (! empty($body)) {
+                        file_put_contents($outputPath, $body);
+
+                        return true;
+                    }
+                }
+            } catch (\Throwable $e) {
+                if ($attempt === $maxAttempts) {
+                    Log::warning("TTS Download attempt {$attempt} failed: {$e->getMessage()}");
+
+                    return false;
+                }
+                // Exponential backoff sleep (0.5s, 1s)
+                usleep($attempt * 500000);
+            }
         }
 
-        $body = $response->getBody()->getContents();
-        if (empty($body)) {
-            return false;
-        }
-
-        file_put_contents($outputPath, $body);
-
-        return true;
+        return false;
     }
 
     public function concatAudio(array $sentenceFiles, string $outputPath): bool

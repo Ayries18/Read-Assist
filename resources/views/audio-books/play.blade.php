@@ -735,16 +735,6 @@
                 window.speechSynthesis.getVoices();
             };
         }
-
-        const handleInteraction = () => {
-            if (!isSpeaking && !isPaused) {
-                playTTS();
-            }
-            document.removeEventListener('click', handleInteraction);
-            document.removeEventListener('touchstart', handleInteraction);
-        };
-        document.addEventListener('click', handleInteraction);
-        document.addEventListener('touchstart', handleInteraction, { passive: true });
     });
 
     document.addEventListener('keydown', (e) => {
