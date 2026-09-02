@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'read-assist-v5';
+var CACHE_VERSION = 'read-assist-v8';
 var STATIC_CACHE = CACHE_VERSION + '-static';
 var PAGE_CACHE = CACHE_VERSION + '-pages';
 

@@ -251,42 +251,42 @@
             box-shadow: none !important;
         }
 
-        /* Navbar style */
+        /* Navbar: gunakan DaisyUI navbar component (flex + center) */
         .navbar {
             background: #ffffff !important;
             border-bottom: 2px solid #000000 !important;
             box-shadow: none !important;
             backdrop-filter: none;
-            min-height: 72px !important;
+            padding: 0.6rem 1rem !important;
         }
         .logo-navbar {
             display: flex;
             align-items: center;
             justify-content: center;
-            max-height: 56px;
+            max-height: 72px;
             overflow: hidden;
         }
         .logo-navbar img {
-            height: 48px;
+            height: 64px;
             width: auto;
             object-fit: contain;
         }
         @media (max-width: 1024px) {
-            .logo-navbar img { height: 38px; }
+            .logo-navbar img { height: 50px; }
         }
         @media (max-width: 640px) {
-            .navbar { min-height: 60px !important; padding-top: 0.15rem !important; padding-bottom: 0.15rem !important; }
+            .navbar { padding: 0.5rem 0.75rem !important; }
             .navbar .navbar-start { gap: 0.15rem !important; }
             .nav-icon-btn { font-size: 1.25rem !important; padding: 0.6rem !important; color: #000 !important; }
             .navbar-end { gap: 0.4rem !important; }
-            .logo-navbar img { height: 32px; }
+            .logo-navbar img { height: 42px; }
         }
 
         .navbar .menu-horizontal > li > a {
             padding: 0 !important;
         }
         .navbar .menu-horizontal {
-            gap: 0.35rem !important;
+            gap: 0.5rem !important;
         }
 
         /* Mobile drawer overlay */
@@ -340,12 +340,13 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.75rem 1rem;
+            min-height: 44px;
             border-radius: 10px;
             color: var(--text-secondary);
             text-decoration: none;
             transition: all 0.15s ease;
-            font-size: 0.92rem;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 600;
         }
         .mobile-nav-btn:hover { background: rgba(0,0,0,0.05); color: #000; }
         .mobile-nav-btn.active { background: rgba(184,134,11,0.12); color: #000; }
@@ -357,22 +358,24 @@
             margin: 0.5rem 0;
         }
 
-        /* Natural nav buttons */
+        /* Natural nav buttons — ukuran nyaman untuk tunanetra */
         .nav-btn {
             position: relative;
             display: flex !important;
             align-items: center;
-            gap: 0.35rem;
-            padding: 0.35rem 0.8rem !important;
-            border-radius: 9999px !important;
-            font-size: 0.82rem;
-            font-weight: 500;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem !important;
+            min-height: 44px;
+            border-radius: 10px !important;
+            font-size: 16px;
+            font-weight: 600;
             color: #000 !important;
             background: rgba(0, 0, 0, 0.04) !important;
             border: 1px solid transparent !important;
             transition: all 0.18s ease !important;
             text-decoration: none;
             cursor: pointer;
+            white-space: nowrap;
         }
         .nav-btn:hover {
             color: #000 !important;
@@ -387,10 +390,10 @@
             box-shadow: inset 0 0 0 1px rgba(184, 134, 11, 0.25) !important;
         }
         .nav-btn .nav-btn-icon {
-            width: 16px;
-            height: 16px;
+            width: 22px;
+            height: 22px;
             flex-shrink: 0;
-            opacity: 0.85;
+            opacity: 0.9;
             color: currentColor;
         }
         .nav-btn:hover .nav-btn-icon {

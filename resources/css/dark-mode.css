@@ -328,3 +328,54 @@ html.dark-mode body #session-toast {
     border-color: #3f3f3f !important;
     color: #f5f5f5 !important;
 }
+
+/* ═══ NAVBAR DARK MODE FIX ═══════════════════════════════════════
+   Overrules hardcoded #000 di components.css & inline style layouts.
+   Spec: html.dark-mode body .class > .class → higher than bare selector. */
+html.dark-mode body .nav-btn,
+html.dark-mode body .nav-icon-btn,
+html.dark-mode body .mobile-nav-btn {
+    color: #f5f5f5 !important;
+}
+html.dark-mode body .nav-btn-text,
+html.dark-mode body .nav-btn .nav-btn-icon {
+    color: #f5f5f5 !important;
+}
+html.dark-mode body .nav-btn:hover,
+html.dark-mode body .nav-btn.active {
+    background: rgba(255, 213, 74, 0.16) !important;
+    color: #ffd54a !important;
+}
+html.dark-mode body .nav-btn:hover .nav-btn-icon,
+html.dark-mode body .nav-btn.active .nav-btn-icon {
+    color: #ffd54a !important;
+}
+html.dark-mode body .nav-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffd54a !important;
+}
+/* Mobile drawer: latar gelap + teks terang */
+html.dark-mode body .mobile-drawer {
+    background-color: #1e1e1e !important;
+    border-left-color: #3f3f3f !important;
+}
+html.dark-mode body .mobile-drawer-close:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #f5f5f5 !important;
+}
+html.dark-mode body .mobile-drawer-divider {
+    border-top-color: #3f3f3f !important;
+}
+html.dark-mode body .mobile-nav-btn:hover,
+html.dark-mode body .mobile-nav-btn.active {
+    background: rgba(255, 213, 74, 0.12) !important;
+    color: #ffd54a !important;
+}
+html.dark-mode body .mobile-nav-btn.active {
+    background: rgba(255, 213, 74, 0.22) !important;
+}
+
+/* Logo ReadAssist: hitam di SVG → putih di dark mode */
+html.dark-mode body .logo-navbar img {
+    filter: brightness(0) invert(1) !important;
+}
