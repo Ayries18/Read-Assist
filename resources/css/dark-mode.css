@@ -282,6 +282,46 @@ html.dark-mode body [class*="text-green-"] {
     color: #e0e0e0 !important;
 }
 
+/* Guard warna hardcoded dari Blade / inline style */
+html.dark-mode body .text-black,
+html.dark-mode body [class*="text-black"],
+html.dark-mode body [style*="color: #000"],
+html.dark-mode body [style*="color:#000"],
+html.dark-mode body [style*="color: rgb(0, 0, 0)"],
+html.dark-mode body [style*="color:rgb(0,0,0)"],
+html.dark-mode body .dropdown-item-link,
+html.dark-mode body .dropdown-item,
+html.dark-mode body .dropdown-text,
+html.dark-mode body .nav-user-name-text {
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode body .bg-black\/5,
+html.dark-mode body [class*="bg-black/"],
+html.dark-mode body [style*="background: rgba(0, 0, 0"],
+html.dark-mode body [style*="background:rgba(0,0,0"] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark-mode body .btn-primary,
+html.dark-mode body .btn-primary *,
+html.dark-mode body [class*="bg-[#1DB954]"],
+html.dark-mode body [class*="bg-[#1DB954]"] *,
+html.dark-mode body [class*="bg-[#ffff00]"],
+html.dark-mode body [class*="bg-[#ffff00]"] *,
+html.dark-mode body [style*="background:#b8860b"],
+html.dark-mode body [style*="background: #b8860b"],
+html.dark-mode body [style*="background:#ffd54a"],
+html.dark-mode body [style*="background: #ffd54a"] {
+    color: #121212 !important;
+}
+
+html.dark-mode body .book-cover-placeholder,
+html.dark-mode body .book-cover-wrapper,
+html.dark-mode body .bg-white {
+    box-shadow: none !important;
+}
+
 /* Toast / session notif */
 html.dark-mode body #session-toast {
     background-color: #1e1e1e !important;
