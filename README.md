@@ -46,9 +46,9 @@
 
 ## 💡 Tentang Proyek
 
-Read-Assist adalah aplikasi web berbasis **Laravel 13** yang membantu penyandang tunanetra mengakses materi belajar secara mandiri melalui **audio digital** dan **QR Code**.
+Read-Assist adalah aplikasi web berbasis **Laravel 13** yang dikembangkan untuk membantu penyandang tunanetra mengakses materi pembelajaran secara lebih mandiri melalui **audio digital** dan **QR Code**.
 
-Pengguna cukup **memindai QR Code** pada buku menggunakan smartphone — aplikasi langsung membuka halaman buku beserta putaran audionya. Antarmuka dirancang sederhana, responsif, dan berfokus penuh pada aksesibilitas pengguna.
+Pengguna dapat **memindai QR Code** pada buku menggunakan smartphone untuk membuka halaman buku beserta pemutaran audionya. Antarmuka dirancang sederhana, responsif, dan berfokus pada kemudahan akses bagi pengguna.
 
 ---
 
@@ -56,24 +56,24 @@ Pengguna cukup **memindai QR Code** pada buku menggunakan smartphone — aplikas
 
 | | Fitur | Keterangan |
 | --- | --- | --- |
-| 📚 | **Upload buku digital** | PDF dengan ekstraksi teks otomatis (*poppler-utils*) |
-| 🔊 | **Audio buku (TTS)** | Upload audio manual maupun generate dari teks |
-| 🧩 | **QR Code otomatis** | Setiap buku mendapat QR unik untuk akses cepat via ponsel |
-| 🎧 | **Pemutar audio terintegrasi** | Pemutar halaman penuh + mini player yang tetap tampil saat berpindah halaman |
-| 🗂️ | **Manajemen katalog** | Dashboard admin untuk kelola buku & audio |
-| 📊 | **Progres belajar** | Pelacakan durasi mendengarkan per pengguna |
+| 📚 | **Upload buku digital** | Upload buku dalam format PDF dengan ekstraksi teks otomatis menggunakan *poppler-utils* |
+| 🔊 | **Audio buku (TTS)** | Upload audio secara manual maupun menghasilkan audio dari teks |
+| 🧩 | **QR Code otomatis** | Setiap buku mendapatkan QR Code unik untuk akses cepat melalui perangkat seluler |
+| 🎧 | **Pemutar audio terintegrasi** | Pemutar audio halaman penuh dan mini player yang tetap tersedia saat berpindah halaman |
+| 🗂️ | **Manajemen katalog** | Dashboard admin untuk mengelola buku dan audio |
+| 📊 | **Progres belajar** | Pelacakan durasi mendengarkan pengguna |
 
 ---
 
 ## ♿ Aksesibilitas
 
-Aplikasi dibangun sesuai standar **WCAG 2.2** dan diverifikasi dengan **axe-core** (0 pelanggaran):
+Aplikasi dibangun dengan mengacu pada prinsip **WCAG 2.2** dan diverifikasi menggunakan **axe-core** dengan hasil **0 pelanggaran**:
 
 - 🔷 **Mode kontras tinggi** hitam–kuning yang konsisten di seluruh halaman
-- 🗣️ Kompatibel dengan **TalkBack** / *screen reader* — `aria-label`, *live region*, heading berstruktur
-- ⌨️ **Navigasi keyboard penuh** — fokus terlihat jelas, modal tertutup dengan `Escape`
-- 🔈 **Suara pendamping** (TTS) untuk membacakan konten halaman
-- 🎯 Kontras warna lolos rasio AA pada semua komponen
+- 🗣️ Kompatibel dengan **TalkBack** dan *screen reader* melalui `aria-label`, *live region*, serta struktur heading yang terorganisasi
+- ⌨️ **Navigasi keyboard penuh** dengan indikator fokus yang jelas dan dukungan penutupan modal menggunakan `Escape`
+- 🔈 **Suara pendamping (TTS)** untuk membantu membacakan konten halaman
+- 🎯 **Kontras warna** yang memenuhi rasio AA pada komponen yang diuji
 
 ---
 
@@ -83,8 +83,11 @@ Aplikasi dibangun sesuai standar **WCAG 2.2** dan diverifikasi dengan **axe-core
 | --- | --- |
 | **Backend** | Laravel 13, PHP 8.3 |
 | **Database** | SQLite |
-| **Frontend** | Blade, Tailwind CSS, JavaScript (Vite) |
+| **Frontend** | Blade, Tailwind CSS, JavaScript |
+| **Build Tool** | Vite |
 | **Ekstraksi PDF** | poppler-utils (`pdftotext`) |
+| **Audio** | Text-to-Speech (TTS) |
+| **QR Code** | QR Code Generator |
 
 ---
 
@@ -92,9 +95,9 @@ Aplikasi dibangun sesuai standar **WCAG 2.2** dan diverifikasi dengan **axe-core
 
 ### Prasyarat
 
-- **PHP 8.3+** & Composer
-- **Node.js** & npm
-- `poppler-utils` (`pdftotext`) — opsional, untuk ekstraksi teks PDF
+- **PHP 8.3+** dan Composer
+- **Node.js** dan npm
+- **poppler-utils** (`pdftotext`) — opsional, digunakan untuk ekstraksi teks dari PDF
 
 ### 1. Instalasi & Development
 
@@ -111,76 +114,3 @@ php artisan migrate
 
 npm run dev          # terminal 1 — hot-reload aset
 php artisan serve    # terminal 2 — server aplikasi
-```
-
-Buka **http://127.0.0.1:8000** 🎉
-
-### 2. Production
-
-```bash
-npm run build
-php artisan storage:link
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-```
-
-Untuk memproses antrean generate audio, jalankan *worker*:
-
-```bash
-php artisan queue:work
-```
-
----
-
-## ⚙️ Konfigurasi Lingkungan
-
-Salin `.env.example` menjadi `.env`, lalu sesuaikan variabel penting ini:
-
-| Variabel | Keterangan | Contoh |
-| --- | --- | --- |
-| `APP_NAME` | Nama aplikasi | `Read-Assist` |
-| `APP_URL` | URL aplikasi | `http://127.0.0.1:8000` |
-| `DB_CONNECTION` | Driver database | `sqlite` |
-| `SESSION_DRIVER` | Penyimpanan sesi | `database` |
-
----
-
-## 📁 Struktur Proyek
-
-```text
-Read-Assist/
-├── app/
-│   ├── Http/Controllers/     # Controller aplikasi
-│   ├── Jobs/                 # Antrean: generate audio, dsb.
-│   ├── Models/               # Model Eloquent
-│   └── Services/             # Layanan pendukung (tunnel, dsb.)
-├── bootstrap/
-├── config/
-├── database/
-├── public/
-│   ├── logo.png
-│   └── qr/                   # QR Code per buku
-├── resources/
-│   ├── css/                  # Styling + mode kontras tinggi
-│   └── views/                # Blade templates
-├── routes/
-├── storage/
-└── tests/
-```
-
----
-
-## 👤 Pengembang
-
-<div align="center">
-
-**Muhammad Almuwarisin** — Mahasiswa Teknologi Informasi
-
-[![GitHub](https://img.shields.io/badge/GitHub-Ayries18-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Ayries18)
-
-</div>
-
----
-
-<p align="center">
-  Dibangun sebagai proyek penelitian & pembelajaran dengan pendekatan profesional 💡
-</p>
