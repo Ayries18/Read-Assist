@@ -72,7 +72,7 @@ flowchart LR
 
 1. **Unggah Dokumen**: Penulis atau admin mengunggah dokumen digital dalam format **PDF** atau **EPUB**.
 2. **Ekstraksi Teks Otomatis**: Server mengekstrak seluruh teks secara presisi menggunakan `pdftotext` (`poppler-utils`) atau `ZipArchive`.
-3. **Pemrosesan TTS Latar Belakang**: Teks dipecah menjadi kalimat dan diproses secara asinkron (*background queue*) menjadi audio MP3 utuh.
+3. **Pemrosesan TTS Latar Belakang**: Teks dipecah menjadi kalimat dan diproses secara asinkron (*background queue*) menjadi audio MP3 utuh, dengan **progres real-time** (`audio_progress`/`audio_message`) yang dapat dipantau di halaman katalog & pemutar.
 4. **Smart QR & Routing**: Setiap buku mendapatkan token UUID dan QR Code unik yang terhubung ke *SSH reverse tunnel* atau IP jaringan lokal.
 5. **Akses Langsung**: Pengguna memindai QR Code dan langsung mendengarkan bacaan buku tanpa perlu navigasi yang rumit.
 
@@ -83,9 +83,13 @@ flowchart LR
 | | Fitur | Keterangan |
 | :---: | :--- | :--- |
 | 📚 | **Ekstraksi Dokumen Cerdas** | Ekstraksi otomatis dari file **PDF** dan **EPUB** tanpa kehilangan struktur kalimat. |
-| 🔊 | **Dual Audio Delivery System** | Pilihan mendengarkan via **Server-Side MP3** atau **Client-Side Web Speech Synthesis** kalimat-demi-kalimat. |
+| 🔊 | **Dual Audio Delivery System** | Pilihan mendengarkan via server-side MP3 berkualitas atau *client-side Web Speech Synthesis* kalimat-demi-kalimat. |
+| 🎛️ | **Pemutar Gaya Spotify** | Kontrol melingkar khas aplikasi musik: tombol *Play/Pause*, kalimat sebelumnya/selanjutnya, dan **Skip ±10 detik** untuk audio MP3 hasil generasi. |
+| 🗣️ | **Voice Commands (Kontrol Suara)** | Pemutar tunanetra dapat dikendalikan lewat suara via **Web Speech API** — perintah *play, pause, next, prev, stop, speed,* dan *settings* tanpa menyentuh layar. |
+| 📡 | **Progres Generasi Audio Real-Time** | Status & persentase pembuatan audio ditampilkan langsung di halaman katalog & pemutar melalui kolom `audio_progress` / `audio_message` tanpa perlu *refresh*. |
 | 📱 | **Smart QR Code Routing** | Terintegrasi dengan `TunnelService` (`localhost.run`) & IP LAN otomatis untuk akses instan dari ponsel di jaringan yang sama. |
 | 🎧 | **Integrated & Mini Player** | Pemutar audio layar penuh + pemutar mini (*persistent*) yang tidak berhenti saat berpindah halaman. |
+| 🔐 | **Reset Password via Email** | Pengguna dapat memulihkan akun lewat email *Password Reset* yang dikirim `PasswordResetMail`, dengan *fallback* generik bila SMTP tidak aktif. |
 | 📊 | **Sinkronisasi Progres Mendengarkan** | Progres membaca disimpan secara otomatis di browser (*localStorage*) dan database pengguna. |
 | 🔍 | **Asisten Ringkasan Teks (Read-Assist)** | Modul analisis teks pintar untuk menghitung jumlah kata, estimasi waktu baca, dan ringkasan isi buku. |
 
@@ -112,6 +116,20 @@ Navigasi pemutar buku audio dapat dikendalikan sepenuhnya melalui keyboard:
 | <kbd>→</kbd> (*Panah Kanan*) | Melompat ke **kalimat berikutnya** |
 | <kbd>←</kbd> (*Panah Kiri*) | Kembali ke **kalimat sebelumnya** |
 | <kbd>Esc</kbd> | Menghentikan pembacaan / Menutup modal pengaturan |
+
+### 🗣️ Kontrol Suara (Voice Commands)
+
+Selain keyboard, pemutar tunanetra dapat dikendalikan sepenuhnya dengan **perintah suara** menggunakan *Web Speech API* (`SpeechRecognition`) — berguna saat pengguna tidak dapat menyentuh layar. Aktifkan mikrofon dari pemutar, lalu ucapkan perintah berikut:
+
+| Perintah | Fungsi |
+| :--- | :--- |
+| *"Play"* / *"Pause"* | Memulai atau menjeda pembacaan |
+| *"Next"* / *"Prev"* | Pindah ke kalimat berikutnya / sebelumnya |
+| *"Stop"* | Menghentikan pembacaan |
+| *"Speed"* | Mengubah kecepatan suara |
+| *"Settings"* | Membuka pengaturan pemutar |
+
+> **Catatan**: Perintah suara bersifat *progressive enhancement* — jika browser tidak mendukung `SpeechRecognition`, semua kontrol tetap dapat diakses via keyboard & Screen Reader.
 
 ---
 
@@ -205,21 +223,24 @@ Variabel utama yang dapat disesuaikan pada file `.env`:
 ```text
 Read-Assist/
 ├── app/
-│   ├── Console/Commands/     # Artisan commands (tunnel, qr:regenerate, serve)
+│   ├── Console/Commands/     # Artisan commands (tunnel:start, tunnel:stop, serve, qr:regenerate)
 │   ├── Http/Controllers/     # Controller (AudioBuku, Auth, QRCode, ReadAssist)
 │   ├── Http/Middleware/      # Middleware (RestrictQrGuest, SetContentLength)
 │   ├── Jobs/                 # Queue jobs (GenerateBookAudio)
-│   ├── Models/               # Eloquent Models (AudioBuku, User, Admin, ListeningProgress)
+│   ├── Mail/                 # Email (PasswordResetMail — reset password)
+│   ├── Models/               # Eloquent Models (AudioBuku, User, Admin, ListeningProgress, PasswordResetToken)
 │   └── Services/             # TTSEngine, TunnelService, NineRouterService
 ├── config/                   # File konfigurasi aplikasi & TTS
 ├── database/                 # Migrasi database, factory, dan seeder
-├── public/                   # Asset publik, logo, manifest PWA, & file QR
+├── public/                   # Asset publik, logo, manifest PWA, service worker, & file QR
 ├── resources/
 │   ├── css/                  # Styling tema, dark mode, dan mode kontras tinggi
 │   ├── js/                   # Skrip pemutar audio Web Speech & sinkronisasi UI
-│   └── views/                # Template Blade (katalog, player, auth, dashboard)
+│   └── views/                # Template Blade (katalog, player, auth, email, dashboard)
 ├── routes/                   # Routing web & konsol
-├── storage/                  # Penyimpanan audio MP3 dan file buku
+├── storage/
+│   ├── app/public/audio/     # Penyimpanan audio MP3 hasil generasi
+│   └── app/public/qr/        # File gambar QR Code
 └── tests/                    # Feature & Unit test suite (PHPUnit)
 ```
 
