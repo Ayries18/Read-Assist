@@ -7,7 +7,7 @@
 <br />
 
 <p align="center">
-  <img src="public/logo.png" alt="Read-Assist logo" width="110" />
+  <img src="./public/logo-read-assist.png" alt="Logo Read-Assist" width="110">
 </p>
 
 <br />
