@@ -1,5 +1,9 @@
 <div align="center">
 
+<p align="center">
+  <img src="./public/logo.png" alt="Logo Read-Assist" width="110">
+</p>
+
 <!-- Animated Header Wave Banner -->
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=0,2,3,5&height=220&section=header&text=🎧%20Read-Assist&fontSize=48&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=Platform%20Aksesibilitas%20Buku%20Audio%20%26%20QR%20Code%20untuk%20Tunanetra&descAlignY=58&descAlign=50" width="100%" alt="Read-Assist Header Banner" />
 
