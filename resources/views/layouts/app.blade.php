@@ -13,8 +13,8 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="theme-color" content="#ffffff">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="/logo.png">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
     <link rel="manifest" href="/manifest.json">
     <script>
         // Tema (Terang/Gelap/System) + dominasi kontras tinggi — dijalankan sebelum paint
@@ -121,16 +121,16 @@
             font-size: 1.15rem;
             cursor: pointer;
             padding: 0.4rem;
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s ease;
+            transition: background 0.15s ease, color 0.15s ease;
             position: relative;
         }
         .nav-icon-btn:hover {
             color: #000;
-            background: rgba(0, 0, 0, 0.06);
+            background: rgba(0, 0, 0, 0.05);
         }
         .notification-badge {
             position: absolute;
@@ -254,39 +254,74 @@
         /* Navbar: gunakan DaisyUI navbar component (flex + center) */
         .navbar {
             background: #ffffff !important;
-            border-bottom: 2px solid #000000 !important;
-            box-shadow: none !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
             backdrop-filter: none;
-            padding: 0.6rem 1rem !important;
+            padding: 0.5rem 1.5rem !important;
+            align-items: center;
         }
         .logo-navbar {
             display: flex;
             align-items: center;
             justify-content: center;
-            max-height: 72px;
+            max-height: 76px;
             overflow: hidden;
+            align-self: center;
         }
         .logo-navbar img {
-            height: 64px;
+            height: 58px;
             width: auto;
             object-fit: contain;
+            display: block;
+        }
+        @media (max-width: 1369px) {
+            .navbar-center { display: none !important; }
+            .navbar { padding-left: 1rem !important; padding-right: 1rem !important; }
         }
         @media (max-width: 1024px) {
-            .logo-navbar img { height: 50px; }
+            .logo-navbar img { height: 46px; }
         }
         @media (max-width: 640px) {
             .navbar { padding: 0.5rem 0.75rem !important; }
             .navbar .navbar-start { gap: 0.15rem !important; }
-            .nav-icon-btn { font-size: 1.25rem !important; padding: 0.6rem !important; color: #000 !important; }
+            .nav-icon-btn { font-size: 1.25rem !important; padding: 0.55rem !important; color: #000 !important; }
             .navbar-end { gap: 0.4rem !important; }
-            .logo-navbar img { height: 42px; }
+            .navbar-end .nav-end-group { gap: 0.25rem; }
+            .navbar-center { margin-left: 0.75rem; }
+            .logo-navbar img { height: 40px; }
         }
 
         .navbar .menu-horizontal > li > a {
             padding: 0 !important;
         }
         .navbar .menu-horizontal {
-            gap: 0.5rem !important;
+            gap: 0.25rem !important;
+        }
+        .navbar-start,
+        .navbar-center,
+        .navbar-end {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-start {
+            flex: 0 0 auto;
+            width: auto !important;
+        }
+        .navbar-center {
+            flex: none;
+            justify-content: center;
+            margin-left: 1.5rem;
+        }
+        .navbar-end {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            justify-content: flex-end !important;
+            gap: 0.75rem !important;
+        }
+        .navbar-end .nav-end-group {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
 
         /* Mobile drawer overlay */
@@ -363,37 +398,37 @@
             position: relative;
             display: flex !important;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1rem !important;
-            min-height: 44px;
-            border-radius: 10px !important;
-            font-size: 16px;
-            font-weight: 600;
+            gap: 0.45rem;
+            padding: 0.5rem 0.7rem !important;
+            min-height: 40px;
+            border-radius: 8px !important;
+            font-size: 0.9rem;
+            font-weight: 500;
             color: #000 !important;
-            background: rgba(0, 0, 0, 0.04) !important;
+            background: transparent !important;
             border: 1px solid transparent !important;
-            transition: all 0.18s ease !important;
+            transition: background 0.15s ease, color 0.15s ease !important;
             text-decoration: none;
             cursor: pointer;
             white-space: nowrap;
+            line-height: 1.2;
         }
         .nav-btn:hover {
             color: #000 !important;
-            background: rgba(184, 134, 11, 0.16) !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08) !important;
+            background: rgba(184, 134, 11, 0.08) !important;
+            transform: none !important;
+            box-shadow: none !important;
         }
         .nav-btn.active {
             color: #000 !important;
-            background: rgba(184, 134, 11, 0.22) !important;
-            border-color: rgba(184, 134, 11, 0.4) !important;
-            box-shadow: inset 0 0 0 1px rgba(184, 134, 11, 0.25) !important;
+            background: rgba(184, 134, 11, 0.12) !important;
+            box-shadow: none !important;
         }
         .nav-btn .nav-btn-icon {
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             flex-shrink: 0;
-            opacity: 0.9;
+            opacity: 0.75;
             color: currentColor;
         }
         .nav-btn:hover .nav-btn-icon {
@@ -469,6 +504,7 @@
 
         <div class="navbar-end gap-2">
             @if (!$isMobile)
+                <div class="nav-end-group nav-end-group--icons">
                 <!-- Accessibility options (Desktop) -->
                 <div class="nav-accessibility-wrapper accessibility-nav-wrapper">
                     <button class="nav-icon-btn accessibility-nav-trigger" onclick="toggleAccessibilityDropdown(event)" title="Opsi Aksesibilitas" aria-label="Buka opsi aksesibilitas" aria-controls="accessibility-dropdown" aria-expanded="false">
@@ -542,7 +578,10 @@
                             </a>
                         </div>
                     </div>
+                    @endif
+                </div>
 
+                    @if (session('auth_role'))
                     <!-- User Profile (Desktop) -->
                     <div class="avatar-dropdown-wrapper" style="position: relative;">
                         <button class="avatar-btn" onclick="toggleAvatarDropdown(event)" onkeydown="handleDropdownKey(event, 'avatar-dropdown', null)" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" aria-haspopup="true" aria-controls="avatar-dropdown" aria-expanded="false" aria-label="Buka menu profil">
@@ -803,7 +842,6 @@
                 const willOpen = accDrop.style.display === 'none';
                 accDrop.style.display = willOpen ? 'flex' : 'none';
                 if (accTrigger) accTrigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-                speakText(willOpen ? "Menu opsi aksesibilitas dibuka." : "Menu opsi aksesibilitas ditutup.");
             }
         }
 
@@ -906,7 +944,6 @@
                 accDrop.style.display = 'none';
                 const accTrigger = document.querySelector('.accessibility-nav-trigger');
                 if (accTrigger) accTrigger.setAttribute('aria-expanded', 'false');
-                if (wasOpen) speakText("Menu opsi aksesibilitas ditutup.");
             }
         });
 
@@ -1102,7 +1139,6 @@
                 const willOpen = accMenu.style.display === 'none';
                 accMenu.style.display = willOpen ? 'flex' : 'none';
                 accToggleBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-                speakText(willOpen ? "Menu opsi aksesibilitas dibuka." : "Menu opsi aksesibilitas ditutup.");
             });
         }
 
@@ -1112,7 +1148,6 @@
                 const wasOpen = accMenu.style.display !== 'none';
                 accMenu.style.display = 'none';
                 accToggleBtn.setAttribute('aria-expanded', 'false');
-                if (wasOpen) speakText("Menu opsi aksesibilitas ditutup.");
             }
         });
 
