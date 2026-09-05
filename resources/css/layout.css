@@ -1,0 +1,378 @@
+/* ─── Layout styling (ex-inline <style> dari layouts/app.blade.php) ─────────
+   Sumber kebenaran untuk navbar, dropdown, drawer, nav-btn, skip-link, body.
+   Di-import paling akhir agar urutan cascade identik dengan posisi <style>
+   lama (setelah semua file CSS lain). Nilai visual TIDAK diubah pada Phase 1.
+
+   `:root` token yang lama ada di blok ini dihapus — sudah terdefinisi sekali
+   di base.css (single source of truth). */
+
+body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-family: var(--font-sans) !important;
+    line-height: 1.6;
+}
+
+/* Skip link: visible only on keyboard focus */
+.skip-link {
+    position: absolute;
+    left: 8px;
+    top: -48px;
+    z-index: 2000;
+    padding: 10px 18px;
+    background: #b8860b;
+    color: #000;
+    font-weight: 700;
+    border-radius: 0 0 10px 10px;
+    border: 2px solid #000;
+    text-decoration: none;
+    transition: top 0.15s ease;
+}
+.skip-link:focus {
+    top: 0;
+}
+
+/* Visible keyboard focus indicator (keyboard users) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid #b8860b !important;
+    outline-offset: 2px !important;
+    border-radius: 4px;
+}
+
+/* Navbar Enhancements */
+.nav-icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+    position: relative;
+}
+.nav-icon-btn:hover {
+    color: #000;
+    background: rgba(0, 0, 0, 0.05);
+}
+.notification-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 7px;
+    height: 7px;
+    background-color: var(--accent-danger);
+    border-radius: 50%;
+}
+
+/* Dropdown Styles */
+.nav-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: -10px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 240px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    display: none;
+    flex-direction: column;
+    gap: 0.3rem;
+    z-index: 1000;
+    animation: fade-in 0.1s ease;
+}
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-header {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.3rem 0.5rem 0.4rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.dropdown-item {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.12s ease;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+.dropdown-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #000;
+}
+.dropdown-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+.dropdown-text {
+    margin: 0;
+    color: var(--text-secondary);
+}
+.dropdown-time {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+    display: block;
+}
+
+.dropdown-item-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.12s ease;
+}
+.dropdown-item-link:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #000;
+}
+.dropdown-logout-btn:hover {
+    background: rgba(248, 113, 113, 0.08) !important;
+    color: #f87171 !important;
+}
+
+.nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem !important;
+    transition: all 0.15s ease;
+}
+.nav-link.active {
+    color: #000 !important;
+}
+
+.avatar-btn:hover {
+    opacity: 0.95;
+}
+
+/* Search Input */
+.nav-search-form input:focus {
+    background: rgba(255,255,255,0.08) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+    box-shadow: none !important;
+}
+
+/* Navbar: gunakan DaisyUI navbar component (flex + center) */
+.navbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+    backdrop-filter: none;
+    padding: 0.5rem 1.5rem !important;
+    align-items: center;
+}
+.logo-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 56px;
+    overflow: hidden;
+    align-self: center;
+}
+.logo-navbar img {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+@media (max-width: 1369px) {
+    .navbar-center { display: none !important; }
+    .navbar { padding-left: 1rem !important; padding-right: 1rem !important; }
+}
+@media (max-width: 1024px) {
+    .logo-navbar img { height: 36px; }
+}
+@media (max-width: 640px) {
+    .navbar { padding: 0.45rem 0.75rem !important; }
+    .navbar .navbar-start { gap: 0.15rem !important; }
+    .nav-icon-btn { font-size: 1.25rem !important; padding: 0.55rem !important; color: #000 !important; }
+    .navbar-end { gap: 0.4rem !important; }
+    .navbar-end .nav-end-group { gap: 0.25rem; }
+    .navbar-center { margin-left: 0.75rem; }
+    .logo-navbar img { height: 31px; }
+
+    /* Fix navbar mobile (390px dsb.): sembunyikan item desktop-only dari
+       navbar-end agar logo & tombol tidak overlap. Login/Daftar/Profil tetap
+       tersedia di drawer navigasi. Tema + hamburger tetap tampil. */
+    .navbar-end > .nav-end-group--icons,
+    .navbar-end > .nav-btn,
+    .navbar-end > .avatar-dropdown-wrapper,
+    .navbar-end > .btn {
+        display: none !important;
+    }
+}
+
+.navbar .menu-horizontal > li > a {
+    padding: 0 !important;
+}
+.navbar .menu-horizontal {
+    gap: 0.25rem !important;
+}
+.navbar-start,
+.navbar-center,
+.navbar-end {
+    display: flex;
+    align-items: center;
+}
+.navbar-start {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-start;
+}
+.navbar-center {
+    flex: 0 0 auto;
+    justify-content: center;
+}
+.navbar-end {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-end !important;
+    gap: 0.75rem !important;
+}
+.navbar-end .nav-end-group {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Mobile drawer overlay */
+.mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    backdrop-filter: blur(4px);
+}
+.mobile-drawer-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100vh;
+    background: #ffffff;
+    border-left: 1px solid rgba(0,0,0,0.1);
+    z-index: 999;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.5);
+}
+.mobile-drawer.open { right: 0; }
+.mobile-drawer-close {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mobile-drawer-close:hover { color: #000; background: rgba(0,0,0,0.06); }
+.mobile-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    font-size: 16px;
+    font-weight: 600;
+}
+.mobile-nav-btn:hover { background: rgba(0,0,0,0.05); color: #000; }
+.mobile-nav-btn.active { background: rgba(184,134,11,0.12); color: #000; }
+.mobile-nav-btn-icon { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.7; }
+.mobile-nav-btn:hover .mobile-nav-btn-icon { opacity: 1; }
+.mobile-drawer-divider {
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin: 0.5rem 0;
+}
+
+/* Natural nav buttons — ukuran nyaman untuk tunanetra */
+.nav-btn {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.7rem !important;
+    min-height: 40px;
+    border-radius: 8px !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #000 !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+.nav-btn:hover {
+    color: #000 !important;
+    background: rgba(184, 134, 11, 0.08) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.nav-btn.active {
+    color: #000 !important;
+    background: rgba(184, 134, 11, 0.12) !important;
+    box-shadow: none !important;
+}
+.nav-btn .nav-btn-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.75;
+    color: currentColor;
+}
+.nav-btn:hover .nav-btn-icon {
+    opacity: 1;
+}

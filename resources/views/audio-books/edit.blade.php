@@ -29,7 +29,7 @@
             <!-- Import description from .txt file -->
             <div class="form-control w-full mb-4">
                 <span class="label-text text-slate-600 text-sm font-medium mb-2 block">Ganti Deskripsi via File Teks (.txt)</span>
-                <label for="description_file" class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-black/15 rounded-xl p-8 sm:p-10 text-center bg-black/[0.03] cursor-pointer hover:border-[#b8860b] hover:bg-[#b8860b]/10 transition-all duration-200 w-full" id="dropzone" style="padding: 1.2rem;">
+                <label for="description_file" class="file-drop-label flex flex-col items-center justify-center gap-2 border-2 border-dashed border-black/15 rounded-xl p-8 sm:p-10 text-center bg-black/[0.03] cursor-pointer hover:border-[#b8860b] hover:bg-[#b8860b]/10 transition-all duration-200 w-full" id="dropzone">
                     <span class="text-[#7a5a00] mb-1 inline-block">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                     </span>

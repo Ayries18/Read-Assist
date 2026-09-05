@@ -58,389 +58,12 @@
     @else
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
-    <style>
-        /* Modern, minimal layout styling */
-        :root {
-            --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            --accent-primary: #7a5a00;
-            --accent-secondary: #7a5a00;
-            --accent-success: #b8860b;
-            --accent-danger: #b8860b;
-            --text-primary: #000000;
-            --text-secondary: #000000;
-            --text-muted: #7a5a00;
-            --border-glass: #000000;
-            --bg-secondary: #ffffff;
-            --bg-glass: #ffffff;
-        }
-
-        body {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-            font-family: var(--font-sans) !important;
-            line-height: 1.6;
-        }
-
-        /* Skip link: visible only on keyboard focus */
-        .skip-link {
-            position: absolute;
-            left: 8px;
-            top: -48px;
-            z-index: 2000;
-            padding: 10px 18px;
-            background: #b8860b;
-            color: #000;
-            font-weight: 700;
-            border-radius: 0 0 10px 10px;
-            border: 2px solid #000;
-            text-decoration: none;
-            transition: top 0.15s ease;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-
-        /* Visible keyboard focus indicator (keyboard users) */
-        a:focus-visible,
-        button:focus-visible,
-        input:focus-visible,
-        select:focus-visible,
-        textarea:focus-visible,
-        summary:focus-visible,
-        [tabindex]:focus-visible {
-            outline: 3px solid #b8860b !important;
-            outline-offset: 2px !important;
-            border-radius: 4px;
-        }
-
-        /* Navbar Enhancements */
-        .nav-icon-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.15rem;
-            cursor: pointer;
-            padding: 0.4rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s ease, color 0.15s ease;
-            position: relative;
-        }
-        .nav-icon-btn:hover {
-            color: #000;
-            background: rgba(0, 0, 0, 0.05);
-        }
-        .notification-badge {
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            width: 7px;
-            height: 7px;
-            background-color: var(--accent-danger);
-            border-radius: 50%;
-        }
-        
-        /* Dropdown Styles */
-        .nav-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: -10px;
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.12);
-            border-radius: 8px;
-            padding: 0.5rem;
-            width: 240px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-            display: none;
-            flex-direction: column;
-            gap: 0.3rem;
-            z-index: 1000;
-            animation: fade-in 0.1s ease;
-        }
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(-4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .dropdown-header {
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.3rem 0.5rem 0.4rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        .dropdown-item {
-            display: flex;
-            gap: 0.5rem;
-            font-size: 0.78rem;
-            line-height: 1.4;
-            color: var(--text-secondary);
-            padding: 0.4rem 0.5rem;
-            border-radius: 6px;
-            transition: all 0.12s ease;
-            text-align: left;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .dropdown-item:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: #000;
-        }
-        .dropdown-item .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            margin-top: 5px;
-            flex-shrink: 0;
-        }
-        .dropdown-text {
-            margin: 0;
-            color: var(--text-secondary);
-        }
-        .dropdown-time {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-top: 0.15rem;
-            display: block;
-        }
-        
-        .dropdown-item-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.8rem;
-            padding: 0.4rem 0.6rem;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: all 0.12s ease;
-        }
-        .dropdown-item-link:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: #000;
-        }
-        .dropdown-logout-btn:hover {
-            background: rgba(248, 113, 113, 0.08) !important;
-            color: #f87171 !important;
-        }
-
-        .nav-link {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.4rem 0.8rem !important;
-            transition: all 0.15s ease;
-        }
-        .nav-link.active {
-            color: #000 !important;
-        }
-        
-        .avatar-btn:hover {
-            opacity: 0.95;
-        }
-        
-        /* Search Input */
-        .nav-search-form input:focus {
-            background: rgba(255,255,255,0.08) !important;
-            border-color: rgba(255,255,255,0.15) !important;
-            box-shadow: none !important;
-        }
-
-        /* Navbar: gunakan DaisyUI navbar component (flex + center) */
-        .navbar {
-            background: #ffffff !important;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
-            backdrop-filter: none;
-            padding: 0.5rem 1.5rem !important;
-            align-items: center;
-        }
-        .logo-navbar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            max-height: 76px;
-            overflow: hidden;
-            align-self: center;
-        }
-        .logo-navbar img {
-            height: 58px;
-            width: auto;
-            object-fit: contain;
-            display: block;
-        }
-        @media (max-width: 1369px) {
-            .navbar-center { display: none !important; }
-            .navbar { padding-left: 1rem !important; padding-right: 1rem !important; }
-        }
-        @media (max-width: 1024px) {
-            .logo-navbar img { height: 46px; }
-        }
-        @media (max-width: 640px) {
-            .navbar { padding: 0.5rem 0.75rem !important; }
-            .navbar .navbar-start { gap: 0.15rem !important; }
-            .nav-icon-btn { font-size: 1.25rem !important; padding: 0.55rem !important; color: #000 !important; }
-            .navbar-end { gap: 0.4rem !important; }
-            .navbar-end .nav-end-group { gap: 0.25rem; }
-            .navbar-center { margin-left: 0.75rem; }
-            .logo-navbar img { height: 40px; }
-        }
-
-        .navbar .menu-horizontal > li > a {
-            padding: 0 !important;
-        }
-        .navbar .menu-horizontal {
-            gap: 0.25rem !important;
-        }
-        .navbar-start,
-        .navbar-center,
-        .navbar-end {
-            display: flex;
-            align-items: center;
-        }
-        .navbar-start {
-            flex: 1 1 0;
-            min-width: 0;
-            justify-content: flex-start;
-        }
-        .navbar-center {
-            flex: 0 0 auto;
-            justify-content: center;
-        }
-        .navbar-end {
-            flex: 1 1 0;
-            min-width: 0;
-            justify-content: flex-end !important;
-            gap: 0.75rem !important;
-        }
-        .navbar-end .nav-end-group {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        /* Mobile drawer overlay */
-        .mobile-drawer-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 998;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-            backdrop-filter: blur(4px);
-        }
-        .mobile-drawer-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .mobile-drawer {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 280px;
-            height: 100vh;
-            background: #ffffff;
-            border-left: 1px solid rgba(0,0,0,0.1);
-            z-index: 999;
-            padding: 1.5rem 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-y: auto;
-            box-shadow: -8px 0 30px rgba(0,0,0,0.5);
-        }
-        .mobile-drawer.open { right: 0; }
-        .mobile-drawer-close {
-            align-self: flex-end;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            padding: 0.5rem;
-            cursor: pointer;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .mobile-drawer-close:hover { color: #000; background: rgba(0,0,0,0.06); }
-        .mobile-nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            min-height: 44px;
-            border-radius: 10px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.15s ease;
-            font-size: 16px;
-            font-weight: 600;
-        }
-        .mobile-nav-btn:hover { background: rgba(0,0,0,0.05); color: #000; }
-        .mobile-nav-btn.active { background: rgba(184,134,11,0.12); color: #000; }
-        .mobile-nav-btn-icon { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.7; }
-        .mobile-nav-btn:hover .mobile-nav-btn-icon { opacity: 1; }
-        .mobile-drawer-divider {
-            border: 0;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            margin: 0.5rem 0;
-        }
-
-        /* Natural nav buttons — ukuran nyaman untuk tunanetra */
-        .nav-btn {
-            position: relative;
-            display: flex !important;
-            align-items: center;
-            gap: 0.45rem;
-            padding: 0.5rem 0.7rem !important;
-            min-height: 40px;
-            border-radius: 8px !important;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #000 !important;
-            background: transparent !important;
-            border: 1px solid transparent !important;
-            transition: background 0.15s ease, color 0.15s ease !important;
-            text-decoration: none;
-            cursor: pointer;
-            white-space: nowrap;
-            line-height: 1.2;
-        }
-        .nav-btn:hover {
-            color: #000 !important;
-            background: rgba(184, 134, 11, 0.08) !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-        .nav-btn.active {
-            color: #000 !important;
-            background: rgba(184, 134, 11, 0.12) !important;
-            box-shadow: none !important;
-        }
-        .nav-btn .nav-btn-icon {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-            opacity: 0.75;
-            color: currentColor;
-        }
-        .nav-btn:hover .nav-btn-icon {
-            opacity: 1;
-        }
-    </style>
 </head>
 <body>
     <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
     <nav aria-label="Navigasi utama" class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
         <div class="navbar-start gap-1 sm:gap-2">
-            <a href="/" class="logo-navbar no-underline transition-transform hover:scale-[1.02]">
+            <a href="/" class="logo-navbar no-underline transition-transform hover:-translate-y-0.5">
                 <img
                     src="{{ asset('logo-horizontal.svg') }}"
                     alt="ReadAssist Logo"
@@ -560,19 +183,19 @@
                         <button class="nav-icon-btn" onclick="toggleNotificationDropdown(event)" onkeydown="handleDropdownKey(event, 'notification-dropdown', null)" title="Notifikasi" aria-label="Buka menu notifikasi" aria-haspopup="true" aria-controls="notification-dropdown" aria-expanded="false">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                         </button>
-                        <div id="notification-dropdown" class="nav-dropdown" style="display: none; right: -50px; width: 260px;">
+                        <div id="notification-dropdown" class="nav-dropdown nav-notification-menu" style="display: none;">
                             <div class="dropdown-header">Notifikasi Sistem</div>
                             <a href="{{ session('auth_role') === 'admin' ? '/admin/dashboard' : '/user/dashboard' }}" class="dropdown-item">
                                 <span class="dot active"></span>
                                 <div>
-                                    <p class="dropdown-text" style="margin: 0; font-size: 0.78rem;">Sistem TTS berjalan optimal via API lokal.</p>
+                                    <p class="dropdown-text">Sistem TTS berjalan optimal via API lokal.</p>
                                     <span class="dropdown-time">Baru saja</span>
                                 </div>
                             </a>
                             <a href="/katalog-audio" class="dropdown-item">
                                 <span class="dot"></span>
                                 <div>
-                                    <p class="dropdown-text" style="margin: 0; font-size: 0.78rem;">Buku audio baru ditambahkan ke katalog.</p>
+                                    <p class="dropdown-text">Buku audio baru ditambahkan ke katalog.</p>
                                     <span class="dropdown-time">10 menit yang lalu</span>
                                 </div>
                             </a>
@@ -584,17 +207,17 @@
                     @if (session('auth_role'))
                     <!-- User Profile (Desktop) -->
                     <div class="avatar-dropdown-wrapper" style="position: relative;">
-                        <button class="avatar-btn" onclick="toggleAvatarDropdown(event)" onkeydown="handleDropdownKey(event, 'avatar-dropdown', null)" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" aria-haspopup="true" aria-controls="avatar-dropdown" aria-expanded="false" aria-label="Buka menu profil">
-                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.95rem; border: 2.2px solid rgba(255,255,255,0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.25);">
+                        <button class="avatar-btn" onclick="toggleAvatarDropdown(event)" onkeydown="handleDropdownKey(event, 'avatar-dropdown', null)" aria-haspopup="true" aria-controls="avatar-dropdown" aria-expanded="false" aria-label="Buka menu profil">
+                            <div class="user-avatar user-avatar--nav">
                                 {{ strtoupper(substr(session('auth_name'), 0, 1)) }}
                             </div>
-                            <span style="font-size: 0.85rem; color: #000; font-weight: 600;" class="nav-user-name-text">{{ session('auth_name') }}</span>
-                            <span style="font-size: 0.6rem; color: var(--text-muted);">▼</span>
+                            <span class="nav-user-name-text">{{ session('auth_name') }}</span>
+                            <span class="avatar-chevron">▼</span>
                         </button>
-                        <div id="avatar-dropdown" class="nav-dropdown" style="display: none; right: 0; min-width: 190px;">
-                            <div class="dropdown-header" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.6rem; margin-bottom: 0.4rem;">
-                                <div style="font-weight: 700; color: #000; font-size: 0.88rem;">{{ session('auth_name') }}</div>
-                                <div style="font-size: 0.7rem; color: var(--accent-primary); font-weight: bold; text-transform: uppercase; margin-top: 0.1rem;">{{ session('auth_role') }}</div>
+                        <div id="avatar-dropdown" class="nav-dropdown nav-avatar-menu" style="display: none;">
+                            <div class="dropdown-header dropdown-header--avatar">
+                                <div class="dropdown-username">{{ session('auth_name') }}</div>
+                                <div class="dropdown-kicker">{{ session('auth_role') }}</div>
                             </div>
                             
                             @if (session('auth_role') === 'admin')
@@ -605,11 +228,11 @@
                             <a class="dropdown-item-link" href="/katalog-audio">Katalog Buku</a>
                             <a class="dropdown-item-link" href="/profile">Profil Saya</a>
                             
-                            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.08); margin: 0.4rem 0;">
+                            <hr class="dropdown-divider">
                             
                             <form method="POST" action="/logout" style="margin: 0;">
                                 @csrf
-                                <button type="submit" class="dropdown-item-link dropdown-logout-btn" style="width: 100%; text-align: left; background: none; border: none; color: var(--accent-danger); cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                                <button type="submit" class="dropdown-item-link dropdown-logout-btn nav-dropdown-logout">
                                     Keluar (Logout)
                                 </button>
                             </form>
@@ -621,7 +244,7 @@
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                         <span class="nav-btn-text">Login</span>
                     </a>
-                    <a href="/register" class="btn btn-primary btn-sm shadow-lg shadow-[#b8860b]/25 hover:shadow-[#b8860b]/40 transition-all duration-200 hover:scale-105">
+                    <a href="/register" class="btn btn-primary btn-sm shadow-lg shadow-[#b8860b]/25 hover:shadow-[#b8860b]/40 transition-all duration-200 hover:-translate-y-0.5">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Daftar
                     </a>
                 @endif
@@ -633,14 +256,14 @@
                     <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
                     <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
                 </button>
-                <button class="nav-icon-btn" id="theme-caret-btn" style="width: 22px; padding: 0.55rem 0.15rem;" title="Pilihan tema" aria-label="Buka pilihan tema: terang, gelap, atau ikuti sistem" aria-haspopup="true" aria-controls="theme-menu" aria-expanded="false" onkeydown="handleThemeMenuKey(event)">
+                <button class="nav-icon-btn theme-caret-btn" id="theme-caret-btn" title="Pilihan tema" aria-label="Buka pilihan tema: terang, gelap, atau ikuti sistem" aria-haspopup="true" aria-controls="theme-menu" aria-expanded="false" onkeydown="handleThemeMenuKey(event)">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div id="theme-menu" class="nav-dropdown" style="display: none; right: 0; width: 170px;">
-                    <div class="dropdown-header" style="border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.4rem;">Tema Tampilan</div>
-                    <button class="dropdown-item-link theme-option" data-theme-option="light" style="width:100%; border:none; background:none; text-align:left;" type="button">Terang</button>
-                    <button class="dropdown-item-link theme-option" data-theme-option="dark" style="width:100%; border:none; background:none; text-align:left;" type="button">Gelap</button>
-                    <button class="dropdown-item-link theme-option" data-theme-option="system" style="width:100%; border:none; background:none; text-align:left;" type="button">Ikuti Sistem</button>
+                <div id="theme-menu" class="nav-dropdown nav-theme-menu" style="display: none;">
+                    <div class="dropdown-header dropdown-header--panel">Tema Tampilan</div>
+                    <button class="dropdown-item-link theme-option dropdown-row" data-theme-option="light" type="button">Terang</button>
+                    <button class="dropdown-item-link theme-option dropdown-row" data-theme-option="dark" type="button">Gelap</button>
+                    <button class="dropdown-item-link theme-option dropdown-row" data-theme-option="system" type="button">Ikuti Sistem</button>
                 </div>
             </div>
 
@@ -660,7 +283,7 @@
 
         @if (session('auth_role'))
             <div style="display:flex; align-items:center; gap:0.75rem; padding:0.5rem 1rem; margin-bottom:0.5rem;">
-                <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1rem;flex-shrink:0;">
+                <div class="user-avatar user-avatar--drawer">
                     {{ strtoupper(substr(session('auth_name'), 0, 1)) }}
                 </div>
                 <div style="overflow:hidden;">
@@ -705,11 +328,11 @@
 
         @if (!session('auth_role'))
             <hr class="mobile-drawer-divider">
-            <a href="/login" class="mobile-nav-btn" style="color:var(--accent-primary);font-weight:600;">
+            <a href="/login" class="mobile-nav-btn mobile-nav-btn--brand">
                 <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                 Login
             </a>
-            <a href="/register" class="mobile-nav-btn" style="color:var(--accent-primary);font-weight:600;">
+            <a href="/register" class="mobile-nav-btn mobile-nav-btn--brand">
                 <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                 Daftar
             </a>
@@ -721,7 +344,7 @@
             </a>
             <form method="POST" action="/logout" style="margin:0;">
                 @csrf
-                <button type="submit" class="mobile-nav-btn" style="color:var(--accent-danger);width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+                <button type="submit" class="mobile-nav-btn mobile-logout-btn">
                     <svg class="mobile-nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/></svg>
                     Keluar (Logout)
                 </button>
@@ -745,8 +368,8 @@
         @yield('content')
     </main>
 
-    <footer style="text-align: center; padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-glass); background: rgba(0,0,0,0.03);">
-        <p style="margin: 0; font-size: 0.9rem;">&copy; {{ date('Y') }} Read Assist. Sistem Pendukung Belajar Mandiri untuk Penyandang Disabilitas Netra.</p>
+    <footer class="site-footer">
+        <p>&copy; {{ date('Y') }} Read Assist. Sistem Pendukung Belajar Mandiri untuk Penyandang Disabilitas Netra.</p>
     </footer>
 
     <div id="accessibility-widget" class="accessibility-widget">
@@ -1257,17 +880,6 @@
             }
         }
 
-        // Nav-btn ripple effect — tracks mouse position for radial gradient
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('mousemove', (e) => {
-                const rect = btn.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                btn.style.setProperty('--x', x + '%');
-                btn.style.setProperty('--y', y + '%');
-            });
-        });
-
         // Hover & Focus speech listener
         document.addEventListener('mouseover', (e) => {
             if (!speechGuideActive) return;
@@ -1307,21 +919,21 @@
 
     <div id="mini-audio-player">
         <div class="mini-player-details">
-            <div id="mini-player-cover-area" style="width: 40px; height: 40px; border-radius: 6px; overflow: hidden; flex-shrink: 0; background: rgba(184,134,11,0.1); border: 1px solid #b8860b; display: flex; align-items: center; justify-content: center;">
+            <div id="mini-player-cover-area" class="mini-cover">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
             </div>
-            <div style="overflow: hidden; display: flex; flex-direction: column; justify-content: center;">
-                <h5 class="mini-player-title" id="mini-book-title" style="margin: 0;">Judul Buku Audio</h5>
-                <p class="mini-player-author" id="mini-book-author" style="display: none;">Penulis Buku</p>
+            <div class="mini-details-text">
+                <h5 class="mini-player-title" id="mini-book-title">Judul Buku Audio</h5>
+                <p class="mini-player-author" id="mini-book-author">Penulis Buku</p>
             </div>
         </div>
 
-        <div id="mini-audio-status-badge" style="font-size: 0.7rem; font-weight: bold; background: rgba(184,134,11,0.15); color: var(--accent-primary); border: 1px solid var(--accent-primary); padding: 2px 8px; border-radius: 12px; white-space: nowrap;">
+        <div id="mini-audio-status-badge">
             Siap
         </div>
 
         <div class="mini-player-controls">
-            <div class="mini-wave" id="mini-wave-anim" style="margin-right: 0.2rem;">
+            <div class="mini-wave" id="mini-wave-anim">
                 <div class="mini-wave-bar"></div>
                 <div class="mini-wave-bar"></div>
                 <div class="mini-wave-bar"></div>
@@ -1337,7 +949,7 @@
             <button class="mini-player-btn" onclick="nextMiniSentence()" title="Kalimat Berikutnya" aria-label="Kalimat berikutnya">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
             </button>
-            <button class="mini-player-btn" onclick="closeMiniPlayer()" title="Tutup Pemutar" aria-label="Tutup pemutar" style="margin-left: 0.4rem;">
+            <button class="mini-player-btn mini-player-btn--close" onclick="closeMiniPlayer()" title="Tutup Pemutar" aria-label="Tutup pemutar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>

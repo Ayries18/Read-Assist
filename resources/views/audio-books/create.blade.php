@@ -45,36 +45,36 @@
     </div>
 
     <!-- Processing Overlay (Automated Feedback) -->
-    <div id="processing-overlay" style="display: none; position: fixed; inset: 0; background: rgba(9, 9, 11, 0.9); z-index: 99999; align-items: center; justify-content: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-        <div class="card bg-base-300/50 border border-[#b8860b]/30 shadow-[#b8860b]/20 shadow-lg" style="max-width: 480px; width: 90%; padding: 2.5rem; text-align: center;">
+    <div id="processing-overlay" class="processing-overlay">
+        <div class="card bg-base-300/50 border border-[#b8860b]/30 shadow-[#b8860b]/20 shadow-lg processing-card">
                 <!-- Spinner -->
-                <div style="width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.1); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem auto;"></div>
+                <div class="processing-spinner"></div>
                 
-                <h3 class="text-gradient" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Memproses Buku Otomatis</h3>
-                <p class="text-slate-300" style="font-size: 0.88rem; margin-bottom: 1.8rem;">Mohon tunggu, sistem sedang mengolah dokumen Anda.</p>
+                <h3 class="text-gradient processing-title">Memproses Buku Otomatis</h3>
+                <p class="text-slate-300 processing-subtext">Mohon tunggu, sistem sedang mengolah dokumen Anda.</p>
                 
                 <!-- Steps List -->
                 <div class="text-left bg-white/5 border border-white/10 rounded-lg p-5 flex flex-col gap-3 text-sm">
-                    <div id="step-upload" class="flex items-center gap-3 text-slate-400" style="transition: color 0.3s;">
-                        <span id="icon-upload" class="step-icon" style="display:inline-flex;">
+                    <div id="step-upload" class="step-label flex items-center gap-3 text-slate-400">
+                        <span id="icon-upload" class="step-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4-4 4 4"/></svg>
                         </span>
                         <span>Mengunggah file buku digital ke server...</span>
                     </div>
-                    <div id="step-extract" class="flex items-center gap-3 text-slate-400" style="transition: color 0.3s;">
-                        <span id="icon-extract" class="step-icon" style="display:inline-flex;">
+                    <div id="step-extract" class="step-label flex items-center gap-3 text-slate-400">
+                        <span id="icon-extract" class="step-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4-4 4 4"/></svg>
                         </span>
                         <span>Mengekstrak teks halaman dokumen (PDF/EPUB)...</span>
                     </div>
-                    <div id="step-audio" class="flex items-center gap-3 text-slate-400" style="transition: color 0.3s;">
-                        <span id="icon-audio" class="step-icon" style="display:inline-flex;">
+                    <div id="step-audio" class="step-label flex items-center gap-3 text-slate-400">
+                        <span id="icon-audio" class="step-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4-4 4 4"/></svg>
                         </span>
                         <span>Menghubungkan pemutar audio sintesis...</span>
                     </div>
-                    <div id="step-qr" class="flex items-center gap-3 text-slate-400" style="transition: color 0.3s;">
-                        <span id="icon-qr" class="step-icon" style="display:inline-flex;">
+                    <div id="step-qr" class="step-label flex items-center gap-3 text-slate-400">
+                        <span id="icon-qr" class="step-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4-4 4 4"/></svg>
                         </span>
                         <span>Membangun QR Code unik otomatis...</span>

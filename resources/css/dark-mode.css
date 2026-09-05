@@ -60,12 +60,30 @@ html.dark-mode body [style*="background: #ffffff"],
 html.dark-mode body [style*="background:#ffffff"],
 html.dark-mode body [style*="background: #fff"],
 html.dark-mode body [style*="background-color: #ffffff"],
-html.dark-mode body [style*="background: linear-gradient"] {
+html.dark-mode body [style*="background: linear-gradient"],
+html.dark-mode body .hero-caption,
+html.dark-mode body .cover-placeholder {
     background-color: #1e1e1e !important;
 }
 html.dark-mode body [style*="border-color: #000000"],
 html.dark-mode body [style*="border-color:#000000"],
 html.dark-mode body [style*="border: 2px solid #000"] {
+    border-color: #3f3f3f !important;
+}
+
+/* Pengganti class untuk inline style yang diekstrak Phase 2
+   (mempertahankan perilaku dark yang sama persis dengan baseline inline):
+   - .card--soft: bg putih → gelap (mirip [style*="background: #ffffff"])
+   - .hero-card: bg putih → gelap, border hitam → gelap
+   - .hero-visual: bg putih → gelap
+   PENTING: selector [style*=...] di atas TETAP dipertahankan karena masih
+   melindungi inline style yang tersisa; jangan dihapus selama fase migrasi. */
+html.dark-mode body .card--soft,
+html.dark-mode body .hero-card,
+html.dark-mode body .hero-visual {
+    background-color: #1e1e1e !important;
+}
+html.dark-mode body .hero-card {
     border-color: #3f3f3f !important;
 }
 
@@ -156,6 +174,17 @@ html.dark-mode body .btn-primary * {
     color: #121212 !important;
 }
 
+/* CTA hero: mempertahankan border 1px yang sebelumnya inline (menang atas
+   .btn-primary / .btn-ghost dark yang border 2px). */
+html.dark-mode body .btn.btn-hero {
+    border-width: 1px !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}
+html.dark-mode body .btn.btn-hero--ghost {
+    border-width: 1px !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
 /* Badge emas solid → teks gelap agar kontras */
 html.dark-mode body .badge {
     color: #121212 !important;
@@ -168,6 +197,14 @@ html.dark-mode body kbd {
     color: #e0e0e0 !important;
     background-color: #2a2a2a !important;
     border-color: #3f3f3f !important;
+}
+/* .kbd-shortcut (dashboard) diekstrak dari inline; inline dulunya menang atas
+   aturan kbd di atas, pertahankan tampilan yang sama di dark. */
+html.dark-mode body .kbd-shortcut {
+    color: #fff !important;
+    background-color: #334155 !important;
+    border-color: transparent !important;
+    box-shadow: 0 2px 0 #1e293b !important;
 }
 
 /* Skip-link (bantuan fokus) → teks gelap di atas latar emas agar terbaca */
@@ -292,6 +329,7 @@ html.dark-mode body [style*="color:rgb(0,0,0)"],
 html.dark-mode body .dropdown-item-link,
 html.dark-mode body .dropdown-item,
 html.dark-mode body .dropdown-text,
+html.dark-mode body .dropdown-username,
 html.dark-mode body .nav-user-name-text {
     color: #f5f5f5 !important;
 }
@@ -312,7 +350,8 @@ html.dark-mode body [class*="bg-[#ffff00]"] *,
 html.dark-mode body [style*="background:#b8860b"],
 html.dark-mode body [style*="background: #b8860b"],
 html.dark-mode body [style*="background:#ffd54a"],
-html.dark-mode body [style*="background: #ffd54a"] {
+html.dark-mode body [style*="background: #ffd54a"],
+html.dark-mode body .pagination-active {
     color: #121212 !important;
 }
 
@@ -378,4 +417,12 @@ html.dark-mode body .mobile-nav-btn.active {
 /* Logo ReadAssist: hitam di SVG → putih di dark mode */
 html.dark-mode body .logo-navbar img {
     filter: brightness(0) invert(1) !important;
+}
+
+/* Avatar user/admin: latar emas tetap, inisial harus gelap agar kontras */
+html.dark-mode body .user-avatar {
+    background: linear-gradient(135deg, #ffd54a, #ffd54a) !important;
+    color: #121212 !important;
+    border-color: rgba(255, 213, 74, 0.45) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }

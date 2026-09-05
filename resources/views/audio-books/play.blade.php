@@ -3,14 +3,14 @@
 @section('content')
 <div class="max-w-3xl mx-auto w-full">
     <!-- Book Header -->
-    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+    <div class="card border shadow-sm p-4 sm:p-6 mb-5 card--soft">
         <div class="flex gap-4 sm:gap-6 items-start">
             <!-- Cover -->
             <div class="w-[90px] h-[125px] sm:w-[130px] sm:h-[180px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
                 @if ($audioBook->cover)
                     <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover">
                 @else
-                    <div class="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center" style="background: #ffffff;">
+                    <div class="cover-placeholder w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center">
                         <span class="text-[0.6rem] sm:text-xs font-bold text-black line-clamp-3 leading-relaxed">{{ $audioBook->judul }}</span>
                     </div>
                 @endif
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Description -->
-    <div class="card border shadow-sm p-4 sm:p-6 mb-5" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+    <div class="card border shadow-sm p-4 sm:p-6 mb-5 card--soft">
         <h2 class="text-xs sm:text-base text-black font-semibold mb-2">Deskripsi Buku</h2>
         <div class="bg-black/5 border border-black/10 rounded-xl p-3 sm:p-5">
             <p id="display-description-play" class="text-slate-700 leading-relaxed text-xs sm:text-sm whitespace-pre-line">
@@ -61,7 +61,7 @@
 
     @if ($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
         <!-- Generated MP3 Player -->
-        <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+        <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5 card--soft">
             <h2 class="text-sm sm:text-base text-black mb-3">Dengarkan Audio</h2>
             <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
                 <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
@@ -75,7 +75,7 @@
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/><path d="M10.29 16.38h-1.1v-3.82l-1.07.6v-1.01l2.17-1.32v5.55z"/><path d="M13.42 10.98c1.7 0 3.03 1.34 3.03 3 0 1.66-1.33 3-3.03 3-1.7 0-3.03-1.34-3.03-3 0-1.66 1.33-3 3.03-3zm0 4.83c.83 0 1.5-.6 1.5-1.83 0-1.23-.67-1.83-1.5-1.83s-1.5.6-1.5 1.83c0 1.23.67 1.83 1.5 1.83z"/></svg>
                 </button>
             </div>
-            <div style="margin-top: 0.2rem;">
+            <div class="spacer-y-tiny">
                 <a href="{{ route('audio.stream', $audioBook) }}" download class="text-indigo-600 underline text-sm">Download MP3</a>
             </div>
         </div>
@@ -89,7 +89,7 @@
         </script>
     @else
         <!-- TTS Player Section -->
-        <div id="play-reader-card" class="card border shadow-sm p-4 sm:p-6 text-center mb-5" style="background: #121316; border-color: rgba(255, 255, 255, 0.08);">
+        <div id="play-reader-card" class="card border shadow-sm p-4 sm:p-6 text-center mb-5 play-reader-card">
             <h2 class="text-sm sm:text-base mb-1">Pemutar Audio (TTS)</h2>
             <p class="text-xs text-slate-400 mb-4">Kalimat demi kalimat — progress tersimpan otomatis</p>
 
@@ -189,11 +189,11 @@
 
             <!-- Controls -->
             <div class="flex items-center justify-center gap-3 sm:gap-5 mb-3">
-                <button id="btn-start" onclick="startTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Mulai dari Awal" aria-label="Mulai dari Awal" style="background: rgba(255,255,255,0.05);">
+                <button id="btn-start" onclick="startTTS()" class="reader-btn flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Mulai dari Awal" aria-label="Mulai dari Awal">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                 </button>
 
-                <button id="btn-prev" onclick="prevTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Sebelumnya" style="background: rgba(255,255,255,0.05);">
+                <button id="btn-prev" onclick="prevTTS()" class="reader-btn flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Sebelumnya">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                 </button>
 
@@ -201,11 +201,11 @@
                     <svg id="play-icon" class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 </button>
 
-                <button id="btn-pause" onclick="pauseTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Jeda" aria-label="Jeda" style="background: rgba(255,255,255,0.05); display: none;">
+                <button id="btn-pause" onclick="pauseTTS()" class="reader-btn flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Jeda" aria-label="Jeda" style="display: none;">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
 
-                <button id="btn-next" onclick="nextTTS()" class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Selanjutnya" aria-label="Kalimat selanjutnya" style="background: rgba(255,255,255,0.05);">
+                <button id="btn-next" onclick="nextTTS()" class="reader-btn flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-400 hover:text-white active:scale-90 transition-all" title="Selanjutnya" aria-label="Kalimat selanjutnya">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
                 </button>
             </div>
@@ -240,7 +240,7 @@
 </div>
 
 <div id="reader-settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="Pengaturan Membaca" style="display: none;">
-    <div class="card border shadow-sm p-6 w-full max-w-md" style="background: #ffffff; border-color: #000000;">
+    <div class="card border shadow-sm p-6 w-full max-w-md reader-settings-panel">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-black font-bold text-lg">Pengaturan Membaca</h3>
             <button onclick="closeReaderSettings()" class="text-black border-2 border-black rounded-lg w-9 h-9 flex items-center justify-center hover:bg-black hover:text-white transition-colors" aria-label="Tutup Pengaturan">

@@ -17,7 +17,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
         <!-- Left Side: Book Details & TTS Player -->
         <div class="flex flex-col gap-7">
-            <div id="reader-main-card" class="card border shadow-sm p-6" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+            <div id="reader-main-card" class="card border shadow-sm p-6 card--soft">
                 <div>
                     <!-- Book Header with Cover and Metadata -->
                     <div class="flex gap-6 flex-wrap mb-6 items-start">
@@ -169,7 +169,7 @@
                                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/><path d="M10.29 16.38h-1.1v-3.82l-1.07.6v-1.01l2.17-1.32v5.55z"/><path d="M13.42 10.98c1.7 0 3.03 1.34 3.03 3 0 1.66-1.33 3-3.03 3-1.7 0-3.03-1.34-3.03-3 0-1.66 1.33-3 3.03-3zm0 4.83c.83 0 1.5-.6 1.5-1.83 0-1.23-.67-1.83-1.5-1.83s-1.5.6-1.5 1.83c0 1.23.67 1.83 1.5 1.83z"/></svg>
                                     </button>
                                 </div>
-                                <div style="margin-top: 0.5rem;">
+                                <div class="spacer-y-2">
                                     <a href="{{ route('audio.stream', $book) }}" download class="btn btn-primary btn-sm px-7 py-3 text-sm">
                                     Download MP3
                                 </a>
@@ -245,7 +245,7 @@
 
             <!-- Admin Action Panel -->
             @if (session('auth_role') === 'admin')
-                <div class="card border shadow-sm p-6" style="background: rgba(239, 68, 68, 0.02); border-color: rgba(239, 68, 68, 0.15);">
+                <div class="card border shadow-sm p-6 warning-panel">
                     <h2 class="text-base text-red-400 font-semibold mb-3">Panel Kelola Admin</h2>
                     <div class="flex gap-4 flex-wrap">
                         <a href="/katalog-audio/{{ $book->id }}/edit" class="btn btn-ghost btn-sm flex-1 border-slate-400 text-center flex items-center justify-center">
@@ -274,7 +274,7 @@
         @if (!session()->has('qr_restricted_token') || session()->has('auth_role'))
         <!-- Right Side: QR Code -->
         <div class="flex flex-col gap-7">
-            <div class="card border shadow-sm p-6 text-center flex flex-col items-center" style="padding: 2.5rem 1.8rem; background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+            <div class="card border shadow-sm p-6 text-center flex flex-col items-center card--soft reader-empty-panel">
                 <h3 class="text-xl font-bold mb-2 text-black text-center">QR-Audio untuk Tunanetra</h3>
                 <p class="text-sm text-slate-600 mb-8">Pindai QR ini melalui HP Anda untuk mendengarkan buku.</p>
 
@@ -301,7 +301,7 @@
     </div>
 
     <div id="reader-settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="Pengaturan Membaca" style="display: none;">
-        <div class="card border shadow-sm p-6 w-full max-w-md" style="background: #ffffff; border-color: #000000;">
+        <div class="card border shadow-sm p-6 w-full max-w-md reader-settings-panel">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-black font-bold text-lg">Pengaturan Membaca</h3>
                 <button onclick="closeReaderSettings()" class="text-black border-2 border-black rounded-lg w-9 h-9 flex items-center justify-center hover:bg-black hover:text-white transition-colors" aria-label="Tutup Pengaturan">

@@ -13,7 +13,7 @@
 
     <div style="max-width: 800px; margin: 0 auto;">
         <!-- Welcome Card -->
-        <div class="card border shadow-sm" style="padding: 2.5rem; margin-bottom: 2rem; background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+        <div class="card border shadow-sm card--soft" style="padding: 2.5rem; margin-bottom: 2rem;">
             <div class="card-body p-0">
                 <span class="badge badge-outline badge-primary mb-4">
                     Administrator Area
@@ -146,19 +146,19 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; flex-grow: 1;">
                         <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
                             <span class="text-sm text-slate-600 font-medium">Main / Jeda Suara</span>
-                            <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Spasi</kbd>
+                            <kbd class="kbd-shortcut">Spasi</kbd>
                         </div>
                         <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
                             <span class="text-sm text-slate-600 font-medium">Kalimat Sebelumnya</span>
-                            <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">← Panah Kiri</kbd>
+                            <kbd class="kbd-shortcut">← Panah Kiri</kbd>
                         </div>
                         <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
                             <span class="text-sm text-slate-600 font-medium">Kalimat Selanjutnya</span>
-                            <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Panah Kanan →</kbd>
+                            <kbd class="kbd-shortcut">Panah Kanan →</kbd>
                         </div>
                         <div class="bg-black/5 border border-black/10 p-3 rounded-lg flex items-center gap-3 justify-between">
                             <span class="text-sm text-slate-600 font-medium">Ulangi Kalimat Aktif</span>
-                            <kbd style="background: #334155; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 2px 0 #1e293b;">Tombol R</kbd>
+                            <kbd class="kbd-shortcut">Tombol R</kbd>
                         </div>
                     </div>
                 </div>

@@ -15,7 +15,7 @@
     </div>
 
     <!-- Search & Filter Form -->
-    <div class="card border shadow-sm p-6 mb-8" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+    <div class="card border shadow-sm p-6 mb-8 card--soft">
         <form method="GET" action="/katalog-audio" class="flex gap-4 items-center flex-wrap">
             <div class="flex-1 min-w-[200px] relative">
                 <input
@@ -50,7 +50,7 @@
     <!-- Books Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         @forelse ($audioBooks as $book)
-            <div class="card border shadow-sm p-6 flex flex-col justify-between" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+            <div class="card border shadow-sm p-6 flex flex-col justify-between card--soft">
                 <div>
                     <!-- Book Cover -->
                     <div class="book-cover-wrapper">
@@ -96,14 +96,14 @@
                 </div>
             </div>
         @empty
-            <div class="card border shadow-sm p-12 text-center col-span-full" style="background: #ffffff; border-color: rgba(0, 0, 0, 0.12);">
+            <div class="card border shadow-sm p-12 text-center col-span-full card--soft">
                 <p class="text-slate-600 text-lg mb-4">Buku tidak ditemukan.</p>
                 <a href="{{ route('audio-books.index') }}" class="btn btn-ghost btn-sm">Lihat Semua Buku</a>
             </div>
         @endforelse
     </div>
 
-    <div style="margin-top: 2rem;">
+    <div class="spacer-y-8">
         {{ $audioBooks->links() }}
     </div>
 

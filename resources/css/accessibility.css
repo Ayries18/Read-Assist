@@ -287,6 +287,15 @@ body.accessibility-high-contrast {
     --text-primary: #ffff00 !important;
     --text-secondary: #ffff00 !important;
     --text-muted: #ffff00 !important;
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+}
+
+/* Latar root (daisyUI memberi html putih) ikut dipaksa hitam agar tidak
+   bocor pada halaman yang lebih pendek dari viewport. */
+html:has(body.accessibility-high-contrast) {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
 }
 
 /* Semua permukaan (termasuk yang dipaksa putih oleh tema terang) → hitam */
@@ -303,9 +312,31 @@ body.accessibility-high-contrast [class*="bg-indigo-"],
 body.accessibility-high-contrast [class*="bg-violet-"],
 body.accessibility-high-contrast [style*="background"],
 body.accessibility-high-contrast #read-assist-container,
-body.accessibility-high-contrast #session-toast {
+body.accessibility-high-contrast #session-toast,
+body.accessibility-high-contrast .hero-visual,
+body.accessibility-high-contrast .user-avatar,
+body.accessibility-high-contrast .hero-caption,
+body.accessibility-high-contrast .hero-badge,
+body.accessibility-high-contrast .cover-placeholder,
+body.accessibility-high-contrast .reader-btn,
+body.accessibility-high-contrast .mini-cover,
+body.accessibility-high-contrast #mini-audio-status-badge,
+body.accessibility-high-contrast .avatar-btn,
+body.accessibility-high-contrast .site-footer,
+body.accessibility-high-contrast .pagination-active,
+body.accessibility-high-contrast .processing-overlay {
     background-color: #000000 !important;
     border: 2px solid #ffff00 !important;
+}
+
+/* Badge status mini-player HC: pulihkan tipografi/padding inline asli
+   (rule normal di mini-player.css discoped body:not(.accessibility-high-contrast)). */
+body.accessibility-high-contrast #mini-audio-status-badge {
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+    border-radius: 12px !important;
+    white-space: nowrap !important;
 }
 
 /* Semua teks → kuning */
@@ -335,6 +366,16 @@ body.accessibility-high-contrast .dropdown-text,
 body.accessibility-high-contrast .dropdown-header,
 body.accessibility-high-contrast .dropdown-time,
 body.accessibility-high-contrast [class*="text-"] {
+    color: #ffff00 !important;
+}
+
+/* Aksesibilitas: .text-gradient memakai teks terpotong dengan latar hitam
+   (tampil hitam-invisible). Di HC render solid kuning tanpa blok latar. */
+body.accessibility-high-contrast .text-gradient {
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #ffff00 !important;
     color: #ffff00 !important;
 }
 
