@@ -38,20 +38,24 @@ class RestrictQrGuest
                 elseif ($request->is('scan/*')) {
                     $allowed = true;
                 }
-                // 4. API and progress sync routes
-                elseif ($request->is('api/*') || $request->is('progress/sync') || $request->is('progress/sync/*')) {
+                // 4. API routes (currently no api/* routes exist; kept for future use)
+                elseif ($request->is('api/*')) {
                     $allowed = true;
                 }
                 // 4b. Read-assist (guest may still analyze text after scanning a book)
                 elseif ($request->is('read-assist') || $request->is('proses-teks')) {
                     $allowed = true;
                 }
-                // 5. Allowed pages and assets for the specific book
+                // 5. Allowed pages and assets for the specific book.
+                //    Progress/audio endpoints resolve the book id from the URL param,
+                //    so only the scanned book's id is permitted to block IDOR.
                 elseif ($request->is("katalog-audio/{$book->id}") ||
                         $request->is("katalog/{$book->qr_token}") ||
                         $request->is("katalog/{$book->slug}") ||
                         $request->is('katalog/*') ||
                         $request->is("audio-stream/{$book->id}") ||
+                        $request->is("audio-progress/{$book->id}") ||
+                        $request->is("progress/sync/{$book->id}") ||
                         $request->is("progress/{$book->id}")) {
                     $allowed = true;
                 }

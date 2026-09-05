@@ -7,7 +7,6 @@ use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
 use App\Services\TunnelService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -167,64 +166,62 @@ class AudioBukuController extends Controller
 
     public static function getLocalIps(): array
     {
-        return Cache::remember('local_network_ips', 60, function () {
-            $ips = [];
-            try {
-                if (PHP_OS_FAMILY === 'Windows') {
-                    $output = shell_exec('ipconfig');
-                    if ($output) {
-                        $output = str_replace("\r\n", "\n", $output);
-                        $blocks = explode("\n\n", $output);
-                        foreach ($blocks as $block) {
-                            $lines = explode("\n", trim($block));
-                            if (empty($lines)) {
-                                continue;
-                            }
+        $ips = [];
+        try {
+            if (PHP_OS_FAMILY === 'Windows') {
+                $output = shell_exec('ipconfig');
+                if ($output) {
+                    $output = str_replace("\r\n", "\n", $output);
+                    $blocks = explode("\n\n", $output);
+                    foreach ($blocks as $block) {
+                        $lines = explode("\n", trim($block));
+                        if (empty($lines)) {
+                            continue;
+                        }
 
-                            $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
-                            if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
-                                continue;
-                            }
+                        $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
+                        if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
+                            continue;
+                        }
 
-                            $lowerName = strtolower($adapterName);
-                            if (str_contains($lowerName, 'virtualbox') ||
-                                str_contains($lowerName, 'vmware') ||
-                                str_contains($lowerName, 'wsl') ||
-                                str_contains($lowerName, 'vethernet') ||
-                                str_contains($lowerName, 'host-only') ||
-                                str_contains($lowerName, 'loopback') ||
-                                str_contains($lowerName, 'hyper-v')) {
-                                continue;
-                            }
+                        $lowerName = strtolower($adapterName);
+                        if (str_contains($lowerName, 'virtualbox') ||
+                            str_contains($lowerName, 'vmware') ||
+                            str_contains($lowerName, 'wsl') ||
+                            str_contains($lowerName, 'vethernet') ||
+                            str_contains($lowerName, 'host-only') ||
+                            str_contains($lowerName, 'loopback') ||
+                            str_contains($lowerName, 'hyper-v')) {
+                            continue;
+                        }
 
-                            foreach ($lines as $line) {
-                                if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
-                                    $ip = trim($match[1]);
-                                    if ($ip !== '127.0.0.1' && ! in_array($ip, $ips, true)) {
-                                        $ips[$adapterName] = $ip;
-                                    }
+                        foreach ($lines as $line) {
+                            if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
+                                $ip = trim($match[1]);
+                                if ($ip !== '127.0.0.1' && ! in_array($ip, $ips, true)) {
+                                    $ips[$adapterName] = $ip;
                                 }
                             }
                         }
                     }
                 }
-            } catch (\Exception $e) {
-                // Fallback
             }
+        } catch (\Exception $e) {
+            // Fallback
+        }
 
-            if (empty($ips)) {
-                $hostIp = gethostbyname(gethostname());
-                if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
-                    $ips['Host DNS'] = $hostIp;
-                }
+        if (empty($ips)) {
+            $hostIp = gethostbyname(gethostname());
+            if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
+                $ips['Host DNS'] = $hostIp;
             }
+        }
 
-            if (empty($ips)) {
-                $ips['Localhost'] = '127.0.0.1';
-            }
+        if (empty($ips)) {
+            $ips['Localhost'] = '127.0.0.1';
+        }
 
-            return $ips;
-        });
+        return $ips;
     }
 
     public static function getDetectedIp(): string
@@ -461,9 +458,18 @@ class AudioBukuController extends Controller
 
     public static function buildQrUrl(AudioBuku $audioBook): string
     {
+        // Production: QR selalu memakai URL publik (APP_URL / host request).
+        // IP LAN dan tunnel tidak relevan — pengunjung mengakses dari domain publik mana pun.
+        if (app()->environment('production')) {
+            $baseUrl = rtrim(self::resolvePublicUrl(), '/');
+
+            return self::finalizeQrUrl($baseUrl, $audioBook);
+        }
+
         $baseUrl = null;
 
-        // Priority 1: Prefer an active tunnel URL if available.
+        // Local / development:
+        // Priority 1: Tunnel SSH live → akses dari jaringan mana pun (data seluler, luar).
         try {
             $tunnelService = app(TunnelService::class);
             $tunnelUrl = $tunnelService->getStoredUrl();
@@ -474,43 +480,73 @@ class AudioBukuController extends Controller
             // Fallback if TunnelService is not available
         }
 
-        // Priority 2: Use current request host if it's accessed via LAN IP or public domain
+        // Priority 2: Request datang lewat host publik (IP LAN / domain) → QR harus
+        // memakai host tersebut agar perangkat di jaringan yang sama bisa menjangkaunya.
         if (! $baseUrl && request()) {
             $host = request()->getHost();
-            // If the request host is not localhost, 127.0.0.1, or ::1, we can use it directly!
-            // This allows LAN IPs like 192.168.x.x to be used so that devices on the same Wi-Fi can connect.
-            if (! in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+            $isLoopback = in_array($host, ['localhost', '127.0.0.1', '::1'], true);
+
+            if (! $isLoopback && ! self::isLocalUrl($host)) {
+                // Host publik asli (bukan IP LAN) — mis. VPN, domain staging.
                 $baseUrl = request()->getSchemeAndHttpHost();
-            } else {
-                // If it is localhost, detect the LAN IP of this computer and use it with the request port
+            } elseif ($isLoopback) {
+                // Akses via localhost → deteksi IP LAN Wi-Fi supaya HP di jaringan sama bisa connect.
                 $detectedIp = self::getDetectedIp();
                 if ($detectedIp && $detectedIp !== '127.0.0.1') {
                     $port = request()->getPort();
                     $portStr = ($port && $port != 80 && $port != 443) ? ":{$port}" : '';
                     $baseUrl = "http://{$detectedIp}{$portStr}";
                 }
+            } elseif (self::isLocalUrl($host)) {
+                // Host adalah IP LAN → pakai langsung (perangkat lain di jaringan yang sama).
+                $baseUrl = request()->getSchemeAndHttpHost();
             }
         }
 
-        // Priority 3: Check if config('app.url') is a public URL (excluding localhost/stale lhr.life/localhost.run URLs when tunnel is not running)
+        // Priority 3: APP_URL publik yang stabil (bukan tunnel basi / localhost).
         if (! $baseUrl) {
-            $configUrl = config('app.url');
+            $configUrl = rtrim((string) config('app.url'), '/');
             if ($configUrl && ! self::isLocalUrl($configUrl)) {
-                // Only use config('app.url') if it's not a stale/expired tunnel URL
                 if (! preg_match('/\.(?:lhr\.life|localhost\.run)/', $configUrl)) {
-                    $baseUrl = rtrim($configUrl, '/');
+                    $baseUrl = $configUrl;
                 }
             }
         }
 
-        // Ultimate fallback
+        // Ultimate fallback: IP LAN, atau APP_URL jika eksplisit dipilih admin.
         if (! $baseUrl) {
-            $baseUrl = rtrim(config('app.url'), '/');
+            $detectedIp = self::getDetectedIp();
+            $baseUrl = ($detectedIp && $detectedIp !== '127.0.0.1')
+                ? "http://{$detectedIp}"
+                : rtrim(config('app.url'), '/');
         }
 
-        // Force HTTPS for any public/tunnel URL to ensure Web Speech API secure context.
-        // We do not force HTTPS for local/private network IPs (like 192.168.x.x or localhost)
-        // because they do not have valid SSL certificates locally and force-redirecting to HTTPS would break them.
+        return self::finalizeQrUrl($baseUrl, $audioBook);
+    }
+
+    protected static function resolvePublicUrl(): string
+    {
+        // Ikuti host request jika merupakan domain publik (bukan localhost / IP LAN).
+        // Ini memungkinkan alias domain, VPN, atau nama host staging dipakai otomatis.
+        if (request()) {
+            $host = request()->getHost();
+            if ($host && ! in_array($host, ['localhost', '127.0.0.1', '::1'], true) && ! self::isLocalUrl($host)) {
+                return request()->getSchemeAndHttpHost();
+            }
+        }
+
+        // Fallback: APP_URL publik yang dikonfigurasi admin.
+        return rtrim((string) config('app.url'), '/');
+    }
+
+    protected static function finalizeQrUrl(string $baseUrl, AudioBuku $audioBook): string
+    {
+        if (! $baseUrl) {
+            $baseUrl = rtrim((string) config('app.url'), '/');
+        }
+
+        // Force HTTPS untuk URL publik/tunnel agar Web Speech API aman.
+        // IP LAN & localhost tidak dipaksa HTTPS (tanpa sertifikat valid).
         if ($baseUrl && ! self::isLocalUrl($baseUrl)) {
             $baseUrl = preg_replace('/^http:/i', 'https:', $baseUrl);
         }

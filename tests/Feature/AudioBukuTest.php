@@ -280,4 +280,105 @@ class AudioBukuTest extends TestCase
         $response->assertRedirect("/katalog-audio/{$book->id}");
         $response->assertSessionHasErrors('audio');
     }
+
+    public function test_book_management_routes_require_auth()
+    {
+        $book = AudioBuku::factory()->create();
+
+        $response = $this->get("/katalog-audio/{$book->id}/edit");
+        $response->assertRedirect('/login');
+
+        $response = $this->get('/katalog-audio/tambah');
+        $response->assertRedirect('/login');
+
+        $response = $this->get('/user/tambah-buku');
+        $response->assertRedirect('/login');
+    }
+
+    public function test_dashboard_routes_require_auth()
+    {
+        $this->get('/admin/dashboard')->assertRedirect('/login');
+
+        $this->get('/user/dashboard')->assertRedirect('/login');
+    }
+
+    public function test_user_cannot_access_admin_dashboard()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withSession([
+            'auth_id' => $user->id,
+            'auth_role' => 'user',
+            'auth_name' => $user->name,
+        ])->get('/admin/dashboard');
+
+        $response->assertRedirect('/');
+    }
+
+    public function test_admin_cannot_access_user_dashboard()
+    {
+        Admin::create([
+            'nama' => 'Admin Test',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $response = $this->withSession([
+            'auth_id' => 1,
+            'auth_role' => 'admin',
+            'auth_name' => 'Admin Test',
+        ])->get('/user/dashboard');
+
+        $response->assertRedirect('/');
+    }
+
+    public function test_qr_guest_can_access_own_book_progress()
+    {
+        $book = AudioBuku::factory()->create(['qr_token' => 'scan-token-abc']);
+
+        $this->withSession([
+            'qr_restricted_token' => $book->qr_token,
+        ])->get("/scan/book/{$book->qr_token}");
+
+        $response = $this->withSession([
+            'qr_restricted_token' => $book->qr_token,
+        ])->get("/progress/{$book->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_qr_guest_cannot_access_other_books_progress()
+    {
+        $scannedBook = AudioBuku::factory()->create(['qr_token' => 'scan-token-abc']);
+        $otherBook = AudioBuku::factory()->create(['qr_token' => 'other-token-def']);
+
+        $this->withSession([
+            'qr_restricted_token' => $scannedBook->qr_token,
+        ])->get("/scan/book/{$scannedBook->qr_token}");
+
+        $response = $this->withSession([
+            'qr_restricted_token' => $scannedBook->qr_token,
+        ])->get("/progress/{$otherBook->id}");
+
+        $response->assertRedirect("/katalog-audio/{$scannedBook->id}");
+    }
+
+    public function test_qr_guest_cannot_sync_other_books_progress()
+    {
+        $scannedBook = AudioBuku::factory()->create(['qr_token' => 'scan-token-abc']);
+        $otherBook = AudioBuku::factory()->create(['qr_token' => 'other-token-def']);
+
+        $this->withSession([
+            'qr_restricted_token' => $scannedBook->qr_token,
+        ])->get("/scan/book/{$scannedBook->qr_token}");
+
+        $response = $this->withSession([
+            'qr_restricted_token' => $scannedBook->qr_token,
+        ])->post("/progress/sync/{$otherBook->id}", [
+            'sentence_index' => 10,
+            'completed' => false,
+        ]);
+
+        $response->assertRedirect("/katalog-audio/{$scannedBook->id}");
+    }
 }

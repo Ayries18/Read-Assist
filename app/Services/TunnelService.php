@@ -206,6 +206,32 @@ class TunnelService
         return $this->port;
     }
 
+    /**
+     * Periksa apakah ada proses SSH live yang terhubung ke localhost.run.
+     *
+     * Berbeda dari isRunning() (yang hanya mengecek PID file), helper ini
+     * memastikan ada proses ssh yang nyata masih berjalan. Ini penting karena
+     * PID tunnel yang tersimpan bisa tetap "ada" padahal koneksi SSH sudah putus.
+     *
+     * Proses ssh biasanya muncul sebagai anak dari PID tunnel yang disimpan.
+     * Kita cek dengan wmic apakah ada ssh.exe yang masih hidup; jika tidak ada
+     * ssh.exe sama sekali, berarti tunnel tidak benar-benar terhubung.
+     */
+    protected function hasLiveSsh(): bool
+    {
+        if (strncasecmp(PHP_OS, 'WIN', 3) !== 0) {
+            // Non-Windows: cek proses ssh via pgrep.
+            $output = trim(shell_exec('pgrep -x ssh 2>/dev/null') ?: '');
+
+            return $output !== '';
+        }
+
+        $output = shell_exec('tasklist /NH /FI "IMAGENAME eq ssh.exe" 2>NUL') ?: '';
+
+        // Jika tidak ada ssh.exe, tasklist mengembalikan pesan "INFO:".
+        return strpos($output, 'INFO:') === false;
+    }
+
     public function getLocalIp(): ?string
     {
         $output = shell_exec('ipconfig 2>NUL');
@@ -230,16 +256,22 @@ class TunnelService
 
     public function getStoredUrl(): ?string
     {
-        if ($this->isRunning()) {
-            return $this->getUrl();
+        // Tunnel dianggap berjalan SELAMA proses SSH yang nyata masih hidup.
+        // Jika tunnel hanya "tercatat" (PID file ada tapi ssh sudah mati), anggap mati
+        // sehingga buildQrUrl() akan jatuh ke IP LAN untuk jaringan yang sama.
+        if (! $this->hasLiveSsh() || ! $this->isRunning()) {
+            // Cek apakah ada tunnel lain (Ngrok) yang bisa dipakai sebelum fallback ke LAN.
+            $ngrokUrl = $this->getNgrokUrl();
+            if ($ngrokUrl) {
+                return $ngrokUrl;
+            }
+
+            Log::warning('TunnelService: SSH tunnel tidak hidup. QR akan memakai jalur LAN/local.');
+
+            return null;
         }
 
-        $ngrokUrl = $this->getNgrokUrl();
-        if ($ngrokUrl) {
-            return $ngrokUrl;
-        }
-
-        return null;
+        return $this->getUrl();
     }
 
     public function getNgrokUrl(): ?string

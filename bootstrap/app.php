@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAuthenticated;
 use App\Http\Middleware\RestrictQrGuest;
 use App\Http\Middleware\SetContentLength;
 use Illuminate\Foundation\Application;
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             RestrictQrGuest::class,
             SetContentLength::class,
+        ]);
+
+        $middleware->alias([
+            'auth.session' => EnsureAuthenticated::class,
         ]);
 
         $middleware->trustProxies(at: '*');

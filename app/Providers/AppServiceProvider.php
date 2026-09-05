@@ -51,11 +51,15 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Exception $e) {
         }
 
-        // 2. Detect from running localhost.run SSH tunnel
+        // 2. Detect from running localhost.run SSH tunnel.
+        //    Pakai getStoredUrl() (bukan getUrl()) agar URL tunnel yang basi /
+        //    sudah mati TIDAK dipakai sebagai APP_URL. getStoredUrl() memastikan
+        //    proses ssh.exe benar-benar hidup sebelum mengembalikan URL.
+        //    Hanya berlaku di environment non-production (tunnel = fasilitas dev).
         try {
-            if (class_exists(TunnelService::class)) {
+            if (class_exists(TunnelService::class) && ! app()->environment('production')) {
                 $tunnelService = new TunnelService;
-                $tunnelUrl = $tunnelService->getUrl();
+                $tunnelUrl = $tunnelService->getStoredUrl();
                 if ($tunnelUrl) {
                     return rtrim($tunnelUrl, '/');
                 }
@@ -63,14 +67,8 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Exception $e) {
         }
 
-        // 3. Fallback from cache
-        try {
-            $cached = Cache::get('app_url_fallback');
-            if ($cached) {
-                return $cached;
-            }
-        } catch (\Exception $e) {
-        }
+        // 3. Tidak ada fallback dari cache untuk APP_URL — cache bisa menyimpan
+        //    URL tunnel basi dan meracuni QR. Biarkan APP_URL dari .env dipakai.
 
         return null;
     }

@@ -415,6 +415,19 @@ body.accessibility-high-contrast .btn-primary {
     font-weight: bold !important;
 }
 
+/* Logo ReadAssist (SVG statis) tidak bisa di-"warnai" lewat CSS color.
+   Di mode kontras tinggi, tukar ke versi kuning solid di atas hitam.
+   Mencakup dua penerapan: body-wide (widget aksesibilitas global) dan
+   container reader (.high-contrast-mode di halaman Read Assist). */
+body.accessibility-high-contrast img.logo-horizontal,
+body.accessibility-high-contrast img[alt="ReadAssist"],
+body.accessibility-high-contrast img[alt="ReadAssist Logo"],
+.high-contrast-mode img.logo-horizontal,
+.high-contrast-mode img[alt="ReadAssist"],
+.high-contrast-mode img[alt="ReadAssist Logo"] {
+    content: url('/logo-horizontal-hc.svg');
+}
+
 /* Panel / kontrol aksesibilitas di mode kontras tinggi */
 body.accessibility-high-contrast .accessibility-panel,
 body.accessibility-high-contrast .accessibility-control-row,
