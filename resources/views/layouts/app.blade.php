@@ -304,17 +304,17 @@
             align-items: center;
         }
         .navbar-start {
-            flex: 0 0 auto;
-            width: auto !important;
+            flex: 1 1 0;
+            min-width: 0;
+            justify-content: flex-start;
         }
         .navbar-center {
-            flex: none;
+            flex: 0 0 auto;
             justify-content: center;
-            margin-left: 1.5rem;
         }
         .navbar-end {
-            flex: 1 1 auto !important;
-            width: auto !important;
+            flex: 1 1 0;
+            min-width: 0;
             justify-content: flex-end !important;
             gap: 0.75rem !important;
         }
