@@ -48,12 +48,12 @@
             <!-- Ilustrasi Penyandang Disabilitas Netra -->
             <figure class="hero-visual relative overflow-hidden border shadow-sm" style="background: #ffffff; border-color: #000000; border-radius: 12px; aspect-ratio: 4 / 3;">
                 <img
-                    src="https://images.pexels.com/photos/7488084/pexels-photo-7488084.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                    alt="Anak perempuan penyandang tunanetra membaca buku braille dengan ujung jarinya"
+                    src="https://images.pexels.com/photos/6606144/pexels-photo-6606144.jpeg?auto=compress&cs=tinysrgb&w=2000&h=1500&dpr=1"
+                    alt="Wanita penyandang tunanetra membaca buku braille dengan sentuhan jarinya"
                     class="w-full h-full object-cover block"
                     loading="lazy"
-                    width="1260"
-                    height="750"
+                    width="2000"
+                    height="1500"
                 >
                 <figcaption class="absolute inset-x-0 bottom-0 p-5 flex items-center gap-3" style="background: linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0));">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center text-[#b8860b] shrink-0" style="background: rgba(184, 134, 11, 0.15); border: 1px solid rgba(184, 134, 11, 0.35);">
