@@ -615,24 +615,19 @@ class AudioBukuController extends Controller
 
     private function extractPdfText(string $path): string
     {
-        $tempDirectory = storage_path('app/private/temp');
+        try {
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf = $parser->parseFile($path);
+            $text = $pdf->getText();
 
-        if (! is_dir($tempDirectory)) {
-            mkdir($tempDirectory, 0755, true);
-        }
+            return $this->cleanExtractedText($text);
+        } catch (\Throwable $e) {
+            \Log::error('PDF text extraction failed: '.$e->getMessage(), [
+                'path' => $path,
+            ]);
 
-        $outputPath = $tempDirectory.DIRECTORY_SEPARATOR.Str::uuid().'.txt';
-        $command = 'pdftotext -enc UTF-8 -layout '.escapeshellarg($path).' '.escapeshellarg($outputPath);
-        exec($command, $output, $exitCode);
-
-        if ($exitCode !== 0 || ! file_exists($outputPath)) {
             return '';
         }
-
-        $text = file_get_contents($outputPath) ?: '';
-        @unlink($outputPath);
-
-        return $this->cleanExtractedText($text);
     }
 
     private function extractEpubText(string $path): string

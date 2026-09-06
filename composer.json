@@ -12,6 +12,7 @@
         "laravel/tinker": "^3.0",
         "sebastian/version": "6.0.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "smalot/pdfparser": "^2.12",
         "symfony/process": "^8.0"
     },
     "require-dev": {
