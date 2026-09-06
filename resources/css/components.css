@@ -385,6 +385,23 @@
     box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
 }
 
+/* ─── Mobile select: perbesar panah dropdown ───────────────── */
+@media (max-width: 640px) {
+    .select,
+    select {
+        -webkit-appearance: none;
+        appearance: none;
+        font-size: 1rem;
+        padding-top: 0.65rem;
+        padding-bottom: 0.65rem;
+        padding-right: 2.3rem;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1.2rem;
+    }
+}
+
 .site-footer {
     text-align: center;
     padding: 2rem;
