@@ -190,6 +190,12 @@ html.dark-mode body .badge {
     color: #121212 !important;
     border-color: #3f3f3f !important;
 }
+/* Badge outline → latar transparan, teks harus terang di mode gelap */
+html.dark-mode body .badge.badge-outline {
+    color: #ffd54a !important;
+    border-color: #ffd54a !important;
+    background: transparent !important;
+}
 
 /* Kbd (tombol pintasan) → teks terang di atas latar gelap */
 html.dark-mode body .kbd,
