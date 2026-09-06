@@ -167,53 +167,34 @@ class AudioBukuController extends Controller
     public static function getLocalIps(): array
     {
         $ips = [];
+
         try {
-            if (PHP_OS_FAMILY === 'Windows') {
-                $output = shell_exec('ipconfig');
-                if ($output) {
-                    $output = str_replace("\r\n", "\n", $output);
-                    $blocks = explode("\n\n", $output);
-                    foreach ($blocks as $block) {
-                        $lines = explode("\n", trim($block));
-                        if (empty($lines)) {
-                            continue;
-                        }
-
-                        $adapterName = trim($lines[0], " \t\n\r\0\x0B:");
-                        if (empty($adapterName) || str_contains(strtolower($adapterName), 'windows ip configuration')) {
-                            continue;
-                        }
-
-                        $lowerName = strtolower($adapterName);
-                        if (str_contains($lowerName, 'virtualbox') ||
-                            str_contains($lowerName, 'vmware') ||
-                            str_contains($lowerName, 'wsl') ||
-                            str_contains($lowerName, 'vethernet') ||
-                            str_contains($lowerName, 'host-only') ||
-                            str_contains($lowerName, 'loopback') ||
-                            str_contains($lowerName, 'hyper-v')) {
-                            continue;
-                        }
-
-                        foreach ($lines as $line) {
-                            if (preg_match('/IPv4 Address[\.\s]+:\s+([0-9\.]+)/i', $line, $match)) {
-                                $ip = trim($match[1]);
-                                if ($ip !== '127.0.0.1' && ! in_array($ip, $ips, true)) {
-                                    $ips[$adapterName] = $ip;
-                                }
-                            }
-                        }
-                    }
+            $hostname = gethostname();
+            if ($hostname) {
+                $hostIp = gethostbyname($hostname);
+                if ($hostIp && $hostIp !== $hostname && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
+                    $ips['Host DNS'] = $hostIp;
                 }
             }
-        } catch (\Exception $e) {
-            // Fallback
+        } catch (\Throwable $e) {
+            // Hostname resolution failed — continue to socket fallback.
         }
 
         if (empty($ips)) {
-            $hostIp = gethostbyname(gethostname());
-            if ($hostIp && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
-                $ips['Host DNS'] = $hostIp;
+            try {
+                $socket = @stream_socket_client('tcp://8.8.8.8:80', $errno, $errstr, 2);
+                if ($socket) {
+                    $name = stream_socket_get_name($socket, false);
+                    if ($name) {
+                        $ip = trim(explode(':', $name)[0]);
+                        if ($ip && $ip !== '127.0.0.1' && $ip !== '::1') {
+                            $ips['Default Route'] = $ip;
+                        }
+                    }
+                    fclose($socket);
+                }
+            } catch (\Throwable $e) {
+                // Socket probe failed — fall through to localhost.
             }
         }
 
