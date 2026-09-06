@@ -157,23 +157,19 @@ class GenerateBookAudio implements ShouldQueue
 
     protected function extractPdfText(string $path): string
     {
-        $tempDirectory = storage_path('app/private/temp');
-        if (! is_dir($tempDirectory)) {
-            mkdir($tempDirectory, 0755, true);
-        }
+        try {
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf = $parser->parseFile($path);
+            $text = $pdf->getText();
 
-        $outputPath = $tempDirectory.DIRECTORY_SEPARATOR.Str::uuid().'.txt';
-        $command = 'pdftotext -enc UTF-8 -layout '.escapeshellarg($path).' '.escapeshellarg($outputPath);
-        exec($command, $output, $exitCode);
+            return $this->cleanExtractedText($text);
+        } catch (\Throwable $e) {
+            Log::error('PDF text extraction failed: '.$e->getMessage(), [
+                'path' => $path,
+            ]);
 
-        if ($exitCode !== 0 || ! file_exists($outputPath)) {
             return '';
         }
-
-        $text = file_get_contents($outputPath) ?: '';
-        @unlink($outputPath);
-
-        return $this->cleanExtractedText($text);
     }
 
     protected function extractEpubText(string $path): string
