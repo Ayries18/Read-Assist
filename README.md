@@ -135,13 +135,15 @@ flowchart LR
     D --> E[Google Translate TTS per kalimat]
     E --> F[MP3 chunks]
     F --> G[full.mp3]
-    B --> H[QR Code UUID -> /scan/book/&#123;qr_token&#125;]
+    B --> H[QR Code UUID]
     G --> I[Pemutar: MP3 HTML5]
     H --> J[Akses via QR / katalog]
     J --> K[Web Speech API sebagai fallback]
     I --> L[Progress: localStorage + ListeningProgress]
     K --> L
 ```
+
+Endpoint yang dituju oleh QR Code: `/scan/book/{qr_token}`
 
 Langkah-langkahnya:
 
