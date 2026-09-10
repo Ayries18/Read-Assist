@@ -1,6 +1,12 @@
 <div align="center">
 
-<img src="./public/logo-horizontal.svg" alt="Logo Read-Assist" width="320">
+<p align="center">
+  <img
+    src="./public/logo-horizontal.png"
+    alt="Logo Read-Assist"
+    width="260"
+  />
+</p>
 
 # Read-Assist
 
