@@ -31,33 +31,6 @@ Buku digital (PDF/EPUB) diekstrak teksnya, dikonversi menjadi audio melalui Text
 
 ---
 
-## Daftar Isi
-
-- [Tentang Proyek](#tentang-proyek)
-- [Preview](#preview)
-- [Highlight](#highlight)
-- [Tujuan](#tujuan)
-- [Cara Kerja](#cara-kerja)
-- [Fitur Utama](#fitur-utama)
-- [Aksesibilitas](#aksesibilitas)
-- [Arsitektur](#arsitektur)
-- [Teknologi](#teknologi)
-- [Demo](#demo)
-- [Persyaratan](#persyaratan)
-- [Instalasi](#instalasi)
-- [Konfigurasi](#konfigurasi)
-- [Menjalankan Aplikasi](#menjalankan-aplikasi)
-- [Ekstraksi PDF & EPUB](#ekstraksi-pdf--epub)
-- [Text-to-Speech](#text-to-speech)
-- [Pengujian](#pengujian)
-- [Struktur Proyek](#struktur-proyek)
-- [Deployment](#deployment)
-- [Keamanan](#keamanan)
-- [Pengembang](#pengembang)
-- [Lisensi](#lisensi)
-
----
-
 ## Tentang Proyek
 
 **Read-Assist** adalah platform akses pembelajaran berbasis web yang membantu penyandang tunanetra mengakses materi pembelajaran dalam bentuk audio secara lebih mandiri.
@@ -111,17 +84,6 @@ Coba alur lengkapnya: unggah buku → tunggu audio ter-generate → pindai QR �
 | **Voice Control** | Pemutar dapat dioperasikan dengan perintah suara Bahasa Indonesia (play, pause, next, stop, dan lainnya). |
 | **Reading Progress** | Posisi kalimat disimpan di `localStorage` dan disinkronkan ke database untuk pengguna yang login. |
 | **PWA** | `<manifest.json>` + service worker sehingga aplikasi dapat diinstal ke perangkat. |
-
----
-
-## Tujuan
-
-- Menyediakan **akses pembelajaran** berbasis audio bagi penyandang tunanetra.
-- Mendorong **kemandirian** pengguna dalam mengakses materi tanpa bantuan orang lain.
-- Menghubungkan **buku fisik ke audio digital** melalui QR Code sederhana.
-- Mendukung input **PDF dan EPUB** yang diekstrak teksnya secara otomatis.
-- Bisa diakses melalui **browser** di berbagai perangkat, tanpa aplikasi terpisah.
-- Ramah terhadap **screen reader / TalkBack** dan navigasi keyboard, mengikuti prinsip WCAG.
 
 ---
 
@@ -271,34 +233,6 @@ Repository ini **belum menyertakan tooling pengujian aksesibilitas otomatis** (m
 
 ---
 
-## Arsitektur
-
-Alur permintaan berjalan secara umum sebagai berikut:
-
-```text
-Browser
-  → Routes (routes/web.php)
-    → Controllers (Http/Controllers)
-      → Jobs / Services (GenerateBookAudio, TTSEngine, TunnelService)
-        → Models / Database / Storage
-```
-
-### Komponen utama
-
-| Komponen | Peran |
-| :--- | :--- |
-| `AudioBuku` (model) | Representasi buku audio: metadata, file, status audio, `qr_token`. |
-| `Auth` (AuthController) | Login/register/logout berbasis sesi, profil, dan reset password. |
-| `QRCode` (QRCodeController & `AudioBukuController`) | Pembuatan/generasi QR dan routing `/scan/book/{qr_token}`. |
-| `ReadAssist` (ReadAssistController) | Analisis teks (statistik kalimat/kata, ringkasan, keyword) di `/read-assist`. |
-| `GenerateBookAudio` (job) | Ekstraksi teks dan generasi audio penuh secara berurutan per kalimat. |
-| `TTSEngine` (service) | Pemanggilan endpoint TTS, pemecahan kalimat, dan penggabungan MP3. |
-| `TunnelService` (service) | SSH reverse tunnel (`localhost.run`) + fallback Ngrok/LAN untuk URL QR. |
-| `ListeningProgress` (model) | Simpan posisi kalimat per user per buku. |
-| Middleware | `EnsureAuthenticated` (sesi), `RestrictQrGuest` (pembatasan guest QR), `SetContentLength`. |
-
----
-
 ## Teknologi
 
 | Aspek | Teknologi |
@@ -434,42 +368,6 @@ Catatan:
 
 - **Queue worker wajib berjalan** agar generasi audio otomatis berfungsi.
 - `php artisan serve` dimodifikasi agar bind ke `0.0.0.0` sehingga dapat diakses dari perangkat lain di jaringan LAN (misalnya HP saat memindai QR).
-
----
-
-## Ekstraksi PDF & EPUB
-
-- **PDF** — Diparse sepenuhnya di dalam PHP oleh `smalot/pdfparser` (`Parser::parseFile()` → `getText()`). Hasil dibersihkan: normalisasi encoding UTF-8, `html_entity_decode`, serta perapian spasi dan baris.
-- **EPUB** — Dibuka sebagai arsip ZIP (`ZipArchive`). Seluruh berkas `.html` / `.xhtml` internal dibaca, tag-strip dengan `strip_tags`, lalu digabung menjadi teks. Ada pembatas keamanan **5.000.000 karakter** untuk mencegah file berukuran besar.
-- **Text cleaning** — `mb_check_encoding`, `mb_convert_encoding`, `iconv(UTF-8//IGNORE)`, `html_entity_decode`, normalisasi whitespace, dan perapian baris kosong.
-- **Error handling** — Jika teks hasil ekstraksi kosong (misalnya PDF hasil scan gambar), unggahan ditolak dengan pesan yang jelas. Saat generasi audio, jika file tidak terbaca, job memakai **deskripsi buku** sebagai fallback; bila teks tetap kosong, status diubah menjadi `failed`.
-
-Implementasi terdapat di `app/Jobs/GenerateBookAudio.php` dan `app/Http/Controllers/AudioBukuController.php`.
-
----
-
-## Text-to-Speech
-
-Implementasi ada di `app/Services/TTSEngine.php` dan dijalankan oleh job `app/Jobs/GenerateBookAudio.php`.
-
-### Endpoint
-
-- **Google Translate TTS endpoint** (nonresmi): `https://translate.google.com/translate_tts`
-- Parameter: `ie=UTF-8`, `client=tw-ob`, `tl=id` (Bahasa Indonesia).
-- Dikonfigurasi melalui `config/tts.php` (`TTS_PROVIDER=google`).
-
-### Alur permintaan
-
-- **Pemecahan teks** — `splitSentences()` membagi paragraf menjadi kalimat (batas `.`, `!`, `?`); kalimat panjang dipecah lagi menjadi segmen **maks. 150 karakter** (`ide_chars`). Kalimat pembuka "Membaca buku: {judul}." ditambahkan otomatis.
-- **Batas per permintaan** — **maks. 180 karakter** (`max_chars`); teks yang lebih panjang dipecah per kata menjadi beberapa potongan MP3 lalu digabung.
-- **Timeout** — **120 detik** per permintaan (`TTS_TIMEOUT`, `config('tts.timeout')`).
-- **Retry** — hingga **3 percobaan** per potongan dengan **exponential backoff** (0,5 detik → 1 detik).
-- **Delay antar kalimat** — `usleep(150000)` (**150 ms**) di antara kalimat untuk meredam request beruntun ke endpoint eksternal.
-- **Penggabungan** — `concatAudio()` menggabungkan raw MP3 tiap kalimat menjadi satu file `full.mp3` (atau menyalin file bila hanya satu kalimat).
-
-### Catatan penting
-
-Read-Assist **tidak menggunakan OpenAI, Gemini, atau LLM lain sebagai provider TTS** pada alur ini. Seluruh sintesis suara dilakukan melalui endpoint Google Translate TTS (`client=tw-ob`) yang dipanggil langsung oleh `TTSEngine`.
 
 ---
 
