@@ -53,11 +53,28 @@
 
 ## Tentang Proyek
 
-**Read-Assist** adalah platform berbasis web (Laravel) yang menghubungkan buku digital dengan audio untuk membantu penyandang **tunanetra** mengakses materi literasi secara mandiri.
+**Read-Assist** adalah platform akses pembelajaran berbasis web yang dirancang untuk membantu **penyandang tunanetra mengakses materi pembelajaran dalam bentuk audio secara lebih mandiri**.
 
-Setiap buku yang diunggah diproses secara otomatis menjadi audio melalui **Text-to-Speech (TTS)**. Buku tersebut mendapatkan **QR Code** unik; pengguna cukup memindai label QR — yang dapat ditempel pada buku fisik — menggunakan kamera smartphone untuk langsung membuka halaman pemutar audio tanpa perlu navigasi yang rumit.
+Read-Assist menghubungkan **buku fisik dengan audio digital** melalui **QR Code unik**. Administrator dapat mengunggah buku dalam format **PDF atau EPUB**, kemudian sistem mengekstrak teks, memprosesnya menggunakan **Text-to-Speech (TTS)**, dan menghasilkan audio buku yang dapat diakses melalui browser.
 
-Aplikasi ini dapat diakses melalui browser (desktop maupun mobile). Pada lingkungan development, QR Code secara otomatis memilih URL yang tepat — SSH tunnel publik (`localhost.run`), IP LAN, atau `APP_URL` — sehingga perangkat di jaringan yang sama maupun jaringan luar dapat menjangkau pemutar.
+Pengguna cukup:
+
+1. Memindai QR Code pada buku.
+2. Membuka halaman buku melalui smartphone atau komputer.
+3. Mendengarkan materi menggunakan audio player atau Web Speech API.
+4. Melanjutkan pembelajaran dari progress terakhir.
+
+Tidak diperlukan aplikasi khusus untuk mengakses buku. Selama perangkat memiliki browser yang kompatibel, materi dapat digunakan secara langsung.
+
+### 🎯 Target Pengguna
+
+Read-Assist terutama ditujukan untuk:
+
+- Penyandang tunanetra.
+- Pengguna screen reader.
+- Pengguna smartphone dengan TalkBack.
+- Pengguna yang membutuhkan alternatif audio untuk membaca materi.
+- Institusi atau pengelola materi pembelajaran yang menyediakan aksesibilitas.
 
 ---
 
