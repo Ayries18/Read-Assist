@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\BookTextExtractionException;
 use App\Models\AudioBuku;
 use App\Services\TTSEngine;
 use Illuminate\Bus\Queueable;
@@ -12,6 +13,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Smalot\PdfParser\Parser;
 
 class GenerateBookAudio implements ShouldQueue
 {
@@ -22,6 +24,13 @@ class GenerateBookAudio implements ShouldQueue
     public int $timeout = 600;
 
     public int $tries = 1;
+
+    /**
+     * Batas ukuran PDF untuk ekstraksi teks otomatis. Parser PHP murni
+     * menahan seluruh dokumen di memori sehingga PDF besar dapat
+     * menghabiskan memory_limit dan membuat job gagal diam-diam.
+     */
+    public const MAX_PDF_EXTRACTION_MEGABYTES = 25;
 
     public function __construct(AudioBuku $audioBook)
     {
@@ -157,8 +166,10 @@ class GenerateBookAudio implements ShouldQueue
 
     protected function extractPdfText(string $path): string
     {
+        $this->guardPdfExtractionSize($path);
+
         try {
-            $parser = new \Smalot\PdfParser\Parser();
+            $parser = new Parser;
             $pdf = $parser->parseFile($path);
             $text = $pdf->getText();
 
@@ -170,6 +181,37 @@ class GenerateBookAudio implements ShouldQueue
 
             return '';
         }
+    }
+
+    /**
+     * Tolak PDF yang terlalu besar sebelum masuk parser, karena parser PHP murni
+     * menahan seluruh objek dokumen di memori dan dapat menguras memory_limit
+     * pada shared hosting.
+     *
+     * @throws BookTextExtractionException
+     */
+    protected function guardPdfExtractionSize(string $path): void
+    {
+        if (! is_file($path)) {
+            return;
+        }
+
+        $sizeMb = round(filesize($path) / 1048576, 1);
+
+        if ($sizeMb <= self::MAX_PDF_EXTRACTION_MEGABYTES) {
+            return;
+        }
+
+        Log::error('PDF rejected: exceeds extraction size limit.', [
+            'path' => $path,
+            'size_mb' => $sizeMb,
+            'limit_mb' => self::MAX_PDF_EXTRACTION_MEGABYTES,
+        ]);
+
+        throw new BookTextExtractionException(
+            "Ukuran PDF {$sizeMb} MB melebihi batas ".self::MAX_PDF_EXTRACTION_MEGABYTES
+            .' MB untuk ekstraksi teks otomatis. Kompres atau pecah file menjadi bagian yang lebih kecil.'
+        );
     }
 
     protected function extractEpubText(string $path): string

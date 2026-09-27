@@ -63,6 +63,10 @@
     <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
     <nav aria-label="Navigasi utama" class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
         <div class="navbar-start gap-1 sm:gap-2">
+            <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
+            <button class="nav-icon-btn" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
             <a href="/" class="logo-navbar no-underline transition-transform hover:-translate-y-0.5">
                 <img
                     src="{{ asset('logo-horizontal.svg') }}"
@@ -266,11 +270,6 @@
                     <button class="dropdown-item-link theme-option dropdown-row" data-theme-option="system" type="button">Ikuti Sistem</button>
                 </div>
             </div>
-
-            <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
-            <button class="nav-icon-btn" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
         </div>
     </nav>
 
