@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Smalot\PdfParser\Parser;
 
 class GenerateBookAudio implements ShouldQueue
 {
@@ -158,7 +159,7 @@ class GenerateBookAudio implements ShouldQueue
     protected function extractPdfText(string $path): string
     {
         try {
-            $parser = new \Smalot\PdfParser\Parser();
+            $parser = new Parser;
             $pdf = $parser->parseFile($path);
             $text = $pdf->getText();
 

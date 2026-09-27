@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Smalot\PdfParser\Parser;
 
 class AudioBukuController extends Controller
 {
@@ -597,7 +598,7 @@ class AudioBukuController extends Controller
     private function extractPdfText(string $path): string
     {
         try {
-            $parser = new \Smalot\PdfParser\Parser();
+            $parser = new Parser;
             $pdf = $parser->parseFile($path);
             $text = $pdf->getText();
 
