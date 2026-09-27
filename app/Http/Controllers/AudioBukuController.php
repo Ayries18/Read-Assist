@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\BookTextExtractionException;
 use App\Jobs\GenerateBookAudio;
 use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
@@ -14,6 +15,13 @@ use Smalot\PdfParser\Parser;
 
 class AudioBukuController extends Controller
 {
+    /**
+     * Batas ukuran PDF untuk ekstraksi teks otomatis.
+     * Parser PHP murni menahan seluruh dokumen di memori sehingga PDF besar
+     * dapat menghabiskan memory_limit pada shared hosting.
+     */
+    private const MAX_PDF_EXTRACTION_MEGABYTES = 25;
+
     public function landing()
     {
         try {
@@ -110,7 +118,16 @@ class AudioBukuController extends Controller
 
         $bookPath = $bookFile->store('file-buku', 'public');
         $fullBookPath = Storage::disk('public')->path($bookPath);
-        $bookText = $this->extractBookText($fullBookPath, $extension);
+
+        try {
+            $bookText = $this->extractBookText($fullBookPath, $extension);
+        } catch (BookTextExtractionException $e) {
+            Storage::disk('public')->delete($bookPath);
+
+            return back()
+                ->withErrors(['book_file' => $e->getMessage()])
+                ->withInput();
+        }
 
         if (trim($bookText) === '') {
             Storage::disk('public')->delete($bookPath);
@@ -173,7 +190,7 @@ class AudioBukuController extends Controller
             $hostname = gethostname();
             if ($hostname) {
                 $hostIp = gethostbyname($hostname);
-                if ($hostIp && $hostIp !== $hostname && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
+                if ($hostIp !== $hostname && filter_var($hostIp, FILTER_VALIDATE_IP)) {
                     $ips['Host DNS'] = $hostIp;
                 }
             }
@@ -195,7 +212,16 @@ class AudioBukuController extends Controller
                     fclose($socket);
                 }
             } catch (\Throwable $e) {
-                // Socket probe failed — fall through to localhost.
+                // Socket probe failed — fall through to the server address fallback.
+            }
+        }
+
+        if (empty($ips)) {
+            // Shared hosting sering memblokir probe socket keluar, jadi andalkan
+            // alamat yang sudah diikat cPanel ke virtual host.
+            $serverAddr = $_SERVER['SERVER_ADDR'] ?? null;
+            if (is_string($serverAddr) && filter_var($serverAddr, FILTER_VALIDATE_IP)) {
+                $ips['Server Addr'] = $serverAddr;
             }
         }
 
@@ -597,6 +623,8 @@ class AudioBukuController extends Controller
 
     private function extractPdfText(string $path): string
     {
+        $this->guardPdfExtractionSize($path);
+
         try {
             $parser = new Parser;
             $pdf = $parser->parseFile($path);
@@ -610,6 +638,36 @@ class AudioBukuController extends Controller
 
             return '';
         }
+    }
+
+    /**
+     * Tolak PDF yang terlalu besar sebelum masuk parser, karena parser PHP murni
+     * menahan seluruh objek dokumen di memori dan dapat menguras memory_limit.
+     *
+     * @throws BookTextExtractionException
+     */
+    private function guardPdfExtractionSize(string $path): void
+    {
+        if (! is_file($path)) {
+            return;
+        }
+
+        $sizeMb = round(filesize($path) / 1048576, 1);
+
+        if ($sizeMb <= self::MAX_PDF_EXTRACTION_MEGABYTES) {
+            return;
+        }
+
+        \Log::error('PDF rejected: exceeds extraction size limit.', [
+            'path' => $path,
+            'size_mb' => $sizeMb,
+            'limit_mb' => self::MAX_PDF_EXTRACTION_MEGABYTES,
+        ]);
+
+        throw new BookTextExtractionException(
+            "Ukuran PDF {$sizeMb} MB melebihi batas ".self::MAX_PDF_EXTRACTION_MEGABYTES
+            .' MB untuk ekstraksi teks otomatis. Kompres atau pecah file menjadi bagian yang lebih kecil.'
+        );
     }
 
     private function extractEpubText(string $path): string
