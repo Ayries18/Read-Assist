@@ -20,6 +20,13 @@ Artisan::command('inspire', function () {
  * --timeout 600 wajib lebih kecil dari DB_QUEUE_RETRY_AFTER (900). Jika tidak,
  * job dilepas ulang worker lain selagi masih berjalan dan audio tergenerate
  * dua kali.
+ *
+ * withoutOverlapping sengaja longgar (60 menit): sebuah buku besar dipecah
+ * menjadi puluhan chunk, dan satu worker bisa saja memproses semuanya tanpa
+ * henti. Jika lock hanya 10 menit, worker kedua akan mulai di tengah jalan
+ * sehingga dua chunk disintesis bersamaan — itu membatalkan jeda usleep()
+ * antar kalimat dan memicu rate limit pada endpoint TTS, dan current_chunk
+ * bisa mundur karena dua proses menulis bersamaan.
  */
 Schedule::exec(sprintf(
     '%s -d memory_limit=512M %s queue:work --queue=%s --stop-when-empty --sleep=3 --tries=1 --timeout=600 --memory=450',
@@ -28,6 +35,6 @@ Schedule::exec(sprintf(
     config('queue.connections.database.queue', 'default'),
 ))
     ->everyMinute()
-    ->withoutOverlapping(10)
+    ->withoutOverlapping(60)
     ->appendOutputTo(storage_path('logs/queue-worker.log'))
     ->description('Proses antrian GenerateBookAudio');

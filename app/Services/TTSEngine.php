@@ -154,18 +154,42 @@ class TTSEngine
             return copy($existingFiles[0], $outputPath);
         }
 
-        $combined = '';
-        foreach ($existingFiles as $file) {
-            $combined .= file_get_contents($file);
-        }
+        return $this->concatAudioStreaming($existingFiles, $outputPath);
+    }
 
-        if (empty($combined)) {
+    /**
+     * Menggabungkan potongan MP3 dengan streaming (bukan menyalin seluruh
+     * isi ke satu string) supaya buku dengan ribuan kalimat tidak menghabiskan
+     * memory_limit pada shared hosting.
+     *
+     * @param  array<int, string>  $existingFiles
+     */
+    protected function concatAudioStreaming(array $existingFiles, string $outputPath): bool
+    {
+        $output = @fopen($outputPath, 'wb');
+        if ($output === false) {
             return false;
         }
 
-        file_put_contents($outputPath, $combined);
+        $written = 0;
 
-        return file_exists($outputPath) && filesize($outputPath) > 0;
+        foreach ($existingFiles as $file) {
+            $input = @fopen($file, 'rb');
+            if ($input === false) {
+                continue;
+            }
+
+            $bytes = stream_copy_to_stream($input, $output);
+            fclose($input);
+
+            if ($bytes > 0) {
+                $written += $bytes;
+            }
+        }
+
+        fclose($output);
+
+        return $written > 0 && file_exists($outputPath) && filesize($outputPath) > 0;
     }
 
     protected function ensureDir(string $dir): void
