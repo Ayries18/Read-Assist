@@ -941,7 +941,7 @@
     </script>
 
     @if ($withMiniPlayer ?? false)
-    <div id="mini-audio-player">
+    <div id="mini-audio-player" role="region" aria-label="Pemutar audio mini" aria-hidden="true">
         <div class="mini-player-details">
             <div id="mini-player-cover-area" class="mini-cover">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
@@ -952,7 +952,7 @@
             </div>
         </div>
 
-        <div id="mini-audio-status-badge">
+        <div id="mini-audio-status-badge" aria-live="polite">
             Siap
         </div>
 
@@ -1023,7 +1023,8 @@
             miniPaused = false;
 
             miniPlayer.classList.add('active');
-            
+            miniPlayer.setAttribute('aria-hidden', 'false');
+
             speakNextMini();
         };
 
@@ -1231,6 +1232,7 @@
             window.speechSynthesis.cancel();
             miniPlayer.classList.remove('active');
             miniPlayer.classList.remove('playing');
+            miniPlayer.setAttribute('aria-hidden', 'true');
             miniChunks = [];
         }
     </script>

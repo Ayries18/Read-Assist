@@ -573,6 +573,15 @@
                 }
             }
         }
+
+        // Jangan sampai keyboard user tertinggal di tombol yang kini disembunyikan
+        // (mis. btn-pause/btn-stop saat dijeda/dihentikan). Pindahkan fokus ke
+        // tombol yang terlihat setelah state berubah.
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl !== document.body && activeEl.style && activeEl.style.display === 'none') {
+            const target = isSpeaking && !isPaused ? btnPause : btnPlay;
+            if (target) target.focus();
+        }
     }
 
     function startTTS() {
@@ -972,11 +981,33 @@
 
     document.addEventListener('keydown', (e) => {
         const settingsModal = document.getElementById('reader-settings-modal');
-        if (settingsModal && settingsModal.style.display === 'flex' && e.key === 'Escape') {
-            e.preventDefault();
-            e.stopPropagation();
-            closeReaderSettings();
-            return;
+        if (settingsModal && settingsModal.style.display === 'flex') {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeReaderSettings();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const focusable = settingsModal.querySelectorAll(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey) {
+                    if (document.activeElement === first || document.activeElement === settingsModal) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+                return;
+            }
         }
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
         switch(e.key) {

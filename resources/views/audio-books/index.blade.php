@@ -25,6 +25,7 @@
                     class="input input-bordered w-full bg-white text-black placeholder:text-slate-400 pl-10"
                     value="{{ $search ?? '' }}"
                     placeholder="Cari judul, penulis, atau kategori..."
+                    aria-label="Cari judul, penulis, atau kategori"
                 >
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs">Cari</span>
             </div>

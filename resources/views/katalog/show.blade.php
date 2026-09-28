@@ -891,6 +891,13 @@
                 }
                 if (pauseBtn) pauseBtn.style.display = 'none';
             }
+
+            // Fokus keyboard tidak tertinggal di tombol yang disembunyikan.
+            const activeEl = document.activeElement;
+            if (activeEl && activeEl !== document.body && activeEl.style && activeEl.style.display === 'none') {
+                const target = isSpeaking && !isPaused ? pauseBtn : playBtn;
+                if (target) target.focus();
+            }
         }
 
         function startTTS() {

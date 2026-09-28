@@ -58,6 +58,39 @@ class AudioBukuTest extends TestCase
             ->assertDontSee('id="mini-audio-player"', false);
     }
 
+    public function test_player_and_mini_player_have_accessible_semantics()
+    {
+        AudioBuku::factory()->create([
+            'judul' => 'Buku Aksesibel',
+            'deskripsi' => 'Contoh paragraf untuk diuji aksesibilitas.',
+            'file_audio' => 'tts',
+            'audio_status' => 'completed',
+        ]);
+        $book = AudioBuku::first();
+
+        $this->get('/katalog-audio')
+            ->assertSee('id="mini-audio-player"', false)
+            ->assertSee('aria-label="Pemutar audio mini"', false)
+            ->assertSee('aria-hidden="true"', false)
+            ->assertSee('aria-live="polite"', false);
+
+        $this->get(route('audio-books.play', $book->qr_token))
+            ->assertSee('role="dialog"', false)
+            ->assertSee('aria-modal="true"', false)
+            ->assertSee('aria-label="Pengaturan Membaca"', false)
+            ->assertSee('aria-live="polite"', false)
+            ->assertSee('aria-atomic="true"', false);
+    }
+
+    public function test_reader_settings_modal_has_focus_trap_script()
+    {
+        $book = AudioBuku::factory()->create(['file_audio' => 'tts']);
+
+        $this->get(route('audio-books.play', $book->qr_token))
+            ->assertSee('e.shiftKey', false)
+            ->assertSee('last.focus();', false);
+    }
+
     public function test_catalog_page_has_seo_meta_and_canonical()
     {
         AudioBuku::factory()->create();

@@ -45,6 +45,14 @@ summary:focus-visible,
     border-radius: 4px;
 }
 
+/* Focus/anchors tidak tertutup navbar sticky saat di-scroll (WCAG 2.4.11) */
+:focus,
+:focus-visible,
+:target {
+    scroll-margin-top: 96px;
+    scroll-margin-bottom: 72px;
+}
+
 /* Navbar Enhancements */
 .nav-icon-btn {
     background: none;

@@ -54,8 +54,12 @@ textarea:focus {
     }
 }
 
-/* Live region helper for announcing TTS/reading status to screen readers */
-[aria-live] {
+/* Hanya live region yang diberi kelas .sr-live yang disembunyikan secara
+   visual (khusus pengumuman suara). Live region yang memang harus TAMPAK —
+   subtitle kalimat (#current-spoken-text), #status-message, #voice-hint —
+   tetap terlihat bagi pengguna awas; jangan selektif menyembunyikan semua
+   [aria-live] seperti sebelumnya. */
+[aria-live="polite"].sr-live {
     position: absolute;
     width: 1px;
     height: 1px;
