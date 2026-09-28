@@ -939,7 +939,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
             </div>
             <div class="mini-details-text">
-                <h5 class="mini-player-title" id="mini-book-title">Judul Buku Audio</h5>
+                <p class="mini-player-title" id="mini-book-title">Judul Buku Audio</p>
                 <p class="mini-player-author" id="mini-book-author">Penulis Buku</p>
             </div>
         </div>

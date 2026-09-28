@@ -65,6 +65,7 @@ class AudioBukuController extends Controller
             'charCount' => $charCount,
             'readDuration' => $readDuration,
             'faq' => $faq,
+            'hero480' => $hero(480, 360, 'webp'),
             'hero720' => $hero(720, 540, 'webp'),
             'hero1200' => $hero(1200, 900, 'webp'),
             'hero1800' => $hero(1800, 1350, 'webp'),

@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
     <div class="mt-2 flex flex-col gap-18 mb-20">
@@ -18,14 +18,14 @@
                     Read-Assist mendampingi penyandang tunanetra untuk membaca buku cetak secara mandiri. Cukup pindai label QR unik yang ditempel pada buku fisik untuk mendengarkan pembacaan teks otomatis langsung dari smartphone Anda.
                 </p>
                 <div class="flex gap-4 flex-wrap mt-1 items-center">
-                    <a href="{{ route('audio-books.index') }}" class="btn btn-primary btn-hero px-7 py-3 text-sm" aria-label="Mulai mendengarkan buku dari katalog Read-Assist">
+                    <a href="{{ route('audio-books.index') }}" class="btn btn-primary btn-hero px-7 py-3 text-sm">
                         Mulai Mendengarkan
                     </a>
-                    <a href="{{ route('audio-books.index') }}" class="btn btn-ghost btn-hero--ghost px-6 py-3 text-sm font-semibold" aria-label="Jelajahi seluruh katalog buku audio">
+                    <a href="{{ route('audio-books.index') }}" class="btn btn-ghost btn-hero--ghost px-6 py-3 text-sm font-semibold">
                         Jelajahi Katalog
                     </a>
                     @if (!session()->has('auth_role'))
-                        <a href="{{ route('login') }}" class="btn btn-ghost btn-hero--ghost px-6 py-3 text-sm font-semibold" aria-label="Masuk ke akun Read-Assist">
+                        <a href="{{ route('login') }}" class="btn btn-ghost btn-hero--ghost px-6 py-3 text-sm font-semibold">
                             Masuk Ke Akun
                         </a>
                     @endif
@@ -51,13 +51,13 @@
                 <picture>
                     <source
                         type="image/webp"
-                        srcset="{{ $hero720 }} 720w, {{ $hero1200 }} 1200w, {{ $hero1800 }} 1800w"
-                        sizes="(max-width: 1024px) 100vw, 40vw"
+                        srcset="{{ $hero480 }} 480w, {{ $hero720 }} 720w, {{ $hero1200 }} 1200w, {{ $hero1800 }} 1800w"
+                        sizes="(max-width: 1024px) 92vw, 38vw"
                     >
                     <img
                         src="{{ $heroJpeg }}"
-                        srcset="{{ $hero720 }} 720w, {{ $hero1200 }} 1200w, {{ $hero1800 }} 1800w"
-                        sizes="(max-width: 1024px) 100vw, 40vw"
+                        srcset="{{ $hero480 }} 480w, {{ $hero720 }} 720w, {{ $hero1200 }} 1200w, {{ $hero1800 }} 1800w"
+                        sizes="(max-width: 1024px) 92vw, 38vw"
                         alt="Seorang perempuan penyandang tunanetra membaca buku braille dengan menempelkan jarinya di halaman"
                         class="w-full h-full object-cover block"
                         width="1200"
@@ -267,10 +267,10 @@
                     Pilih buku dari katalog, pindai kode QR-nya, dan nikmati membaca secara mandiri. Gratis, tanpa pemasangan aplikasi.
                 </p>
                 <div class="flex gap-4 flex-wrap justify-center mt-2">
-                    <a href="{{ route('audio-books.index') }}" class="btn btn-primary btn-hero px-7 py-3 text-sm" aria-label="Mulai mendengarkan buku sekarang">
+                    <a href="{{ route('audio-books.index') }}" class="btn btn-primary btn-hero px-7 py-3 text-sm">
                         Mulai Mendengarkan
                     </a>
-                    <a href="{{ route('audio-books.index') }}" class="btn btn-ghost btn-hero--ghost px-6 py-3 text-sm font-semibold" aria-label="Jelajahi katalog buku audio">
+                    <a href="{{ route('audio-books.index') }}" class="btn btn-ghost btn-hero--ghost px-6 py-3 text-sm font-semibold">
                         Jelajahi Katalog
                     </a>
                 </div>
