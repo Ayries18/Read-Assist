@@ -150,21 +150,41 @@ bash scripts/deploy-public.sh --verify
 curl -sS -o /dev/null -D - https://readassist.web-id.id/ | grep -iE 'HTTP|cache-control|content-encoding'
 curl -sS -o /dev/null -D - https://readassist.web-id.id/build/manifest.json | grep -iE 'HTTP|cache-control'
 
-# Cek halaman tidak error
-curl -sS https://readassist.web-id.id/ | grep -c '<h1'
+# Route publik harus 200
+for p in / /katalog-audio /login /register; do
+  printf '%-20s %s\n' "$p" "$(curl -sS -o /dev/null -w '%{http_code}' "https://readassist.web-id.id$p")"
+  sleep 1
+done
 
-# Cek symlink storage (dipakai 3 view untuk cover buku)
-curl -sS -o /dev/null -w '%{http_code}\n' https://readassist.web-id.id/storage/
+# Route terproteksi harus 302 ke /login, bukan 500
+for p in /admin/dashboard /user/dashboard /katalog-audio/tambah /user/tambah-buku; do
+  printf '%-24s %s -> %s\n' "$p" \
+    "$(curl -sS -o /dev/null -w '%{http_code}' "https://readassist.web-id.id$p")" \
+    "$(curl -sS -o /dev/null -w '%{redirect_url}' "https://readassist.web-id.id$p")"
+  sleep 1
+done
+
+# Token QR palsu harus 404, bukan 500 (500 berarti front controller rusak)
+curl -sS -o /dev/null -w '%{http_code}\n' https://readassist.web-id.id/scan/book/token-palsu
+
+# Isi halaman dan error log
+curl -sS https://readassist.web-id.id/ | grep -c '<h1'
+grep -c '\[28-Sep-2026' ~/public_html/error_log      # sesuaikan tanggal
 ```
 
 Yang harus benar:
 
-- `/` balas HTTP 200 dan berisi 1 `<h1>`;
+- `/` balas HTTP 200, berisi 1 `<h1>`, dan berukuran puluhan ribu byte;
+- route terproteksi balas **302 ke `/login`**, bukan 500;
+- `/scan/book/token-palsu` balas **404**, bukan 500;
 - CSS dan font punya `Cache-Control: public, max-age=31536000, immutable`;
-- HTML terkompresi (brotli/gzip) dan ukurannya jauh lebih kecil dari `Content-Length`;
-- `public_html/build/manifest.json` ada dan file CSS yang disebut di dalamnya ada;
+- `public_html/build/manifest.json` ada dan seluruh aset rujukannya ada;
 - symlink `build`, `storage`, `favicon.ico` tidak putus;
-- `.well-known/acme-challenge` masih ada.
+- `.well-known/acme-challenge` masih ada;
+- `~/public_html/error_log` tidak menambah baris error pada tanggal hari ini.
+
+> Beri jeda 1 detik antar `curl`. Mengakses beruntun tanpa jeda memicu Cloudflare
+> mengembalikan 522/525 sesaat, yang keliru dan bukan tanda situs rusak.
 
 ---
 
@@ -172,7 +192,7 @@ Yang harus benar:
 
 ### 5a. Rollback aset statis saja (paling sering dipakai)
 
-Kalau situsodes masih hidup tapi CSS/ gambar rusak:
+Kalau situs masih hidup tapi CSS atau gambar rusak:
 
 ```bash
 cd ~/Read-Assist

@@ -57,6 +57,7 @@ KEEP_NAMES=(
   "php.ini"
   "error_log"
   "Read-Assist"
+  ".deploy-backups"
   ".deploy-public.manifest"
   ".deploy-public.manifest.previous"
 )
