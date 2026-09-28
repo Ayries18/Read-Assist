@@ -63,7 +63,6 @@ PROTECTED_NAMES=(
   "error_log"
   "Read-Assist"
   ".deploy-backups"
-  ".deploy-public.manifest"
   ".deploy-public.manifest.json"
 )
 
@@ -682,11 +681,26 @@ $data = [
 file_put_contents($out, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
 PHPEOF
 
+  # Kalau deploy ini tidak mengubah apa pun, tidak ada backup baru. Pertahankan
+  # backup terakhir yang benar-benar ada, supaya --rollback latest selalu punya
+  # tujuan dan tidak hilang begitu ada deploy yang tidak mengubah berkas.
+  BAK_FINAL="${BAK:-}"
+  if [ -z "$BAK_FINAL" ] && [ -f "$MANIFEST" ]; then
+    PREV_BAK="$("$PHP_BIN" -r '
+      $j = json_decode(file_get_contents($argv[1]), true);
+      echo $j["backup_path"] ?? "";
+    ' "$MANIFEST" 2>/dev/null || true)"
+    if [ -n "$PREV_BAK" ] && [ -d "$PREV_BAK" ]; then
+      BAK_FINAL="$PREV_BAK"
+      note "tidak ada perubahan; backup terakhir tetap dirujuk: $BAK_FINAL"
+    fi
+  fi
+
   ADDED_CSV=$(printf '%s\n' "${ADDED[@]:-}")
   CHANGED_CSV=$(printf '%s\n' "${CHANGED[@]:-}")
   REMOVED_CSV=$(printf '%s\n' "${REMOVED[@]:-}")
 
-  "$PHP_BIN" "$WORK/manifest.php" "$MANIFEST" "$SRC" "$DOC_REAL" "$COMMIT" "${BAK:-}" \
+  "$PHP_BIN" "$WORK/manifest.php" "$MANIFEST" "$SRC" "$DOC_REAL" "$COMMIT" "$BAK_FINAL" \
     "$HEALTH_OK" "$SYNC_ENGINE" "$TOTAL_CHANGE" \
     "$ADDED_CSV" "$CHANGED_CSV" "$REMOVED_CSV" || die "gagal menulis manifest"
 
