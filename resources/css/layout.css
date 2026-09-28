@@ -56,7 +56,6 @@ summary:focus-visible,
 /* Navbar Enhancements */
 .nav-icon-btn {
     background: none;
-    border: none;
     color: var(--text-muted);
     font-size: 1.15rem;
     cursor: pointer;
@@ -65,12 +64,21 @@ summary:focus-visible,
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s ease, color 0.15s ease;
+    /* border 1px permanen ( transparan ) → warna border saat hover bisa
+       berubah tanpa menggeser layout. */
+    border: 1px solid transparent;
+    /* Samakan dengan .nav-btn: 250ms ease-out. */
+    transition: background 0.25s ease-out, color 0.25s ease-out,
+        border-color 0.25s ease-out, transform 0.25s ease-out;
+    transform-origin: center;
     position: relative;
 }
 .nav-icon-btn:hover {
     color: #000;
     background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(184, 134, 11, 0.32);
+    /* transform tidak memengaruhi flow layout → tidak ada layout shift. */
+    transform: scale(1.02);
 }
 .notification-badge {
     position: absolute;
@@ -226,7 +234,11 @@ summary:focus-visible,
     .navbar .navbar-start { gap: 0.15rem !important; }
     .nav-icon-btn { font-size: 1.25rem !important; padding: 0.55rem !important; color: #000 !important; }
     .navbar-end { gap: 0.4rem !important; }
-    .navbar-end .nav-end-group { gap: 0.25rem; }
+    .navbar-end .nav-end-group { gap: 0.5rem; }
+    /* Di mobile mr-4 (16px) terlalu rakus untuk ruang setel 390px —
+       mr-2 (8px) cukup untuk memisahkan hamburger dari logo tanpa
+       memicu overflow horizontal. */
+    .navbar-start .nav-icon-btn { margin-right: 0.5rem !important; }
     .navbar-center { margin-left: 0.75rem; }
     .logo-navbar img { height: 31px; }
 
@@ -241,11 +253,13 @@ summary:focus-visible,
     }
 }
 
-.navbar .menu-horizontal > li > a {
+/* Reset padding bawaan DaisyUI pada item .menu.
+   Dulu ditulis tanpa pengecualian: `.navbar .menu-horizontal > li > a { padding: 0 !important }`
+   ikut menimpa .nav-btn, sehingga px-4 py-2.5 di .nav-btn tidak pernah
+   berlaku (terbukti padding tetap 0px saat diukur). :not(.nav-btn) membuat
+   reset ini hanya kena item menu lain. */
+.navbar .menu-horizontal > li > a:not(.nav-btn) {
     padding: 0 !important;
-}
-.navbar .menu-horizontal {
-    gap: 0.25rem !important;
 }
 .navbar-start,
 .navbar-center,
@@ -268,10 +282,13 @@ summary:focus-visible,
     justify-content: flex-end !important;
     gap: 0.75rem !important;
 }
+/* Grup ikon kanan (Community, Notification, Avatar, Theme Toggle).
+   Nilai lama 0.45rem (7px) bikin tombol-tombol bersentuhan. Brief meminta
+   gap-4. */
 .navbar-end .nav-end-group {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 1rem;
 }
 
 /* Mobile drawer overlay */
@@ -344,36 +361,69 @@ summary:focus-visible,
     margin: 0.5rem 0;
 }
 
+/* Jarak antar item navbar desktop. Nilai lama 0.25rem (4px) membuat
+   "Tambah Buku Saya" dan "Dashboard User" nyaris menempel. Mengikuti
+   pola gap-4 md:gap-5 dari brief: 4 desktop, 5 di layar sangat lebar. */
+.navbar .menu-horizontal {
+    gap: 1rem !important;
+}
+
+@media (min-width: 1440px) {
+    .navbar .menu-horizontal {
+        gap: 1.25rem !important;
+    }
+}
+
 /* Natural nav buttons — ukuran nyaman untuk tunanetra */
 .nav-btn {
     position: relative;
     display: flex !important;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0.5rem 0.7rem !important;
-    min-height: 40px;
+    gap: 0.5rem;
+    /* px-4 py-2.5 — padding lama 0.5rem 0.7rem bikin label berdempetan
+       dan area sentuh di tepi bawah 40px (batas minimum WCAG 2.5.8 = 44px
+       bila difokuskan). py 0.625rem + min-height 44px menutup keduanya. */
+    padding: 0.625rem 1rem !important;
+    min-height: 44px;
     border-radius: 8px !important;
     font-size: 0.9rem;
     font-weight: 500;
     color: #000 !important;
     background: transparent !important;
+    /* Border 1px selalu ada (hanya warnanya yang berubah) — inilah yang
+       membuat state aktif/hover TIDAK menggeser layout. Kalau border
+       di-set 0 lalu muncul saat hover, itu jadi sumber CLS. */
     border: 1px solid transparent !important;
-    transition: background 0.15s ease, color 0.15s ease !important;
+    /* border-color ikut ditransisikan supaya garis emas muncul halus,
+       bukan melompat di frame pertama. */
+    transition: background 0.25s ease-out, color 0.25s ease-out,
+        border-color 0.25s ease-out, transform 0.25s ease-out !important;
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
     line-height: 1.2;
+    transform-origin: center;
 }
 .nav-btn:hover {
     color: #000 !important;
     background: rgba(184, 134, 11, 0.08) !important;
-    transform: none !important;
+    border-color: rgba(184, 134, 11, 0.32) !important;
+    /* scale ringan (maks 1.02 sesuai brief). `transform` TIDAK memengaruhi
+       flow layout, jadi-items tetangga tidak bergeser sama sekali. */
+    transform: scale(1.02) !important;
     box-shadow: none !important;
 }
 .nav-btn.active {
     color: #000 !important;
     background: rgba(184, 134, 11, 0.12) !important;
     box-shadow: none !important;
+}
+/* Item yang sedang aktif TETAP terbaca saat di-hover — tanpa ini hover
+   menutupi warna aktif dan user kehilangan "di halaman mana saya". */
+.nav-btn.active:hover {
+    background: rgba(184, 134, 11, 0.12) !important;
+    border-color: #b8860b !important;
+    transform: scale(1) !important;
 }
 .nav-btn .nav-btn-icon {
     width: 18px;
@@ -386,9 +436,8 @@ summary:focus-visible,
     opacity: 1;
 }
 
-/* Dashboard User (menu aktif): padatkan padding horizontal agar tidak
-   terlihat lebih dominan daripada menu lain saat menyala state aktif */
-.navbar .nav-btn[href="/user/dashboard"] {
-    padding-left: 0.55rem !important;
-    padding-right: 0.55rem !important;
-}
+/* Catatan: aturan lama
+   `.navbar .nav-btn[href="/user/dashboard"] { padding-left/right: .55rem }`
+   SUDAH DIHAPUS. Aturan itu hanya mengecilkan "Dashboard User" satu item
+   sehingga jarak "Tambah Buku Saya" → "Dashboard User" terlihat melompat.
+   Sekarang semua item memakai padding yang sama, jadi rata. */
