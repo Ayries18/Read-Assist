@@ -24,7 +24,7 @@
                         <!-- Book Cover -->
                         <div class="w-[140px] h-[190px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-black/10">
                             @if ($book->cover)
-                                <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="w-full h-full object-cover">
+                                <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                             @else
                                 <div class="book-cover-placeholder">
                                     <span class="book-cover-placeholder-title text-sm">{{ $book->judul }}</span>
@@ -137,7 +137,7 @@
                         <div id="book-description" class="hidden">{{ $book->deskripsi ?? 'Tidak ada deskripsi.' }}</div>
                     </div>
 
-                    <a href="/read-assist?text={{ urlencode(\Illuminate\Support\Str::limit($book->deskripsi, 5000, '')) }}" target="_blank" rel="noopener" class="btn btn-primary w-full sm:w-auto px-7 py-3 text-sm mt-1 mb-6 inline-flex items-center justify-center gap-2">
+                    <a href="/read-assist?text={{ urlencode(\Illuminate\Support\Str::limit($book->deskripsi, 1200, '')) }}" target="_blank" rel="noopener" class="btn btn-primary w-full sm:w-auto px-7 py-3 text-sm mt-1 mb-6 inline-flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Analisis dengan Read Assist
                     </a>
@@ -155,7 +155,12 @@
                     <div class="bg-[#b8860b]/10 border border-[#b8860b]/25 rounded-xl p-6 text-center">
                         <h2 class="mb-2 text-base">Dengarkan di Laptop Ini</h2>
 
-                        @if ($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts')
+                        @if (in_array($book->audio_status, ['completed', 'partial']) && $book->file_audio && $book->file_audio !== 'tts')
+                            @if ($book->audio_status === 'partial')
+                                <div class="mb-4 bg-amber-100 border-2 border-amber-400 text-amber-900 text-sm rounded-xl p-3" role="alert">
+                                    <strong>Perhatian:</strong> audio tidak lengkap — {{ $book->audio_message ?: 'sebagian kalimat gagal disintesis.' }}
+                                </div>
+                            @endif
                             <div class="mb-4">
                                 <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
                                     <source src="{{ route('audio.stream', $book) }}" type="audio/mpeg">
@@ -187,7 +192,7 @@
                             }
                         </script>
                         @else
-                            <div class="mb-5 flex justify-center items-center gap-2">
+                            <div id="audio-status-row" class="mb-5 flex justify-center items-center gap-2">
                                 <span class="text-sm text-slate-600">Status Audio:</span>
                                 <span id="audio-status-badge" class="badge badge-sm bg-black/5 text-black border border-black/10">Browser TTS</span>
                             </div>
@@ -203,12 +208,13 @@
                                 <p class="text-xs text-slate-500 mt-2">Halaman akan diperbarui otomatis saat audio selesai.</p>
                             </div>
                             @endif
+                            <div id="generated-audio-slot" class="mb-4"></div>
                             <div id="resume-banner" class="hidden flex flex-wrap items-center justify-center gap-3 mb-3 border-2 border-[#ffff00] rounded-xl p-3" style="display: none;">
                                 <span id="resume-banner-text" class="text-sm text-black font-semibold"></span>
                                 <button onclick="startTTS()" class="btn btn-ghost btn-xs border-2 border-white">Mulai Awal</button>
                                 <button onclick="resumeTTS()" class="btn btn-primary btn-xs">Lanjutkan</button>
                             </div>
-                            <div class="flex items-center justify-center gap-3 sm:gap-4">
+                            <div id="tts-controls-row" class="flex items-center justify-center gap-3 sm:gap-4">
                                 <button id="btn-prev-show" onclick="prevTTS()" class="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-slate-300 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 active:scale-90 transition-all" title="Kalimat Sebelumnya" aria-label="Kalimat sebelumnya">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                                 </button>
@@ -228,7 +234,7 @@
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
                                 </button>
                             </div>
-                            <div class="flex items-center justify-center gap-3 mt-4">
+                            <div id="tts-actions-row" class="flex items-center justify-center gap-3 mt-4">
                                 <button id="btn-speed-show" onclick="cycleTTSRate()" class="flex items-center gap-1.5 text-xs font-medium border-2 border-slate-300 text-slate-700 rounded-full px-4 py-2 hover:border-indigo-500 hover:text-indigo-600 active:scale-95 transition-all" title="Ubah kecepatan suara">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20c4 0 8-3.6 8-8v-1l-2-1-1.5 3-2.5.5V6l2.5-.5.8-2.2A18 18 0 0 0 12 3c-4.9 0-9 3.6-9 8s4 9 9 9z"/><path d="M4.5 11.5c.5-2 2-3.5 3.5-4"/></svg>
                                     <strong id="speed-label-show">1.0x</strong>
@@ -258,7 +264,7 @@
                                 Hapus Buku
                             </button>
                         </form>
-                        @if ($book->audio_status === 'failed')
+                        @if (in_array($book->audio_status, ['failed', 'partial']))
                             <form method="POST" action="/katalog-audio/{{ $book->id }}/retry-audio" class="w-full mt-2 m-0">
                                 @csrf
                                 <button type="submit" class="btn btn-ghost border-[#b8860b]/30 text-indigo-400 w-full">
@@ -284,6 +290,10 @@
                         src="{{ route('qr-code.generate', ['data' => $qrUrl, 'size' => 320], false) }}"
                         alt="QR Code untuk membuka audio {{ $book->judul }}"
                         class="block mx-auto w-[260px] h-[260px]"
+                        width="320"
+                        height="320"
+                        loading="lazy"
+                        decoding="async"
                     >
                 </div>
 
@@ -345,60 +355,230 @@
 
     @if (!($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts'))
     <script>
-        // Poll audio generation progress in real time
-        document.addEventListener('DOMContentLoaded', function () {
+        // ── Status pembuatan audio (single source of truth: server) ──
+        // Badge, progress bar, persentase, dan teks "Bagian X/Y" selalu mengikuti
+        // nilai dari GET /audio-progress/{id}. Polling tidak lagi berhenti hanya
+        // karena blok progress tidak dirender, dan halaman tidak di-reload saat
+        // audio selesai — pemutar MP3 diaktifkan langsung di tempat.
+        (function () {
             const bookId = {{ $book->id }};
-            const progressWrap = document.getElementById('audio-gen-progress-wrap');
-            if (!progressWrap) return;
+            const streamUrl = @json(route('audio.stream', $book));
+            const readerUrl = @json(route('audio-books.play', $book->qr_token));
 
-            const messageEl = document.getElementById('audio-gen-message');
-            const percentEl = document.getElementById('audio-gen-percent');
-            const barEl = document.getElementById('audio-gen-bar');
-            const statusBadge = document.getElementById('audio-status-badge');
+            let pollTimer = null;
+            let syncPending = false;
+
+            function el(id) {
+                return document.getElementById(id);
+            }
+
+            function ttsIsActive() {
+                try {
+                    return typeof isSpeaking !== 'undefined' && isSpeaking
+                        && typeof isPaused !== 'undefined' && !isPaused;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function buildProgressWrap() {
+                if (el('audio-gen-progress-wrap')) {
+                    return;
+                }
+
+                const host = el('audio-status-row');
+                if (!host || !host.parentNode) {
+                    return;
+                }
+
+                const wrap = document.createElement('div');
+                wrap.id = 'audio-gen-progress-wrap';
+                wrap.className = 'w-full max-w-md mx-auto mb-4';
+                wrap.setAttribute('role', 'group');
+                wrap.setAttribute('aria-label', 'Progres pembuatan audio');
+                wrap.innerHTML =
+                    '<div class="flex justify-between items-center text-xs mb-1">'
+                    + '<span id="audio-gen-message" class="text-slate-600">Menunggu antrian...</span>'
+                    + '<span id="audio-gen-percent" class="font-bold text-indigo-600">0%</span>'
+                    + '</div>'
+                    + '<div class="w-full bg-black/10 rounded-full h-2.5 overflow-hidden" role="progressbar"'
+                    + ' aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"'
+                    + ' aria-valuetext="0 persen" aria-label="Progres pembuatan audio">'
+                    + '<div id="audio-gen-bar" class="bg-indigo-500 h-2.5 rounded-full'
+                    + ' transition-all duration-500" style="width: 0%"></div>'
+                    + '</div>';
+
+                host.parentNode.insertBefore(wrap, host.nextSibling);
+            }
+
+            function activateGeneratedPlayer() {
+                const slot = el('generated-audio-slot');
+
+                if (slot && slot.dataset.filled !== '1') {
+                    slot.dataset.filled = '1';
+                    slot.innerHTML =
+                        '<audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">'
+                        + '<source src="' + streamUrl + '" type="audio/mpeg">'
+                        + 'Browser Anda tidak mendukung pemutar audio.'
+                        + '</audio>'
+                        + '<div class="flex flex-col items-center gap-3 mt-4">'
+                        + '<a href="' + streamUrl + '" download class="btn btn-primary btn-sm px-7 py-3 text-sm">'
+                        + 'Download MP3</a>'
+                        + '<a href="' + readerUrl + '" class="btn btn-ghost btn-sm px-7 py-3 text-sm">'
+                        + 'Buka Mode Tunanetra</a>'
+                        + '</div>';
+                }
+
+                ['audio-gen-progress-wrap', 'tts-controls-row', 'tts-actions-row', 'resume-banner']
+                    .forEach(function (id) {
+                        const node = el(id);
+                        if (node) {
+                            node.style.display = 'none';
+                        }
+                    });
+
+                try {
+                    if (typeof isSpeaking !== 'undefined' && isSpeaking && typeof stopTTS === 'function') {
+                        stopTTS();
+                    }
+                } catch (e) {
+                    // State TTS tidak tersedia; pemutar MP3 tetap diaktifkan.
+                }
+            }
 
             function updateProgressBar(data) {
-                const pct = Math.max(0, Math.min(100, parseInt(data.audio_progress || 0, 10)));
-                if (barEl) barEl.style.width = pct + '%';
-                if (barEl) barEl.setAttribute('aria-valuenow', String(pct));
-                if (barEl) barEl.setAttribute('aria-valuetext', pct + ' persen');
-                if (percentEl) percentEl.innerText = pct + '%';
-                if (messageEl) messageEl.innerText = data.audio_message || 'Sedang diproses...';
-                if (statusBadge) {
-                    statusBadge.innerText = 'Memproses (' + pct + '%)';
-                    statusBadge.style.color = '#4338ca';
-                    statusBadge.style.borderColor = '#4338ca';
+                if (!data) {
+                    return true;
                 }
 
-                if (data.audio_status === 'completed') {
-                    window.location.reload();
-                }
-                if (data.audio_status === 'failed') {
-                    if (messageEl) messageEl.innerText = 'Proses gagal. Silakan coba lagi.';
-                    if (percentEl) percentEl.innerText = 'Gagal';
-                    if (statusBadge) {
-                        statusBadge.innerText = 'Gagal';
-                        statusBadge.style.color = '#dc2626';
-                        statusBadge.style.borderColor = '#dc2626';
+                const status = data.audio_status || 'pending';
+                const pct = Math.max(0, Math.min(100, parseInt(data.audio_progress || 0, 10)));
+                const badge = el('audio-status-badge');
+
+                if (status === 'completed' || status === 'partial') {
+                    if (badge) {
+                        if (status === 'partial') {
+                            badge.innerText = 'Sebagian';
+                            badge.style.color = '#b45309';
+                            badge.style.borderColor = '#f59e0b';
+                        } else {
+                            badge.innerText = 'Selesai';
+                            badge.style.color = '#16a34a';
+                            badge.style.borderColor = '#16a34a';
+                        }
                     }
+                    activateGeneratedPlayer();
+
+                    return false;
                 }
+
+                if (status === 'failed') {
+                    const wrap = el('audio-gen-progress-wrap');
+                    const bar = el('audio-gen-bar');
+                    const percent = el('audio-gen-percent');
+                    const message = el('audio-gen-message');
+
+                    if (bar) bar.style.width = pct + '%';
+                    if (percent) percent.innerText = 'Gagal';
+                    if (message) message.innerText = data.audio_message || 'Proses gagal. Silakan coba lagi.';
+                    if (wrap) wrap.style.display = 'none';
+                    if (badge) {
+                        badge.innerText = 'Gagal';
+                        badge.style.color = '#dc2626';
+                        badge.style.borderColor = '#dc2626';
+                    }
+
+                    return false;
+                }
+
+                buildProgressWrap();
+
+                const bar = el('audio-gen-bar');
+                const percent = el('audio-gen-percent');
+                const message = el('audio-gen-message');
+
+                if (bar) {
+                    bar.style.width = pct + '%';
+                    bar.setAttribute('aria-valuenow', String(pct));
+                    bar.setAttribute('aria-valuetext', pct + ' persen');
+                }
+                if (percent) percent.innerText = pct + '%';
+                if (message) message.innerText = data.audio_message || 'Sedang diproses...';
+
+                if (badge && !ttsIsActive()) {
+                    badge.innerText = 'Memproses (' + pct + '%)';
+                    badge.style.color = '#4338ca';
+                    badge.style.borderColor = '#4338ca';
+                    badge.style.background = '';
+                }
+
+                return true;
+            }
+
+            function schedulePoll(delay) {
+                if (pollTimer !== null) {
+                    return;
+                }
+
+                pollTimer = setTimeout(function () {
+                    pollTimer = null;
+                    pollProgress();
+                }, delay);
             }
 
             function pollProgress() {
-                fetch('/audio-progress/' + bookId)
+                fetch('/audio-progress/' + bookId, { headers: { Accept: 'application/json' } })
                     .then(function (resp) { return resp.json(); })
                     .then(function (data) {
-                        updateProgressBar(data);
-                        if (data.audio_status === 'pending' || data.audio_status === 'processing') {
-                            setTimeout(pollProgress, 2000);
+                        if (updateProgressBar(data)) {
+                            schedulePoll(2000);
                         }
                     })
                     .catch(function () {
-                        setTimeout(pollProgress, 3000);
+                        schedulePoll(3000);
                     });
             }
 
-            setTimeout(pollProgress, 1000);
-        });
+            window.updateAudioProgressBar = updateProgressBar;
+
+            // Dipanggil oleh playTTS() sebelum memutar: status di-refresh dulu
+            // supaya badge dan progress bar tidak lagi menampilkan nilai basi.
+            window.syncAudioStatusBeforePlay = function (callback) {
+                if (syncPending) {
+                    return;
+                }
+                syncPending = true;
+
+                const proceed = function () {
+                    syncPending = false;
+                    callback();
+                };
+
+                fetch('/audio-progress/' + bookId, { headers: { Accept: 'application/json' } })
+                    .then(function (resp) { return resp.json(); })
+                    .then(function (data) {
+                        const keepPolling = updateProgressBar(data);
+
+                        if (keepPolling) {
+                            schedulePoll(2000);
+                        }
+
+                        if (data && (data.audio_status === 'completed' || data.audio_status === 'partial')) {
+                            syncPending = false;
+                            return;
+                        }
+
+                        proceed();
+                    })
+                    .catch(function () {
+                        proceed();
+                    });
+            };
+
+            document.addEventListener('DOMContentLoaded', function () {
+                schedulePoll(1000);
+            });
+        })();
 
         // Realtime & Localized Upload Time Formatter
         document.addEventListener('DOMContentLoaded', function () {
@@ -756,6 +936,19 @@
         function playTTS() {
             if (isSpeaking && !isPaused) return;
 
+            // Refresh status dari server dulu. Badge dan progress bar harus
+            // menampilkan angka terbaru (mis. 17%), bukan nilai basi yang
+            // tertinggal dari polling terakhir. Kalau request gagal, playback
+            // tetap jalan dengan state terakhir.
+            if (typeof window.syncAudioStatusBeforePlay === 'function') {
+                window.syncAudioStatusBeforePlay(beginTtsPlayback);
+                return;
+            }
+
+            beginTtsPlayback();
+        }
+
+        function beginTtsPlayback() {
             if (typeof closeMiniPlayer === 'function') {
                 closeMiniPlayer();
             }
@@ -780,10 +973,10 @@
             isPaused = false;
 
             if (statusBadge) {
-                statusBadge.innerText = "Memulai...";
-                statusBadge.style.color = "var(--accent-primary)";
-                statusBadge.style.borderColor = "var(--accent-primary)";
-                statusBadge.style.background = "rgba(184, 134, 11, 0.15)";
+                statusBadge.innerText = "Memutar";
+                statusBadge.style.color = "var(--accent-success)";
+                statusBadge.style.borderColor = "var(--accent-success)";
+                statusBadge.style.background = "rgba(16, 185, 129, 0.15)";
             }
 
             speakNext();
@@ -975,7 +1168,7 @@
                 <body>
                     <div class="container">
                         <h2>{{ $book->judul }}</h2>
-                        <img src="${document.getElementById('qr-code-img').src}" />
+                        <img src="${document.getElementById('qr-code-img').src}" alt="QR Code {{ $book->judul }}" width="320" height="320" loading="eager" decoding="sync" />
                         <div class="footer">SISTEM READ-ASSIST QR-AUDIO</div>
                     </div>
                     <script>

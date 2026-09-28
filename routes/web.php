@@ -9,6 +9,21 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/qr-code', [QRCodeController::class, 'generate'])->name('qr-code.generate');
 
+// Service worker served via Laravel (not static) supaya header caching-nya
+// bisa dijamin 'no-cache' — server-proxy (LiteSpeed/Cloudflare) menimpa
+// header static sw.js menjadi immutable ke browser, yang berakibat update
+// service worker tidak pernah keluar.
+Route::get('/sw.js', function () {
+    $worker = file_get_contents(resource_path('pwa/sw.js'));
+
+    return response($worker, 200, [
+        'Content-Type' => 'application/javascript',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Pragma' => 'no-cache',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+})->name('service-worker');
+
 Route::get('/', [AudioBukuController::class, 'landing'])->name('home');
 
 Route::get('/read-assist', [ReadAssistController::class, 'index'])->name('read.index');

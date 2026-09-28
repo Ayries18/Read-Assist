@@ -391,6 +391,9 @@
     select {
         -webkit-appearance: none;
         appearance: none;
+        height: auto;
+        min-height: 2.5rem;
+        line-height: 1.2;
         font-size: 1rem;
         padding-top: 0.65rem;
         padding-bottom: 0.65rem;

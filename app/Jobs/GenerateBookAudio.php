@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\BookTextExtractionException;
 use App\Models\AudioBuku;
+use App\Services\AudioChunkPlan;
 use App\Services\TTSEngine;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Smalot\PdfParser\Parser;
 
 class GenerateBookAudio implements ShouldQueue
 {
@@ -23,16 +26,33 @@ class GenerateBookAudio implements ShouldQueue
 
     public int $tries = 1;
 
+    public bool $deleteWhenMissingModels = true;
+
+    /**
+     * Batas ukuran PDF untuk ekstraksi teks otomatis. Parser PHP murni
+     * menahan seluruh dokumen di memori sehingga PDF besar dapat
+     * menghabiskan memory_limit dan membuat job gagal diam-diam.
+     */
+    public const MAX_PDF_EXTRACTION_MEGABYTES = 25;
+
     public function __construct(AudioBuku $audioBook)
     {
         $this->audioBook = $audioBook;
     }
 
-    public function handle(TTSEngine $tts): void
+    /**
+     * Job ini hanya berfungsi sebagai orchestrator: mengekstrak teks, memecahnya
+     * menjadi beberapa bagian, lalu menaruh satu job GenerateAudioChunk per
+     * bagian. Sintesis TTS sebelumnya berjalan di dalam satu job sehingga PDF
+     * besar (>6000 kalimat) selalu dibunuh oleh timeout 600 detik. Memecahnya
+     * membuat pekerjaan bisa dilanjutkan dari chunk terakhir yang berhasil.
+     */
+    public function handle(AudioChunkPlan $plan): void
     {
         $this->audioBook->update([
             'audio_status' => 'processing',
             'audio_progress' => 0,
+            'current_chunk' => 0,
             'audio_message' => 'Mengekstrak teks buku...',
         ]);
 
@@ -49,9 +69,6 @@ class GenerateBookAudio implements ShouldQueue
             return;
         }
 
-        $audioDir = 'audio/'.$bookId;
-        $storagePath = Storage::disk('public')->path($audioDir);
-
         $sentences = TTSEngine::splitSentences($text, $this->audioBook->judul);
         if (empty($sentences)) {
             $this->audioBook->update([
@@ -63,65 +80,20 @@ class GenerateBookAudio implements ShouldQueue
             return;
         }
 
-        $sentenceFiles = [];
-        $total = count($sentences);
-
-        foreach ($sentences as $i => $sentence) {
-            $index = $i + 1;
-            $filename = 'sentence_'.str_pad((string) $index, 4, '0', STR_PAD_LEFT).'.mp3';
-            $outputPath = $storagePath.DIRECTORY_SEPARATOR.$filename;
-
-            $success = $tts->generateSentence($sentence, $outputPath, $index);
-
-            if ($success) {
-                $sentenceFiles[] = $outputPath;
-                Log::info("GenerateBookAudio #{$bookId}: kalimat {$index}/{$total} berhasil.");
-            } else {
-                Log::error("GenerateBookAudio #{$bookId}: kalimat {$index}/{$total} gagal.");
-            }
-
-            $this->audioBook->update([
-                'audio_progress' => (int) round(($index / $total) * 100),
-                'audio_message' => "Menyintesis kalimat {$index} dari {$total}...",
-            ]);
-
-            // Small delay between requests to prevent rate-limiting on external TTS endpoints
-            if ($i < $total - 1) {
-                usleep(150000);
-            }
-        }
-
-        if (empty($sentenceFiles)) {
-            $this->audioBook->update([
-                'audio_status' => 'failed',
-                'audio_message' => 'Semua kalimat gagal disintesis.',
-            ]);
-            Log::error("GenerateBookAudio #{$bookId}: semua kalimat gagal.");
-
-            return;
-        }
+        $saved = $plan->save($bookId, $sentences);
+        $totalChunks = $saved['total_chunks'];
+        $totalSentences = $saved['total_sentences'];
 
         $this->audioBook->update([
-            'audio_message' => 'Menggabungkan potongan audio...',
+            'total_sentences' => $totalSentences,
+            'total_chunks' => $totalChunks,
+            'audio_message' => "Menyintesis {$totalSentences} kalimat dalam {$totalChunks} bagian...",
         ]);
 
-        $fullAudioPath = $storagePath.DIRECTORY_SEPARATOR.'full.mp3';
-        $concatSuccess = $tts->concatAudio($sentenceFiles, $fullAudioPath);
+        Log::info("GenerateBookAudio #{$bookId}: {$totalSentences} kalimat dibagi menjadi {$totalChunks} chunk.");
 
-        if ($concatSuccess) {
-            $this->audioBook->update([
-                'file_audio' => $audioDir.'/full.mp3',
-                'audio_status' => 'completed',
-                'audio_progress' => 100,
-                'audio_message' => 'Selesai.',
-            ]);
-            Log::info("GenerateBookAudio #{$bookId}: selesai. File: {$audioDir}/full.mp3");
-        } else {
-            $this->audioBook->update([
-                'audio_status' => 'failed',
-                'audio_message' => 'Gagal menggabungkan audio.',
-            ]);
-            Log::error("GenerateBookAudio #{$bookId}: concat gagal.");
+        for ($chunkIndex = 1; $chunkIndex <= $totalChunks; $chunkIndex++) {
+            GenerateAudioChunk::dispatch($this->audioBook, $chunkIndex);
         }
     }
 
@@ -157,8 +129,10 @@ class GenerateBookAudio implements ShouldQueue
 
     protected function extractPdfText(string $path): string
     {
+        $this->guardPdfExtractionSize($path);
+
         try {
-            $parser = new \Smalot\PdfParser\Parser();
+            $parser = new Parser;
             $pdf = $parser->parseFile($path);
             $text = $pdf->getText();
 
@@ -170,6 +144,37 @@ class GenerateBookAudio implements ShouldQueue
 
             return '';
         }
+    }
+
+    /**
+     * Tolak PDF yang terlalu besar sebelum masuk parser, karena parser PHP murni
+     * menahan seluruh objek dokumen di memori dan dapat menguras memory_limit
+     * pada shared hosting.
+     *
+     * @throws BookTextExtractionException
+     */
+    protected function guardPdfExtractionSize(string $path): void
+    {
+        if (! is_file($path)) {
+            return;
+        }
+
+        $sizeMb = round(filesize($path) / 1048576, 1);
+
+        if ($sizeMb <= self::MAX_PDF_EXTRACTION_MEGABYTES) {
+            return;
+        }
+
+        Log::error('PDF rejected: exceeds extraction size limit.', [
+            'path' => $path,
+            'size_mb' => $sizeMb,
+            'limit_mb' => self::MAX_PDF_EXTRACTION_MEGABYTES,
+        ]);
+
+        throw new BookTextExtractionException(
+            "Ukuran PDF {$sizeMb} MB melebihi batas ".self::MAX_PDF_EXTRACTION_MEGABYTES
+            .' MB untuk ekstraksi teks otomatis. Kompres atau pecah file menjadi bagian yang lebih kecil.'
+        );
     }
 
     protected function extractEpubText(string $path): string

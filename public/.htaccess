@@ -1,3 +1,125 @@
+# =============================================================================
+# Read-Assist — konfigurasi Apache untuk document root public/
+#
+# Struktur:
+#   1. Kompresi (mod_deflate / mod_brotli)
+#   2. Cache per tipe berkas (mod_expires)
+#   3. Routing Laravel (mod_rewrite)
+#
+# Semua blok dibungkus IfModule supaya tidak menghasilkan error 500 di host
+# yang modulnya tidak aktif.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# 1. KOMPRESI
+# -----------------------------------------------------------------------------
+# Tanpa ini, HTML 70 KB dan CSS 151 KB dikirim apa adanya ke setiap pengunjung.
+# Audit produksi menunjukkan aset sudah terkompresi (Content-Encoding: br),
+# jadi blok ini mainly menutupi kasus saat mod_brotli tidak termuat.
+<IfModule mod_deflate.c>
+    # HTML, CSS, JS, dan JSON adalah tipe berkas yang paling besar dan paling
+    # sering diminta, sehingga paling worthwhile untuk dikompresi.
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json application/manifest+json
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+
+    # Font WOFF/WOFF2 sudah terkompresi, memampatkan lagi hanya buang CPU.
+    AddOutputFilterByType DEFLATE font/woff font/woff2 font/ttf font/otf
+    AddOutputFilterByType DEFLATE application/font-woff application/vnd.ms-fontobject
+
+    # GAMBAR TIDAK dikompresi di sini. JPEG/WebP/PNG sudah terkompresi
+    # berversi; memampatkannya lagi hampir tidak mengecilkan ukuran, hanya
+    # menambah beban CPU dan menunda respons.
+
+    # Older browser
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch \bMSIE\s(7|8) !no-gzip !gzip-only-text/html
+    BrowserMatch \bTrident/7.0 rv:11\.\d.* !no-gzip
+</IfModule>
+
+# Brotli lebih baik dari gzip, dan cPanel sudah mendukungnya (bukti produksi:
+# aset CSS terkirim "Content-Encoding: br"). Aktifkan kalau tersedia.
+<IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/xml text/css
+    AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json
+    AddOutputFilterByType BROTLI_COMPRESS application/xml application/xhtml+xml
+    AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+</IfModule>
+
+
+# -----------------------------------------------------------------------------
+# 2. CACHE BROWSER
+# -----------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # HTML: cache header dari aplikasi (no-cache, private) yang diprioritaskan.
+    # max-age 0 membuat peramban selalu memeriksa ke server, tapi header
+    # Expires dan ETag tetap ada sehingga revalidasi terasa cepat.
+    ExpiresByType text/html                            "access plus 0 seconds"
+
+    # Aset Vite: nama berkas mengandung hash konten, jadi isinya TIDAK PERNAH
+    # berubah untuk URL yang sama. Satu tahun + immutable jauh lebih baik
+    # daripada default LiteSpeed max-age=604800 (7 hari) yang terlihat di
+    # audit produksi — verifikasi ulang tidak perlu sama sekali.
+    ExpiresByType text/css                              "access plus 1 year"
+    ExpiresByType application/javascript                "access plus 1 year"
+    ExpiresByType application/json                      "access plus 1 year"
+    ExpiresByType application/manifest+json             "access plus 1 year"
+    ExpiresByType text/javascript                      "access plus 1 year"
+
+    # Font
+    ExpiresByType font/woff2                            "access plus 1 year"
+    ExpiresByType font/woff                             "access plus 1 year"
+
+    # Gambar & media
+    ExpiresByType image/webp                            "access plus 1 year"
+    ExpiresByType image/png                             "access plus 1 year"
+    ExpiresByType image/jpeg                            "access plus 1 year"
+    ExpiresByType image/svg+xml                         "access plus 1 year"
+    ExpiresByType image/x-icon                          "access plus 1 year"
+    ExpiresByType audio/mpeg                            "access plus 7 days"
+</IfModule>
+
+# Header Cache-Control eksplisit untuk aset ber-hash, supaya tidak
+# bergantung pada modul lain. sw.js DIKECUALIKAN (negative lookahead)
+# karena LiteSpeed tidak menjamin urutan override antar FilesMatch,
+# sehingga blok sw.js di bawah WAJIB jadi satu-satunya yang menyentuhnya.
+<IfModule mod_headers.c>
+    <FilesMatch "^(?!sw\.js$).*\.(css|js|woff2?|ttf|eot|webp|png|jpe?g|svg|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Dokumen HTML tidak boleh disimpan di cache. Safari dan Chrome
+    # sering merevalidasi dokumen anyway, jadi menyimpan respons basi
+    # hanya menambah risiko menampilkan versi lama.
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-cache, private, must-revalidate"
+    </FilesMatch>
+
+    # Service worker TIDAK boleh immutable: peramban harus selalu bisa
+    # mendeteksi versi baru sw.js, kalau tidak update PWA tidak pernah
+    # sampai ke pengguna. Expires (dari mod_expires di atas) juga dibuang,
+    # karena LiteSpeed bisa saja mengutamakan Expires bila keduanya ada.
+    <FilesMatch "^sw\.js$">
+        Header unset Expires
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </FilesMatch>
+
+    # Header keamanan dasar. HSTS sengaja TIDAK diaktifkan di sini karena
+    # cPanel sudah memakai HTTPS dan salah set bisa mengunci Anda keluar situs.
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+
+# -----------------------------------------------------------------------------
+# 3. ROUTING LARAVEL
+# -----------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -22,4 +144,40 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# cPanel php ini directives
+# ---------------------------------------------------------------------------
+# Blok di bawah ini identik dengan yang dihasilkan cPanel MultiPHP INI Editor
+# di document root, dan sengaja disimpan di repo agar sinkronisasi lewat
+# scripts/deploy-public.sh tidak menghapus batas PHP produksi.
+#
+# PENTING: file ini boleh disunting lewat cPanel, tetapi cPanel TIDAK membaca
+# file di dalam folder aplikasi. Jadi bila Anda mengubah batas PHP melalui
+# cPanel MultiPHP INI Editor, salin kembali blok ini ke public/.htaccess lalu
+# commit, supaya repo dan produksi tidak berbeda lagi.
+<IfModule php8_module>
+   php_flag display_errors Off
+   php_value max_execution_time 30
+   php_value max_input_time 60
+   php_value max_input_vars 1000
+   php_value memory_limit 256M
+   php_value post_max_size 64M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/var/cpanel/php/sessions/ea-php81"
+   php_value upload_max_filesize 50M
+   php_flag zlib.output_compression Off
+</IfModule>
+<IfModule lsapi_module>
+   php_flag display_errors Off
+   php_value max_execution_time 30
+   php_value max_input_time 60
+   php_value max_input_vars 1000
+   php_value memory_limit 256M
+   php_value post_max_size 64M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/var/cpanel/php/sessions/ea-php81"
+   php_value upload_max_filesize 50M
+   php_flag zlib.output_compression Off
 </IfModule>

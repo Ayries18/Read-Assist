@@ -19,11 +19,41 @@ class AudioBukuTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_service_worker_served_by_laravel_with_no_cache()
+    {
+        $response = $this->get('/sw.js');
+
+        $response->assertStatus(200)
+            ->assertHeader('Content-Type', 'application/javascript')
+            ->assertHeader('Pragma', 'no-cache')
+            ->assertSee('addEventListener', false);
+
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-cache', $cacheControl);
+        $this->assertStringContainsString('no-store', $cacheControl);
+        $this->assertStringContainsString('must-revalidate', $cacheControl);
+        $this->assertStringNotContainsString('immutable', $cacheControl);
+        $this->assertStringNotContainsString('max-age=31536000', $cacheControl);
+    }
+
     public function test_catalog_page_returns_200()
     {
         AudioBuku::factory()->create();
         $response = $this->get('/katalog-audio');
         $response->assertStatus(200);
+    }
+
+    public function test_mini_player_only_renders_on_catalog_page()
+    {
+        AudioBuku::factory()->count(3)->create(['deskripsi' => str_repeat('Ini adalah teks buku yang cukup panjang. ', 40)]);
+
+        $this->get('/katalog-audio')
+            ->assertSee('id="mini-audio-player"', false)
+            ->assertDontSee('book-description-tts');
+
+        $book = AudioBuku::first();
+        $this->get("/katalog-audio/{$book->id}")
+            ->assertDontSee('id="mini-audio-player"', false);
     }
 
     public function test_catalog_shows_empty_state()
@@ -55,7 +85,6 @@ class AudioBukuTest extends TestCase
     public function test_user_can_register()
     {
         $response = $this->post('/register', [
-            'role' => 'user',
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -64,6 +93,24 @@ class AudioBukuTest extends TestCase
 
         $response->assertRedirect('/user/dashboard');
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+        $this->assertDatabaseMissing('admin', ['email' => 'test@example.com']);
+    }
+
+    public function test_registration_ignores_role_admin_payload()
+    {
+        $response = $this->post('/register', [
+            'role' => 'admin',
+            'name' => 'Penyerang',
+            'email' => 'attacker@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertRedirect('/user/dashboard');
+        $this->assertDatabaseHas('users', ['email' => 'attacker@example.com']);
+        $this->assertDatabaseMissing('admin', ['email' => 'attacker@example.com']);
+
+        $this->assertSame('user', session('auth_role'));
     }
 
     public function test_user_can_login()

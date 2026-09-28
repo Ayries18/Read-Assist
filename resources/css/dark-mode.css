@@ -402,7 +402,7 @@ html.dark-mode body .nav-icon-btn:hover {
 /* Mobile drawer: latar gelap + teks terang */
 html.dark-mode body .mobile-drawer {
     background-color: #1e1e1e !important;
-    border-left-color: #3f3f3f !important;
+    border-right-color: #3f3f3f !important;
 }
 html.dark-mode body .mobile-drawer-close:hover {
     background: rgba(255, 255, 255, 0.08) !important;

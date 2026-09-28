@@ -112,6 +112,7 @@
                 <span class="text-slate-600 font-semibold uppercase tracking-wider text-xs">Ringkasan Audio:</span>
                 <span class="text-slate-600"><strong class="text-emerald-400">{{ $stats['audio_completed'] }}</strong> siap</span>
                 <span class="text-slate-600"><strong class="text-amber-400">{{ $stats['audio_processing'] }}</strong> diproses</span>
+                <span class="text-slate-600"><strong class="text-orange-400">{{ $stats['audio_partial'] }}</strong> sebagian</span>
                 <span class="text-slate-600"><strong class="text-rose-400">{{ $stats['audio_failed'] }}</strong> gagal</span>
                 <span class="text-slate-600"><strong class="text-blue-400">{{ $stats['total_progress'] }}</strong> progres tersimpan</span>
             </div>
@@ -184,7 +185,7 @@
                     </div>
 
                     <div class="bg-white p-3 rounded-xl flex items-center justify-center mx-auto" style="width: 140px; height: 140px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); margin: 0.2rem auto;">
-                        <img id="quick-qr-img" src="" alt="Quick QR Preview" class="rounded" style="width: 116px; height: 116px; min-width: 116px; min-height: 116px; flex-shrink: 0; object-fit: contain;">
+                        <img id="quick-qr-img" src="" alt="Pratinjau QR kode buku" width="116" height="116" loading="lazy" decoding="async" class="rounded" style="width: 116px; height: 116px; min-width: 116px; min-height: 116px; flex-shrink: 0; object-fit: contain;">
                     </div>
                     
                     <div class="flex gap-2 w-full mt-4">
@@ -231,7 +232,7 @@
                     <body>
                         <div class="container">
                             <h2>${title}</h2>
-                            <img src="${qrImg.src}" />
+                            <img src="${qrImg.src}" alt="QR Code untuk ${title}" width="320" height="320" loading="eager" decoding="sync" />
                             <div class="footer">SISTEM READ-ASSIST QR-AUDIO</div>
                         </div>
                         <script>

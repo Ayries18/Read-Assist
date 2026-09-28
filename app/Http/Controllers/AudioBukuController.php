@@ -2,23 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\BookTextExtractionException;
 use App\Jobs\GenerateBookAudio;
 use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
 use App\Services\TunnelService;
+use App\Support\Seo\Faq;
+use App\Support\Seo\SeoBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Smalot\PdfParser\Parser;
 
 class AudioBukuController extends Controller
 {
+    /**
+     * Batas ukuran PDF untuk ekstraksi teks otomatis.
+     * Parser PHP murni menahan seluruh dokumen di memori sehingga PDF besar
+     * dapat menghabiskan memory_limit pada shared hosting.
+     */
+    private const MAX_PDF_EXTRACTION_MEGABYTES = 25;
+
     public function landing()
     {
         try {
-            $bookCount = AudioBuku::count();
-            $totalChars = AudioBuku::sum(\DB::raw('LENGTH(deskripsi)'));
+            [$bookCount, $totalChars] = Cache::remember('landing_chars_v1', 3600, function () {
+                $bookCount = AudioBuku::count();
+                $totalChars = AudioBuku::sum(\DB::raw('LENGTH(deskripsi)'));
+
+                return [$bookCount, $totalChars];
+            });
         } catch (\Exception $e) {
+            Cache::forget('landing_chars_v1');
             $bookCount = 0;
             $totalChars = 0;
             \Log::warning('Database connection failed on landing page: '.$e->getMessage());
@@ -35,7 +52,32 @@ class AudioBukuController extends Controller
         $totalWords = (int) ($totalChars / 6);
         $readDuration = ceil($totalWords / 150).' Mins';
 
-        return view('home', compact('bookCount', 'charCount', 'readDuration'));
+        // FAQ didefinisikan sekali lalu dipakai untuk markup body DAN JSON-LD,
+        // supaya keduanya tidak mungkin berbeda isi.
+        $faq = Faq::landing();
+
+        // Gambar hero dilayani Pexels yang sudah bisa mengubah format, jadi
+        // WebP bisa dipilih lewat <picture> dan ukuran dikunci lewat srcset.
+        // Tanpa ini, ponsel mengunduh berkas 2000px yang tidak pernah dipakai.
+        $hero = fn (int $width, int $height, string $format): string => sprintf(
+            'https://images.pexels.com/photos/6606144/pexels-photo-6606144.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=%d&h=%d&fm=%s',
+            $width,
+            $height,
+            $format,
+        );
+
+        return view('home', [
+            'bookCount' => $bookCount,
+            'charCount' => $charCount,
+            'readDuration' => $readDuration,
+            'faq' => $faq,
+            'hero480' => $hero(480, 360, 'webp'),
+            'hero720' => $hero(720, 540, 'webp'),
+            'hero1200' => $hero(1200, 900, 'webp'),
+            'hero1800' => $hero(1800, 1350, 'webp'),
+            'heroJpeg' => $hero(1200, 900, 'jpg'),
+            'seo' => SeoBuilder::landing(route('home'), $faq),
+        ]);
     }
 
     public function index(Request $request)
@@ -72,7 +114,7 @@ class AudioBukuController extends Controller
             ->sort()
             ->values();
 
-        return view('audio-books.index', compact('audioBooks', 'search', 'selectedCategory', 'sort', 'categories'));
+        return view('audio-books.index', compact('audioBooks', 'search', 'selectedCategory', 'sort', 'categories') + ['withMiniPlayer' => true]);
     }
 
     public function create()
@@ -109,7 +151,16 @@ class AudioBukuController extends Controller
 
         $bookPath = $bookFile->store('file-buku', 'public');
         $fullBookPath = Storage::disk('public')->path($bookPath);
-        $bookText = $this->extractBookText($fullBookPath, $extension);
+
+        try {
+            $bookText = $this->extractBookText($fullBookPath, $extension);
+        } catch (BookTextExtractionException $e) {
+            Storage::disk('public')->delete($bookPath);
+
+            return back()
+                ->withErrors(['book_file' => $e->getMessage()])
+                ->withInput();
+        }
 
         if (trim($bookText) === '') {
             Storage::disk('public')->delete($bookPath);
@@ -141,6 +192,7 @@ class AudioBukuController extends Controller
         // Generate QR code and trigger audio generation automatically
         $this->generateQrFile($audioBook);
         GenerateBookAudio::dispatch($audioBook);
+        Cache::forget('landing_chars_v1');
 
         return redirect()
             ->route('katalog.show', $audioBook->id)
@@ -172,7 +224,7 @@ class AudioBukuController extends Controller
             $hostname = gethostname();
             if ($hostname) {
                 $hostIp = gethostbyname($hostname);
-                if ($hostIp && $hostIp !== $hostname && $hostIp !== '127.0.0.1' && $hostIp !== '::1') {
+                if ($hostIp !== $hostname && filter_var($hostIp, FILTER_VALIDATE_IP)) {
                     $ips['Host DNS'] = $hostIp;
                 }
             }
@@ -194,7 +246,16 @@ class AudioBukuController extends Controller
                     fclose($socket);
                 }
             } catch (\Throwable $e) {
-                // Socket probe failed — fall through to localhost.
+                // Socket probe failed — fall through to the server address fallback.
+            }
+        }
+
+        if (empty($ips)) {
+            // Shared hosting sering memblokir probe socket keluar, jadi andalkan
+            // alamat yang sudah diikat cPanel ke virtual host.
+            $serverAddr = $_SERVER['SERVER_ADDR'] ?? null;
+            if (is_string($serverAddr) && filter_var($serverAddr, FILTER_VALIDATE_IP)) {
+                $ips['Server Addr'] = $serverAddr;
             }
         }
 
@@ -321,6 +382,7 @@ class AudioBukuController extends Controller
         ];
 
         $audioBook->update($updateData);
+        Cache::forget('landing_chars_v1');
 
         return redirect()
             ->route('katalog.show', $audioBook->id)
@@ -383,6 +445,7 @@ class AudioBukuController extends Controller
         }
 
         $audioBook->delete();
+        Cache::forget('landing_chars_v1');
 
         return redirect()
             ->route('audio-books.index')
@@ -391,7 +454,7 @@ class AudioBukuController extends Controller
 
     public function streamAudio(AudioBuku $audioBook)
     {
-        if ($audioBook->audio_status !== 'completed' || ! $audioBook->file_audio || $audioBook->file_audio === 'tts') {
+        if (! in_array($audioBook->audio_status, ['completed', 'partial']) || ! $audioBook->file_audio || $audioBook->file_audio === 'tts') {
             abort(404);
         }
 
@@ -596,8 +659,10 @@ class AudioBukuController extends Controller
 
     private function extractPdfText(string $path): string
     {
+        $this->guardPdfExtractionSize($path);
+
         try {
-            $parser = new \Smalot\PdfParser\Parser();
+            $parser = new Parser;
             $pdf = $parser->parseFile($path);
             $text = $pdf->getText();
 
@@ -609,6 +674,36 @@ class AudioBukuController extends Controller
 
             return '';
         }
+    }
+
+    /**
+     * Tolak PDF yang terlalu besar sebelum masuk parser, karena parser PHP murni
+     * menahan seluruh objek dokumen di memori dan dapat menguras memory_limit.
+     *
+     * @throws BookTextExtractionException
+     */
+    private function guardPdfExtractionSize(string $path): void
+    {
+        if (! is_file($path)) {
+            return;
+        }
+
+        $sizeMb = round(filesize($path) / 1048576, 1);
+
+        if ($sizeMb <= self::MAX_PDF_EXTRACTION_MEGABYTES) {
+            return;
+        }
+
+        \Log::error('PDF rejected: exceeds extraction size limit.', [
+            'path' => $path,
+            'size_mb' => $sizeMb,
+            'limit_mb' => self::MAX_PDF_EXTRACTION_MEGABYTES,
+        ]);
+
+        throw new BookTextExtractionException(
+            "Ukuran PDF {$sizeMb} MB melebihi batas ".self::MAX_PDF_EXTRACTION_MEGABYTES
+            .' MB untuk ekstraksi teks otomatis. Kompres atau pecah file menjadi bagian yang lebih kecil.'
+        );
     }
 
     private function extractEpubText(string $path): string
