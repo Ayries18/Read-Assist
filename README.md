@@ -203,7 +203,7 @@ Langkah-langkahnya:
 | :--- | :--- |
 | Read-Assist text analysis | Analisis teks secara lokal (PHP): jumlah kata, jumlah kalimat, ringkasan 2 kalimat, dan 5 kata kunci. |
 | Guest QR restriction | Pengunjung tidak login yang datang via QR hanya diizinkan mengakses buku terkait (cegah IDOR). |
-| PWA | `public/manifest.json` + `public/sw.js` — aplikasi dapat diinstal. |
+| PWA | `resources/pwa/sw.js` (dilayani Laravel di `/service-worker.js`) + `public/manifest.json` — aplikasi dapat diinstal. |
 
 ---
 
