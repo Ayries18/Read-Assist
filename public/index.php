@@ -17,19 +17,28 @@ define('LARAVEL_START', microtime(true));
 |                            sehingga folder aplikasi ada di __DIR__/..
 |
 |   2. Hosting cPanel      : document root = ~/public_html
-|                            sedangkan folder aplikasi berada di
-|                            ~/Read-Assist, yaitu __DIR__/Read-Assist
+|                            sedangkan folder aplikasi adalah TETANGGA
+|                            document root, yaitu ~/Read-Assist,
+|                            jadi jalurnya dirname(__DIR__).'/Read-Assist'
 |
-| Tanpa deteksi di bawah, file ini akan mencari autoloader di lokasi yang
-| salah pada salah satu layout dan situs akan gagal total dengan HTTP 500.
+| Perhatikan bedanya. Di layout cPanel folder aplikasi bukan anak dari
+| document root, melainkan saudara sejajar, sehingga memakai __DIR__ akan
+| mengarah ke public_html/Read-Assist yang isinya kosong.
+|
 | Karena itu repo harus memuat SATU file yang benar untuk keduanya, supaya
 | scripts/deploy-public.sh bisa menyalin apa adanya tanpa divergensi.
 |
 */
 
+$candidates = [
+    __DIR__.'/..',                        // lokal: public -> Read-Assist
+    dirname(__DIR__).'/Read-Assist',      // cPanel: public_html -> Read-Assist
+    dirname(__DIR__),                     // cadangan: docroot = folder aplikasi
+];
+
 $appBase = null;
 
-foreach ([__DIR__.'/..', __DIR__.'/Read-Assist', dirname(__DIR__)] as $candidate) {
+foreach ($candidates as $candidate) {
     if (is_file($candidate.'/vendor/autoload.php') && is_file($candidate.'/bootstrap/app.php')) {
         $appBase = rtrim($candidate, '/');
 
@@ -40,8 +49,15 @@ foreach ([__DIR__.'/..', __DIR__.'/Read-Assist', dirname(__DIR__)] as $candidate
 if ($appBase === null) {
     http_response_code(500);
     header('Content-Type: text/plain; charset=utf-8');
-    exit('Read-Assist: lokasi folder aplikasi tidak ditemukan. '
-        .'Periksa document root dan isi scripts/deploy-public.sh.');
+    echo "Read-Assist: folder aplikasi tidak ditemukan.\n";
+    echo 'Document root: '.__DIR__."\n";
+    echo "Lokasi yang diperiksa:\n";
+    foreach ($candidates as $candidate) {
+        echo '  - '.$candidate
+            .(is_dir($candidate) ? ' (ada, tapi tidak lengkap)' : ' (tidak ada)')."\n";
+    }
+    echo 'Periksa document root, lalu jalankan scripts/deploy-public.sh --verify.';
+    exit;
 }
 
 // Determine if the application is in maintenance mode...
