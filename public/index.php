@@ -7,56 +7,45 @@ define('LARAVEL_START', microtime(true));
 
 /*
 |--------------------------------------------------------------------------
-| Document Root Resolution
+| Document Root
 |--------------------------------------------------------------------------
 |
-| File ini harus bekerja pada dua layout sekaligus, karena folder aplikasi
-| dan document root tidak selalu berada di lokasi yang sama:
+| Front controller ini dilayani dari dua lokasi berbeda, jadi lokasi folder
+| aplikasi harus ditentukan dulu:
 |
-|   1. Pengembangan lokal  : document root = Read-Assist/public
-|                            sehingga folder aplikasi ada di __DIR__/..
+|   1. Pengembangan lokal
+|      Document root = Read-Assist/public
+|      Folder aplikasi = __DIR__.'/..'
 |
-|   2. Hosting cPanel      : document root = ~/public_html
-|                            sedangkan folder aplikasi adalah TETANGGA
-|                            document root, yaitu ~/Read-Assist,
-|                            jadi jalurnya dirname(__DIR__).'/Read-Assist'
+|   2. Hosting cPanel
+|      Document root = ~/public_html
+|      Folder aplikasi = ~/Read-Assist
 |
-| Perhatikan bedanya. Di layout cPanel folder aplikasi bukan anak dari
-| document root, melainkan saudara sejajar, sehingga memakai __DIR__ akan
-| mengarah ke public_html/Read-Assist yang isinya kosong.
+| Perhatikan bahwa pada layout cPanel folder aplikasi adalah SAUDARA sejajar
+| dari document root, bukan anaknya. Jadi jalurnya dirname(__DIR__).'/Read-Assist'
+| dan BUKAN __DIR__.'/Read-Assist' yang menunjuk direktori kosong di dalam
+| document root.
 |
-| Karena itu repo harus memuat SATU file yang benar untuk keduanya, supaya
-| scripts/deploy-public.sh bisa menyalin apa adanya tanpa divergensi.
+| Satu berkas ini dipakai untuk kedua layout supaya deploy-public.sh bisa
+| menyalin apa adanya tanpa perlu menyunting file di server.
 |
 */
 
-$candidates = [
-    __DIR__.'/..',                        // lokal: public -> Read-Assist
-    dirname(__DIR__).'/Read-Assist',      // cPanel: public_html -> Read-Assist
-    dirname(__DIR__),                     // cadangan: docroot = folder aplikasi
-];
+$appBase = __DIR__.'/..';
 
-$appBase = null;
-
-foreach ($candidates as $candidate) {
-    if (is_file($candidate.'/vendor/autoload.php') && is_file($candidate.'/bootstrap/app.php')) {
-        $appBase = rtrim($candidate, '/');
-
-        break;
-    }
+if (! is_file($appBase.'/vendor/autoload.php')) {
+    $appBase = dirname(__DIR__).'/Read-Assist';
 }
 
-if ($appBase === null) {
+if (! is_file($appBase.'/vendor/autoload.php') || ! is_file($appBase.'/bootstrap/app.php')) {
     http_response_code(500);
     header('Content-Type: text/plain; charset=utf-8');
-    echo "Read-Assist: folder aplikasi tidak ditemukan.\n";
-    echo 'Document root: '.__DIR__."\n";
-    echo "Lokasi yang diperiksa:\n";
-    foreach ($candidates as $candidate) {
-        echo '  - '.$candidate
-            .(is_dir($candidate) ? ' (ada, tapi tidak lengkap)' : ' (tidak ada)')."\n";
-    }
-    echo 'Periksa document root, lalu jalankan scripts/deploy-public.sh --verify.';
+    echo "Read-Assist: folder aplikasi tidak ditemukan di document root ini.\n";
+    echo 'Document root : '.__DIR__."\n";
+    echo ' Dicoba        : '.__DIR__.'/..'."\n";
+    echo ' Dicoba        : '.dirname(__DIR__).'/Read-Assist'."\n";
+    echo ' Perbaiki dengan: bash scripts/deploy-public.sh';
+
     exit;
 }
 

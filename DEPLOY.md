@@ -4,271 +4,338 @@ Prosedur deployment Read-Assist ke hosting cPanel (Laravel 13 + LiteSpeed + Clou
 
 ---
 
-## 1. Arsitektur yang harus dipahami lebih dulu
+## 1. Diagram deployment
 
 ```
-/home/cp2ujcb5545/
-├── Read-Assist/              <- folder aplikasi (git)
-│   ├── app/ bootstrap/ config/ database/ resources/ routes/ storage/ vendor/
-│   ├── public/               <- sumber kebenaran aset yang akan disajikan
-│   │   ├── .htaccess
-│   │   ├── .user.ini
-│   │   ├── index.php
-│   │   ├── robots.txt
-│   │   ├── logo*.png|svg
-│   │   ├── favicon.*
-│   │   ├── build/            <- hasil npm run build (tidak masuk git)
-│   │   ├── storage -> storage/app/public   (symlink)
-│   │   └── js/
-│   └── scripts/deploy-public.sh
-│
-└── public_html/              <- DOCUMENT ROOT cPanel (BUKAN symlink)
-    ├── build      -> Read-Assist/public/build     (symlink)
-    ├── storage    -> Read-Assist/public/storage   (symlink)
-    ├── favicon.ico-> Read-Assist/public/favicon.ico (symlink)
-    ├── .htaccess  .user.ini  index.php  robots.txt  logo*  sw.js  ...  (salinan)
-    ├── .well-known/acme-challenge/   <- milik cPanel, untuk renewal SSL
-    ├── php.ini                       <- milik cPanel (MultiPHP INI)
-    ├── error_log                     <- milik cPanel
-    └── google*.html                  <- verifikasi Google Search Console
+  MESIN LOKAL                        SERVER cPanel
+  ───────────                        ─────────────
+
+  git push  ──────────────────────►  git pull --ff-only
+       │                                       │
+       │                                 php artisan optimize:clear
+  npm run build                            config:cache
+       │                                   route:cache
+       │                                   view:cache
+       │                                       │
+       │  scp / rsync public/build  ──────►  ~/Read-Assist/public/build/
+       │                                       │
+       │                                       ▼
+       │                          ┌──────────────────────────────┐
+       │                          │  scripts/deploy-public.sh    │
+       │                          │  · validasi + proteksi       │
+       │                          │  · backup (jika berubah)     │
+       │                          │  · sinkron public/ → docroot │
+       │                          │  · upkeep symlink            │
+       │                          │  · verifikasi byte-per-byte  │
+       │                          │  · health check              │
+       │                          │  · tulis manifest JSON       │
+       │                          └──────────────┬───────────────┘
+       │                                         │
+       │                                         ▼
+       │        ~/Read-Assist/          ~/public_html/
+       │        (git, sumber)            (document root, disposable)
+       │        ├── app/                 ├── .htaccess        ← salinan
+       │        ├── config/              ├── .user.ini        ← salinan
+       │        ├── routes/              ├── index.php        ← salinan
+       │        ├── storage/             ├── robots.txt       ← salinan
+       │        └── public/              ├── logo*.png|svg    ← salinan
+       │            ├── .htaccess        ├── favicon.png/.svg ← salinan
+       │            ├── .user.ini        ├── manifest.json    ← salinan
+       │            ├── index.php        ├── sw.js            ← salinan
+       │            ├── build/           ├── build      ──► symlink
+       │            └── storage ──┐      ├── storage    ──► symlink
+       │                         │      ├── favicon.ico ──► symlink
+       │                         │      │
+       │                         └──────┤
+       │                                ├── .well-known/acme-challenge/  🔒 cPanel
+       │                                ├── php.ini                      🔒 cPanel
+       │                                ├── error_log                    🔒 cPanel
+       │                                └── google*.html                 🔒 verifikasi
+       ▼
+  https://readassist.web-id.id  ◄── Cloudflare ──► health check
 ```
 
-### Mengapa `public_html` tidak dijadikan symlink penuh
+Aturan yang dibaca dari diagram:
 
-Ditolak dengan sengaja. Empat alasan, semuanya fatal:
+- `~/Read-Assist/public` = **sumber kebenaran**. `~/public_html` = hasil sinkronisasi.
+- Yang bertanda 🔒 **tidak pernah** ditulis, dipindahkan, atau dihapus oleh script.
+- `public/build` tidak masuk git, jadi harus diunggah terpisah tiap `npm run build`.
+- Tiga symlink (`build`, `storage`, `favicon.ico`) dipelihara oleh script, bukan disalin.
+
+### Kenapa `public_html` TIDAK dijadikan symlink penuh
+
+Putusan ini sudah final dan tidak perlu ditinjau ulang:
 
 1. **`.well-known/acme-challenge` hanya ada di `public_html`.** Mengganti document root
-   dengan symlink ke `public/` akan menghapus direktori itu dan **renewal SSL berikutnya
-   akan gagal**.
+   akan menghapus direktori itu dan **renewal SSL berikutnya gagal**.
 2. **`php.ini` dan `error_log` hanya ada di `public_html`** dan dikelola cPanel.
-3. **`index.php` hasil symlink penuh menunjuk `__DIR__.'/../'`,** yaitu
-   `/home/cp2ujcb5545/vendor/`, yang tidak ada. Situs akan balas HTTP 500 total.
-   (Sudah diatasi di `public/index.php` dengan deteksi lokasi, tapi lihat tetap tidak
-  heer)
-4. cPanel menyimpan document root di konfigurasi domain; mengganti direktori tersebut
-   dengan symlink sering merusak ACL LiteSpeed dan proses paduan cPanel.
+   Tidak bisa dipulihkan tanpa akses cPanel.
+3. **`index.php` hasil symlink menunjuk `/home/cp2ujcb5545/vendor/`**, yang tidak ada.
+   Situs balas HTTP 500 total.
+4. cPanel menyimpan document root di konfigurasi domain. Mengganti direktori tersebut
+   dengan symlink merusak ACL LiteSpeed dan proses cPanel.
 
-Karena itu sinkronisasi dilakukan dengan **script**, bukan symlink.
+### Peran `public/index.php`
 
-### Yang sudah ditangani `public/index.php`
+`public/index.php` dilayani dari dua lokasi, jadi ia menentukan letak folder aplikasi
+dulu. Satu berkas berlaku untuk keduanya, supaya sinkronisasi tidak perlu menyunting
+file di server:
 
-Satu file berlaku untuk dua layout, mendeteksi sendiri letaknya:
-
-| Layout | Letak folder aplikasi | Cara deteksi |
+| Layout | Document root | Folder aplikasi |
 |---|---|---|
-| Lokal | `Read-Assist/public` | `__DIR__/..` punya `vendor/autoload.php` |
-| cPanel | `Read-Assist/public_html` | `__DIR__/Read-Assist` punya `vendor/autoload.php` |
+| Lokal | `Read-Assist/public` | `__DIR__/..` |
+| cPanel | `~/public_html` | `dirname(__DIR__).'/Read-Assist'` |
 
-Kalau tidak ditemukan, halaman mengembalikan 500 dengan pesan jelas, bukan
-`require` ke file yang tidak ada.
+Di layout cPanel folder aplikasi adalah **saudara sejajar** document root, bukan
+anaknya. Kalau salah menulis `__DIR__.'/Read-Assist'`, hasilnya menunjuk
+`public_html/Read-Assist` yang kosong dan situs balas 500. Health check ada
+guna menangkap kelas kesalahan ini.
 
 ---
 
 ## 2. Prasyarat
 
 ```bash
-# Di server
-cd ~/Read-Assist
-php -v                 # PHP 8.3+
-git remote -v          # sudah ada origin
+# Server
+cd ~/Read-Assist && php -v && git remote -v
 
-# Aset front-end WAJIB dibangun lebih dulu, karena node tidak ada di server cPanel.
-# Bangun di mesin lokal, commit bila ada perubahan, lalu rsync/scp public/build.
+# Lokal, hanya bila CSS/JS berubah
 npm run build
+# lalu unggah public/build ke server
 ```
 
-> **Penting:** `public/build` ada di `.gitignore`, jadi `git pull` **tidak** pernah
-> mengirim aset front-end ke server. Kalau CSS/JS berubah, `public/build` harus
-> diunggah terpisah. `scripts/deploy-public.sh` tidak membuat build; ia hanya
-> menyalin apa yang sudah ada.
+> `public/build` ada di `.gitignore`, jadi `git pull` **tidak pernah** mengirim aset
+> front-end. Script tidak membangun aset; ia hanya menyalin yang sudah ada.
 
 ---
 
-## 3. Prosedur deployment
+## 3. Checklist SEBELUM deploy
 
 ```bash
-# 0. Masuk ke server
-ssh readassist
+# 1. Repo lokal bersih dan test hijau
+git status --porcelain          # harus kosong
+php artisan test                # 48/48
+vendor/bin/pint --test
 
-# 1. Tarik perubahan kode
-cd ~/Read-Assist
-git pull --ff-only origin master
+# 2. Aset front-end dibangun bila ada perubahan CSS/JS
+npm run build
 
-# 2. Bersihkan cache lama
-php artisan optimize:clear
+# 3. Lihat rencana sinkronisasi di server, tanpa writes
+ssh readassist 'cd ~/Read-Assist && git pull --ff-only && bash scripts/deploy-public.sh --dry-run'
 
-# 3-5. Bangun ulang cache produksi
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# 6. Sinkronkan public/ ke public_html
-bash scripts/deploy-public.sh
-
-# 7. Verifikasi (bisa dijalankan terpisah kapan saja)
-bash scripts/deploy-public.sh --verify
+# 4. Pastikan .well-known dan php.ini masih ada sebelum mulai
+ssh readassist 'ls -d ~/public_html/.well-known && ls ~/public_html/php.ini'
 ```
 
-Langkah 3 sampai 5 dipisah secara sengaja. `optimize` menyatukan ketiganya, tetapi
-memakai `config:cache`, `route:cache`, dan `view:cache` satu per satu membuat
-kesalahan lebih mudah dilacak.
+- [ ] `git status` bersih, tidak ada perubahan belum ter-commit
+- [ ] `php artisan test` hijau
+- [ ] `npm run build` dijalankan bila ada perubahan CSS/JS
+- [ ] `public/build` **sudah diunggah** ke server
+- [ ] `--dry-run` tidak menunjukkan penghapusan yang tidak diharapkan
+- [ ] Tidak ada deploy pada saat cPanel sedang mengubah PHP INI
+- [ ] `.well-known` dan `php.ini` masih ada di document root
+
+---
+
+## 4. Prosedur deploy
+
+```bash
+ssh readassist
+cd ~/Read-Assist
+
+git pull --ff-only origin master     # 1. kode
+php artisan optimize:clear           # 2. bersihkan cache
+php artisan config:cache             # 3
+php artisan route:cache              # 4
+php artisan view:cache               # 5
+
+bash scripts/deploy-public.sh        # 6. sinkron + verifikasi + health check
+```
+
+Langkah 6 sudah mencakup semuanya: backup, sinkron, upkeep symlink, verifikasi
+byte-per-byte, health check, dan penulisan manifest.
 
 ### Opsi script
 
 | Perintah | Fungsi |
 |---|---|
-| `bash scripts/deploy-public.sh` | Sinkronkan, lalu verifikasi |
-| `bash scripts/deploy-public.sh --dry-run` | Tampilkan rencana saja, tidak menulis apa pun |
-| `bash scripts/deploy-public.sh --verify` | Hanya verifikasi, tidak menulis |
-| `APP_DIR=/path/to/app DOC_DIR=/path/to/root bash scripts/deploy-public.sh` | Override lokasi, untuk menguji di staging |
+| `bash scripts/deploy-public.sh` | Deploy penuh, lalu health check |
+| `bash scripts/deploy-public.sh --dry-run` | Rencana saja: file baru/berubah/dihapus/symlink. Tidak menulis |
+| `bash scripts/deploy-public.sh --verify` | Verifikasi + health check, tanpa menulis |
+| `bash scripts/deploy-public.sh --list-backups` | Daftar backup beserta jumlah berkas |
+| `bash scripts/deploy-public.sh --rollback latest` | Pulihkan backup terakhir |
+| `HEALTH_BASE_URL=http://localhost bash scripts/deploy-public.sh` | Health check lewat URL lain |
 
-Script akan:
-
-- menolak jalan bila `public/index.php`, `.htaccess`, atau `robots.txt` hilang;
-- mencadangkan file yang akan berubah ke `public_html/.deploy-backups/<timestamp>/`;
-- menyalin seluruh isi `public/` dengan mempertahankan permission;
-- membuat ulang symlink `build`, `storage`, dan `favicon.ico`;
-- menetapkan direktori 755 dan file 644;
-- memverifikasi hasilnya per file dan keluar dengan kode bukan 0 bila ada yang gagal.
-
-### Cara aman menghapus file usang
-
-Script **tidak** memakai `rm -rf` untuk semua yang tidak ada di repo. Itu akan
-menghapus `.well-known`, `php.ini`, dan `error_log`. Sebagai gantinya script menyimpan
-`.deploy-public.manifest` berisi nama yang pernah disinkronkan, lalu hanya menghapus
-nama yang tercatat di sana **dan** sudah hilang dari `public/`.
+Exit code 0 berarti deploy sukses. Selain itu ada masalah dan script mencetak
+perintah pemulihan yang harus dijalankan.
 
 ---
 
-## 4. Verifikasi setelah deploy
+## 5. Checklist SESUDAH deploy
+
+Script mencetak sendiri hampir semuanya. Verifikasi manual:
 
 ```bash
-# Dari server
-bash scripts/deploy-public.sh --verify
-
-# Cek respons HTTP dan header cache
-curl -sS -o /dev/null -D - https://readassist.web-id.id/ | grep -iE 'HTTP|cache-control|content-encoding'
-curl -sS -o /dev/null -D - https://readassist.web-id.id/build/manifest.json | grep -iE 'HTTP|cache-control'
-
-# Route publik harus 200
-for p in / /katalog-audio /login /register; do
-  printf '%-20s %s\n' "$p" "$(curl -sS -o /dev/null -w '%{http_code}' "https://readassist.web-id.id$p")"
-  sleep 1
-done
-
-# Route terproteksi harus 302 ke /login, bukan 500
-for p in /admin/dashboard /user/dashboard /katalog-audio/tambah /user/tambah-buku; do
-  printf '%-24s %s -> %s\n' "$p" \
-    "$(curl -sS -o /dev/null -w '%{http_code}' "https://readassist.web-id.id$p")" \
-    "$(curl -sS -o /dev/null -w '%{redirect_url}' "https://readassist.web-id.id$p")"
-  sleep 1
-done
-
-# Token QR palsu harus 404, bukan 500 (500 berarti front controller rusak)
-curl -sS -o /dev/null -w '%{http_code}\n' https://readassist.web-id.id/scan/book/token-palsu
-
-# Isi halaman dan error log
-curl -sS https://readassist.web-id.id/ | grep -c '<h1'
-grep -c '\[28-Sep-2026' ~/public_html/error_log      # sesuaikan tanggal
+ssh readassist 'cd ~/Read-Assist && bash scripts/deploy-public.sh --verify'
 ```
 
-Yang harus benar:
+Yang harus terpenuhi:
 
-- `/` balas HTTP 200, berisi 1 `<h1>`, dan berukuran puluhan ribu byte;
-- route terproteksi balas **302 ke `/login`**, bukan 500;
-- `/scan/book/token-palsu` balas **404**, bukan 500;
-- CSS dan font punya `Cache-Control: public, max-age=31536000, immutable`;
-- `public_html/build/manifest.json` ada dan seluruh aset rujukannya ada;
-- symlink `build`, `storage`, `favicon.ico` tidak putus;
-- `.well-known/acme-challenge` masih ada;
-- `~/public_html/error_log` tidak menambah baris error pada tanggal hari ini.
+- [ ] `file baru`, `file berubah`, `symlink diperbaiki` = 0
+- [ ] 12 berkas lolos `cmp` byte-per-byte (`index.php`, `.htaccess`, `.user.ini`, aset logo/favicon)
+- [ ] 3 symlink valid: `build`, `storage`, `favicon.ico`
+- [ ] Seluruh aset rujukan `build/manifest.json` ada
+- [ ] `.well-known`, `php.ini`, `error_log` masih ada
+- [ ] Health check: `/`, `/login`, `/register`, `/katalog-audio` semuanya 200
+- [ ] `error_log` tidak bertambah baris error hari ini
 
-> Beri jeda 1 detik antar `curl`. Mengakses beruntun tanpa jeda memicu Cloudflare
+```bash
+ssh readassist "grep -c \"\[$(date +%d-%b-%Y)\" ~/public_html/error_log"
+```
+
+> Beri jeda 1 detik antar `curl`. Akses beruntun tanpa jeda memicu Cloudflare
 > mengembalikan 522/525 sesaat, yang keliru dan bukan tanda situs rusak.
 
 ---
 
-## 5. Rollback
+## 6. Flow rollback
 
-### 5a. Rollback aset statis saja (paling sering dipakai)
-
-Kalau situs masih hidup tapi CSS atau gambar rusak:
-
-```bash
-cd ~/Read-Assist
-ls -1dt ~/public_html/.deploy-backups/* | head -5      # lihat daftar backup
-
-# Salin kembali isi backup
-cp -a ~/public_html/.deploy-backups/<timestamp>/. ~/public_html/
-php artisan view:cache
-
-# If the problem is the code, roll back first, then repeat the sync
-git checkout <commit-sebelumnya>
-bash scripts/deploy-public.sh
+```
+        deploy gagal
+              │
+              ▼
+   health check tidak lolos / verify reported FAILURES > 0
+              │
+      ┌───────┴────────┐
+      │                │
+      ▼                ▼
+  aset statis saja?   kode yang salah?
+  (CSS/gambar)     (500, 500, fitur rusak)
+      │                │
+      ▼                ▼
+  --rollback      git revert <commit>
+  latest              │
+      │                ▼
+      │          deploy ulang (7.1)
+      │                │
+      └───────┬────────┘
+              ▼
+    verify + health check
+              │
+              ▼
+          sukses / eskalasi
 ```
 
-### 5b. Rollback kode
+### 6a. Rollback aset statis (paling sering dipakai)
+
+```bash
+ssh readassist
+cd ~/Read-Assist
+bash scripts/deploy-public.sh --list-backups
+bash scripts/deploy-public.sh --rollback latest
+bash scripts/deploy-public.sh --verify
+```
+
+`--rollback latest` mengembalikan berkas dari backup terakhir **dan** menghapus
+berkas yang baru dibuat deploy sebelumnya, sehingga document root kembali persis
+ke kondisi sebelum deploy.
+
+Rollback ini **tidak** menyentuh kode. Kalau deploy gagal karena perubahan kode,
+lihat 6b.
+
+### 6b. Rollback kode
 
 ```bash
 cd ~/Read-Assist
-git log --oneline -10                       # cari commit target
-git revert <commit-yang-bermasalah>         # lebih aman daripada reset
-# atau, bila belum ada yang pushed:
-git reset --hard <commit-sebelumnya>        # HATI-HATI: membuang perubahan lokal
+git log --oneline -10                    # cari commit target
+git revert <commit-yang-bermasalah>      # lebih aman daripada reset
+git push origin master
 
 php artisan optimize:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan config:cache && php artisan route:cache && php artisan view:cache
 bash scripts/deploy-public.sh
 ```
 
-### 5c. Kalau situs tidak mau hidup sama sekali
+Rollback kode selalu diikuti deploy ulang, karena `public/` harus ikut sinkron.
+
+### 6c. Lift total (situs tidak mau hidup sama sekali)
+
+`.htaccess` dan `index.php` bisa diperbaiki dari sisi server tanpa menunggu git:
 
 ```bash
 cd ~/Read-Assist
 mv ~/public_html/index.php ~/public_html/index.php.broken
-echo '<?php require "/home/cp2ujcb5545/Read-Assist/vendor/autoload.php";
-      $app = require_once "/home/cp2ujcb5545/Read-Assist/bootstrap/app.php";
-      $app->handleRequest(Illuminate\Http\Request::capture());' > ~/public_html/index.php
-chmod 644 ~/public_html/index.php
+cp public/index.php ~/public_html/index.php
+mv ~/public_html/.htaccess ~/public_html/.htaccess.broken
+cp public/.htaccess   ~/public_html/.htaccess
+chmod 644 ~/public_html/index.php ~/public_html/.htaccess
+php artisan optimize:clear && php artisan config:cache
+curl -sS -o /dev/null -w '%{http_code}\n' https://readassist.web-id.id/
 ```
 
 Lalu diagnose dari `~/public_html/error_log` dan `~/Read-Assist/storage/logs/laravel.log`.
 
 ---
 
-## 6. Pemeliharaan berkelanjutan
+## 7. Manifest deployment
+
+Setiap deploy sukses menulis `~/public_html/.deploy-public.manifest.json`:
+
+```jsonc
+{
+  "schema": 1,
+  "commit": "<git rev-parse HEAD>",
+  "deployed_at": "2026-09-28T20:15:30+07:00",
+  "app_dir": "...", "doc_dir": "...",
+  "sync_engine": "cp",
+  "changed_count": 2,
+  "added": [], "changed": ["index.php"], "removed": [],
+  "synced_entries": ["..."],          // dasar deletion di deploy berikutnya
+  "symlinks_verified": { "build": {"is_symlink": true, "valid": true}, ... },
+  "protected_present": [".well-known", "php.ini", "error_log"],
+  "checksums_sha256": { "index.php": "...", ".htaccess": "..." },
+  "backup_path": "/home/.../.deploy-backups/20260928-201530",
+  "health_check_ok": true
+}
+```
+
+`backup_path` adalah yang dibaca `--rollback latest`. `synced_entries` yang membuat
+penghapusan tetap aman: hanya nama yang tercatat di sini yang boleh dihapus, jadi
+berkas milik cPanel tidak pernah ikut terhapus.
+
+---
+
+## 8. Pemeliharaan
 
 ### Bila batas PHP diubah lewat cPanel
 
-cPanel menuliskan balik blok miliknya ke `~/public_html/.htaccess`, **bukan** ke
-`Read-Assist/public/.htaccess`. Setelah mengubah PHP INI di cPanel:
+cPanel menulis balik blok miliknya ke `~/public_html/.htaccess`, **bukan** ke repo:
 
 ```bash
-# Ambil blok terbaru dari document root
-sed -n '/BEGIN cPanel-generated/,$p' ~/public_html/.htaccess
-# Salin blok itu ke Read-Assist/public/.htaccess, lalu commit
-cd ~/Read-Assist && git add public/.htaccess && git commit -m "Sync cPanel PHP INI block"
+ssh readassist 'sed -n "/BEGIN cPanel-generated/,\$p" ~/public_html/.htaccess'
+# salin blok itu ke public/.htaccess, lalu commit
 ```
 
-Kalau langkah ini dilewatkan, sinkronisasi berikutnya akan mengembalikan nilai lama
-dan batas PHP produksi bisa berubah tanpa Anda sadari.
+Lewati langkah ini, sinkronisasi berikutnya akan mengembalikan nilai lama dan batas
+PHP produksi bisa berubah tanpa disadari.
 
-### Bila ada front controller dijalankan dua kali
-
-Bila muncul `Command line code line 1` atau respons kosong untuk `.php`, cek apakah
-ada blok rewrite di `.htaccess` yang menulis ulang ke `index.php` dua kali.
-Jalankan:
+### Bila front controller dijalankan dua kali
 
 ```bash
-grep -c 'RewriteRule.*index.php' ~/public_html/.htaccess
+ssh readassist 'grep -c "RewriteRule.*index.php" ~/public_html/.htaccess'   # harus 1
 ```
 
-Nilai yang benar adalah `1`.
+### Bila deploy ditolakprotected file
 
-### T merchand spurred check berkala
+`deploy-public.sh` berhenti sebelum menyalin apa pun bila `.well-known` atau
+`php.ini` tidak ada di document root. almost always berarti `DOC_DIR` salah, bukan
+repo rusak. Periksa `DOC_DIR` sebelum memaksa.
 
-Jalankan `bash scripts/deploy-public.sh --verify` setelah setiap perubahan `.htaccess`,
-setiap pergantian cPanel, dan sebelum harden yang berikutnya. Perintah ini hanya
-membaca, jadi aman dijalankan sesering mungkin.
+### Menghapus backup lama
+
+```bash
+ssh readassist 'ls -1dt ~/public_html/.deploy-backups/* | tail -n +8 | xargs rm -rf'
+# menyisakan 7 backup terbaru
+```
+
+Backup berisi aset statis saja,Ukuran kecil, tapi tetap perlu dibatasi.
