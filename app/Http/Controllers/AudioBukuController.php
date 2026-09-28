@@ -445,7 +445,7 @@ class AudioBukuController extends Controller
 
     public function streamAudio(AudioBuku $audioBook)
     {
-        if ($audioBook->audio_status !== 'completed' || ! $audioBook->file_audio || $audioBook->file_audio === 'tts') {
+        if (! in_array($audioBook->audio_status, ['completed', 'partial']) || ! $audioBook->file_audio || $audioBook->file_audio === 'tts') {
             abort(404);
         }
 

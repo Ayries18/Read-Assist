@@ -55,7 +55,6 @@ class AudioBukuTest extends TestCase
     public function test_user_can_register()
     {
         $response = $this->post('/register', [
-            'role' => 'user',
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -64,6 +63,24 @@ class AudioBukuTest extends TestCase
 
         $response->assertRedirect('/user/dashboard');
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+        $this->assertDatabaseMissing('admin', ['email' => 'test@example.com']);
+    }
+
+    public function test_registration_ignores_role_admin_payload()
+    {
+        $response = $this->post('/register', [
+            'role' => 'admin',
+            'name' => 'Penyerang',
+            'email' => 'attacker@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertRedirect('/user/dashboard');
+        $this->assertDatabaseHas('users', ['email' => 'attacker@example.com']);
+        $this->assertDatabaseMissing('admin', ['email' => 'attacker@example.com']);
+
+        $this->assertSame('user', session('auth_role'));
     }
 
     public function test_user_can_login()

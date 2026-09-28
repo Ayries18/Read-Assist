@@ -103,15 +103,20 @@ class FinalizeBookAudio implements ShouldQueue
             return;
         }
 
+        $missingCount = $totalSentences - $available;
+        $isPartial = $missingCount > 0;
+
         $this->audioBook->update([
             'file_audio' => $audioDir.'/full.mp3',
-            'audio_status' => 'completed',
-            'audio_progress' => 100,
+            'audio_status' => $isPartial ? 'partial' : 'completed',
+            'audio_progress' => $isPartial ? (int) round(($available / $totalSentences) * 100) : 100,
             'current_chunk' => $plan->totalChunksOf($saved),
-            'audio_message' => 'Selesai.',
+            'audio_message' => $isPartial
+                ? "Selesai sebagian: {$missingCount} dari {$totalSentences} kalimat gagal disintesis."
+                : 'Selesai.',
         ]);
 
-        Log::info("FinalizeBookAudio #{$bookId}: selesai. File: {$audioDir}/full.mp3");
+        Log::info("FinalizeBookAudio #{$bookId}: selesai. File: {$audioDir}/full.mp3, status: ".($isPartial ? 'partial' : 'completed'));
     }
 
     public function failed(\Throwable $exception): void

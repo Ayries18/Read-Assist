@@ -59,10 +59,15 @@
         </div>
     </div>
 
-    @if ($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
+    @if (in_array($audioBook->audio_status, ['completed', 'partial']) && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
         <!-- Generated MP3 Player -->
         <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5 card--soft">
             <h2 class="text-sm sm:text-base text-black mb-3">Dengarkan Audio</h2>
+            @if ($audioBook->audio_status === 'partial')
+                <div class="mb-3 bg-amber-100 border-2 border-amber-400 text-amber-900 text-sm rounded-xl p-3" role="alert">
+                    <strong>Perhatian:</strong> audio tidak lengkap — {{ $audioBook->audio_message ?: 'sebagian kalimat gagal disintesis.' }}
+                </div>
+            @endif
             <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
                 <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
                 Browser Anda tidak mendukung pemutar audio.
@@ -300,7 +305,7 @@
                 if (barEl) barEl.style.width = pct + '%';
                 if (percentEl) percentEl.innerText = pct + '%';
                 if (messageEl) messageEl.innerText = data.audio_message || 'Sedang diproses...';
-                if (data.audio_status === 'completed') {
+                if (data.audio_status === 'completed' || data.audio_status === 'partial') {
                     window.location.reload();
                     return;
                 }

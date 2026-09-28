@@ -12,7 +12,6 @@
 
         <form method="POST" action="/register" id="register-form">
             @csrf
-            <input type="hidden" name="role" value="user">
 
             <div class="form-control w-full mb-4">
                 <label for="name" class="label-text text-slate-300 text-sm font-medium mb-2 block">Nama Lengkap</label>

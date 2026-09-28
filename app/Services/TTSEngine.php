@@ -11,9 +11,9 @@ class TTSEngine
 
     protected int $timeout;
 
-    public function __construct()
+    public function __construct(?Client $http = null)
     {
-        $this->http = new Client([
+        $this->http = $http ?? new Client([
             'timeout' => config('tts.timeout', 120),
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -78,12 +78,17 @@ class TTSEngine
 
             $combined = '';
             foreach ($parts as $i => $part) {
-                $partPath = $outputPath.'.part'.$i.'.mp3';
+                $partPath = $this->partFilePath($outputPath, $i);
                 $success = $this->downloadTts($part, $partPath);
-                if ($success) {
-                    $combined .= file_get_contents($partPath);
-                    @unlink($partPath);
+                if (! $success) {
+                    Log::warning("TTS: kalimat terpotong gagal pada bagian ke-{$i}; output dibatalkan.");
+                    $this->cleanupPartFiles($outputPath);
+                    @unlink($outputPath);
+
+                    return false;
                 }
+                $combined .= file_get_contents($partPath);
+                @unlink($partPath);
             }
 
             if ($combined === '') {
@@ -135,6 +140,50 @@ class TTSEngine
         }
 
         return false;
+    }
+
+    /**
+     * Nama file sementara untuk bagian kalimat yang dipotong. Memakai prefix
+     * "tmp_" dan diakhiri ".mp3" agar tidak termakan pola glob sentence_*.mp3
+     * milik resume (patch: file part yang lama "sentence_0001.mp3.part0.mp3"
+     * bocor ke dalam jumlah kalimat yang dianggap sudah selesai).
+     */
+    protected function partFilePath(string $outputPath, int $index): string
+    {
+        return dirname($outputPath).DIRECTORY_SEPARATOR.'tmp_'.basename($outputPath).'_part'.$index.'.mp3';
+    }
+
+    /**
+     * Menghapus semua file part sementara milik satu kalimat (maksimal 64 part).
+     */
+    protected function cleanupPartFiles(string $outputPath): void
+    {
+        for ($i = 0; $i < 64; $i++) {
+            $partPath = $this->partFilePath($outputPath, $i);
+            if (is_file($partPath)) {
+                @unlink($partPath);
+            } else {
+                break;
+            }
+        }
+
+        $this->cleanupLegacyPartFiles($outputPath);
+    }
+
+    /**
+     * Membersihkan sisa file part lama bergaya "sentence_0001.mp3.part0.mp3"
+     * yang mungkin masih tersisa di produksi dari logika sebelum v1.1.
+     */
+    protected function cleanupLegacyPartFiles(string $outputPath): void
+    {
+        for ($i = 0; $i < 64; $i++) {
+            $legacyPath = $outputPath.'.part'.$i.'.mp3';
+            if (is_file($legacyPath)) {
+                @unlink($legacyPath);
+            } else {
+                break;
+            }
+        }
     }
 
     public function concatAudio(array $sentenceFiles, string $outputPath): bool

@@ -155,7 +155,12 @@
                     <div class="bg-[#b8860b]/10 border border-[#b8860b]/25 rounded-xl p-6 text-center">
                         <h2 class="mb-2 text-base">Dengarkan di Laptop Ini</h2>
 
-                        @if ($book->audio_status === 'completed' && $book->file_audio && $book->file_audio !== 'tts')
+                        @if (in_array($book->audio_status, ['completed', 'partial']) && $book->file_audio && $book->file_audio !== 'tts')
+                            @if ($book->audio_status === 'partial')
+                                <div class="mb-4 bg-amber-100 border-2 border-amber-400 text-amber-900 text-sm rounded-xl p-3" role="alert">
+                                    <strong>Perhatian:</strong> audio tidak lengkap — {{ $book->audio_message ?: 'sebagian kalimat gagal disintesis.' }}
+                                </div>
+                            @endif
                             <div class="mb-4">
                                 <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
                                     <source src="{{ route('audio.stream', $book) }}" type="audio/mpeg">
@@ -259,7 +264,7 @@
                                 Hapus Buku
                             </button>
                         </form>
-                        @if ($book->audio_status === 'failed')
+                        @if (in_array($book->audio_status, ['failed', 'partial']))
                             <form method="POST" action="/katalog-audio/{{ $book->id }}/retry-audio" class="w-full mt-2 m-0">
                                 @csrf
                                 <button type="submit" class="btn btn-ghost border-[#b8860b]/30 text-indigo-400 w-full">
@@ -450,11 +455,17 @@
                 const pct = Math.max(0, Math.min(100, parseInt(data.audio_progress || 0, 10)));
                 const badge = el('audio-status-badge');
 
-                if (status === 'completed') {
+                if (status === 'completed' || status === 'partial') {
                     if (badge) {
-                        badge.innerText = 'Selesai';
-                        badge.style.color = '#16a34a';
-                        badge.style.borderColor = '#16a34a';
+                        if (status === 'partial') {
+                            badge.innerText = 'Sebagian';
+                            badge.style.color = '#b45309';
+                            badge.style.borderColor = '#f59e0b';
+                        } else {
+                            badge.innerText = 'Selesai';
+                            badge.style.color = '#16a34a';
+                            badge.style.borderColor = '#16a34a';
+                        }
                     }
                     activateGeneratedPlayer();
 
@@ -552,7 +563,7 @@
                             schedulePoll(2000);
                         }
 
-                        if (data && data.audio_status === 'completed') {
+                        if (data && (data.audio_status === 'completed' || data.audio_status === 'partial')) {
                             syncPending = false;
                             return;
                         }

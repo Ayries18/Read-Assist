@@ -112,6 +112,7 @@
                 <span class="text-slate-600 font-semibold uppercase tracking-wider text-xs">Ringkasan Audio:</span>
                 <span class="text-slate-600"><strong class="text-emerald-400">{{ $stats['audio_completed'] }}</strong> siap</span>
                 <span class="text-slate-600"><strong class="text-amber-400">{{ $stats['audio_processing'] }}</strong> diproses</span>
+                <span class="text-slate-600"><strong class="text-orange-400">{{ $stats['audio_partial'] }}</strong> sebagian</span>
                 <span class="text-slate-600"><strong class="text-rose-400">{{ $stats['audio_failed'] }}</strong> gagal</span>
                 <span class="text-slate-600"><strong class="text-blue-400">{{ $stats['total_progress'] }}</strong> progres tersimpan</span>
             </div>

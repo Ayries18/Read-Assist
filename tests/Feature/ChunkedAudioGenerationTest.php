@@ -63,6 +63,26 @@ class ChunkedAudioGenerationTest extends TestCase
         }
     }
 
+    public function test_resume_tidak_menghitung_part_file_tmp_dan_sisa_lama_sebagai_kalimat()
+    {
+        $book = AudioBuku::factory()->create();
+        $plan = $this->bindPlan(new AudioChunkPlan(5));
+
+        $plan->save($book->id, $this->sentences(10));
+
+        $directory = $this->sentenceDirectory($plan, $book->id);
+        File::ensureDirectoryExists($directory);
+
+        file_put_contents($directory.DIRECTORY_SEPARATOR.$plan->sentenceFileName(1), 'SUDAH-ADA-1');
+        file_put_contents($directory.DIRECTORY_SEPARATOR.$plan->sentenceFileName(3), 'SUDAH-ADA-3');
+        file_put_contents($directory.DIRECTORY_SEPARATOR.'sentence_0002.mp3.part0.mp3', 'SISA-LAMA');
+        file_put_contents($directory.DIRECTORY_SEPARATOR.'tmp_sentence_0004.mp3_part0.mp3', 'FILE-TMP');
+
+        (new GenerateAudioChunk($book, 1))->handle($this->tts, $plan);
+
+        $this->assertSame([2, 4, 5], $this->tts->generated, 'Part file dan file tmp tidak boleh dianggap kalimat selesai.');
+    }
+
     public function test_progress_bersamaan_dengan_jumlah_kalimat_yang_tersimpan()
     {
         $book = AudioBuku::factory()->create();
@@ -165,7 +185,7 @@ class ChunkedAudioGenerationTest extends TestCase
         $this->assertSame([], $this->tts->generated, 'Chunk yang sudah lengkap tidak boleh disintesis ulang.');
     }
 
-    public function test_finalisasi_melewati_kalimat_yang_kosong_tanpa_menggeser_urutan()
+    public function test_finalisasi_melaporkan_status_partial_saat_kalimat_hilang()
     {
         $book = AudioBuku::factory()->create();
         $plan = $this->bindPlan(new AudioChunkPlan(5));
@@ -186,8 +206,10 @@ class ChunkedAudioGenerationTest extends TestCase
 
         $fresh = $book->fresh();
 
-        $this->assertSame('completed', $fresh->audio_status);
-        $this->assertSame(100, (int) $fresh->audio_progress);
+        $this->assertSame('partial', $fresh->audio_status, 'Kalimat yang hilang harus dilaporkan, bukan diklaim selesai.');
+        $this->assertSame(90, (int) $fresh->audio_progress);
+        $this->assertSame("audio/{$book->id}/full.mp3", $fresh->file_audio);
+        $this->assertStringContainsString('1 dari 10 kalimat gagal', $fresh->audio_message);
 
         $combined = (string) file_get_contents(Storage::disk('public')->path("audio/{$book->id}/full.mp3"));
 

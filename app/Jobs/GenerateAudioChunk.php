@@ -131,7 +131,9 @@ class GenerateAudioChunk implements ShouldQueue
 
     private function countExistingSentences(string $directory): int
     {
-        $files = glob($directory.DIRECTORY_SEPARATOR.'sentence_*.mp3');
+        // Pola ketat (hanya angka sebelum .mp3) supaya sisa file part lama
+        // seperti "sentence_0001.mp3.part0.mp3" tidak terhitung sebagai kalimat.
+        $files = glob($directory.DIRECTORY_SEPARATOR.'sentence_[0-9]*.mp3');
 
         return is_array($files) ? count($files) : 0;
     }

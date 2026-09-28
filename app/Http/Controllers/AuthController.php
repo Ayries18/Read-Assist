@@ -61,46 +61,29 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        // Registrasi publik SELALU membuat akun user. Peran tidak pernah
+        // diterima dari input form agar tidak ada eskalasi privilege.
         $validated = $request->validate([
-            'role' => ['required', 'in:admin,user'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email', 'unique:admin,email'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        if ($validated['role'] === 'admin') {
-            $admin = Admin::create([
-                'nama' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+        ]);
 
-            $request->session()->regenerate();
-            $request->session()->forget('qr_restricted_token');
-            $request->session()->put([
-                'auth_id' => $admin->id,
-                'auth_role' => 'admin',
-                'auth_name' => $admin->nama,
-            ]);
+        $request->session()->regenerate();
+        $request->session()->forget('qr_restricted_token');
+        $request->session()->put([
+            'auth_id' => $user->id,
+            'auth_role' => 'user',
+            'auth_name' => $user->name,
+        ]);
 
-            return redirect('/admin/dashboard');
-        } else {
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]);
-
-            $request->session()->regenerate();
-            $request->session()->forget('qr_restricted_token');
-            $request->session()->put([
-                'auth_id' => $user->id,
-                'auth_role' => 'user',
-                'auth_name' => $user->name,
-            ]);
-
-            return redirect('/user/dashboard');
-        }
+        return redirect('/user/dashboard');
     }
 
     public function adminDashboard()
@@ -114,6 +97,7 @@ class AuthController extends Controller
                 'total_books' => AudioBuku::count(),
                 'audio_completed' => AudioBuku::where('audio_status', 'completed')->count(),
                 'audio_processing' => AudioBuku::whereIn('audio_status', ['pending', 'processing'])->count(),
+                'audio_partial' => AudioBuku::where('audio_status', 'partial')->count(),
                 'audio_failed' => AudioBuku::where('audio_status', 'failed')->count(),
                 'total_users' => User::count(),
                 'user_uploads' => AudioBuku::whereNotNull('user_id')->count(),
@@ -124,6 +108,7 @@ class AuthController extends Controller
                 'total_books' => 0,
                 'audio_completed' => 0,
                 'audio_processing' => 0,
+                'audio_partial' => 0,
                 'audio_failed' => 0,
                 'total_users' => 0,
                 'user_uploads' => 0,
