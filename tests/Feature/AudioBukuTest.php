@@ -26,6 +26,7 @@ class AudioBukuTest extends TestCase
         $response->assertStatus(200)
             ->assertHeader('Content-Type', 'application/javascript')
             ->assertHeader('Pragma', 'no-cache')
+            ->assertHeader('CDN-Cache-Control', 'no-store')
             ->assertSee('addEventListener', false);
 
         $cacheControl = $response->headers->get('Cache-Control');

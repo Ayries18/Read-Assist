@@ -22,6 +22,7 @@ Route::get('/sw.js', function () {
     return response($worker, 200, [
         'Content-Type' => 'application/javascript',
         'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'CDN-Cache-Control' => 'no-store',
         'Pragma' => 'no-cache',
         'X-Content-Type-Options' => 'nosniff',
     ]);
