@@ -34,6 +34,25 @@
             try { return localStorage.getItem('read_assist_theme') || 'system'; } catch (e) { return 'system'; }
         })();
     </script>
+    <script>
+        // Reveal-on-scroll: class `.ra-js` diaktifkan SEBELUM paint pertama
+        // supaya elemen tidak berkedip (flash) lalu menghilang. Tanpa class ini
+        // konten tetap tampil normal — penting untuk SEO dan pengguna yang
+        // mematikan JavaScript.
+        (function () {
+            try {
+                if (!('IntersectionObserver' in window)) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                document.documentElement.classList.add('ra-js');
+                // Jaring pengaman: bila bundel JS gagal dimuat, semua konten
+                // tetap dibuka maksimal 4 detik setelah halaman selesai dimuat.
+                window.setTimeout(function () {
+                    var n = document.querySelectorAll('[data-ra-reveal]:not(.is-revealed)');
+                    for (var i = 0; i < n.length; i++) n[i].classList.add('is-revealed');
+                }, 4000);
+            } catch (e) {}
+        })();
+    </script>
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));
         $hasHot = file_exists(public_path('hot'));

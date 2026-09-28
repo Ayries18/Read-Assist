@@ -45,3 +45,6 @@
 @import './components.css';
 @import './dark-mode.css';
 @import './layout.css';
+/* Terakhir: komponen landing punya kelas sendiri (prefix `ra-`) dan tidak
+   boleh ditimpa override global di file lain. */
+@import './landing.css';

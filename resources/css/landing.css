@@ -1,0 +1,448 @@
+/* ═══════════════════════════════════════════════════════════════════
+   LANDING PAGE — sistem desain "Tentang Read-Assist"
+   ───────────────────────────────────────────────────────────────────
+   Berisi token warna + komponen untuk:
+     • pembatas section  (.ra-section / .ra-band)
+     • card fitur        (.ra-card)
+     • timeline cara kerja(.ra-timeline / .ra-step)
+     • tombol            (.ra-btn)
+     • ilustrasi         (.ra-visual)
+     • reveal on scroll  ([data-ra-reveal])
+
+  Aturan yang dipegang:
+   1. Warna lewat custom property, BUKAN utility warna bawaan Tailwind
+      (mis. `text-slate-600` atau `bg-white`), karena components.css
+      memaksa utility itu (`[class*="text-slate-"]` → hitam, `.bg-white`
+      → putih) dan accessibility.css memaksa `.bg-white` jadi kotak
+      hitam-kuning. Dengan var(), override tema cukup di satu blok
+      per mode.
+   2. Mode gelap & mode kontras tinggi hanya mengubah nilainya —
+      struktur & makna dokumen tidak berubah sama sekali.
+   3. Semua dekoratif memakai `currentColor`/`var()` supaya ikut
+      otomatis membalik saat tema berubah.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Palet brand: hitam #111111, putih, emas #C9981A */
+    --ra-ink: #111111;
+    --ra-body: #3f3f46;
+    --ra-muted: #5b5b63;
+    --ra-gold: #c9981a;
+    --ra-gold-ink: #7a5a00;
+    --ra-on-gold: #111111;
+
+    --ra-surface: #ffffff;
+    --ra-band: #fafafa;
+    --ra-line: rgba(17, 17, 17, 0.09);
+    --ra-line-strong: rgba(17, 17, 17, 0.16);
+
+    --ra-chip-bg: rgba(201, 152, 26, 0.1);
+    --ra-chip-line: rgba(201, 152, 26, 0.28);
+    --ra-visual-fill: rgba(17, 17, 17, 0.025);
+    --ra-visual-glow: rgba(201, 152, 26, 0.2);
+    --ra-timeline-line: rgba(201, 152, 26, 0.4);
+
+    --ra-shadow-1: 0 1px 2px rgba(17, 17, 17, 0.05), 0 2px 8px rgba(17, 17, 17, 0.04);
+    --ra-shadow-2: 0 2px 4px rgba(17, 17, 17, 0.05), 0 14px 30px rgba(17, 17, 17, 0.09);
+    --ra-shadow-3: 0 4px 10px rgba(17, 17, 17, 0.06), 0 26px 54px rgba(17, 17, 17, 0.13);
+}
+
+/* ─── Mode gelap ──────────────────────────────────────────────── */
+html.dark-mode {
+    --ra-ink: #f5f5f5;
+    --ra-body: #e5e5e7;
+    --ra-muted: #b0b0b8;
+    --ra-gold: #ffd54a;
+    --ra-gold-ink: #ffd54a;
+    --ra-on-gold: #121212;
+
+    --ra-surface: #1e1e1e;
+    --ra-band: #171717;
+    --ra-line: rgba(255, 255, 255, 0.13);
+    --ra-line-strong: rgba(255, 255, 255, 0.24);
+
+    --ra-chip-bg: rgba(255, 213, 74, 0.13);
+    --ra-chip-line: rgba(255, 213, 74, 0.32);
+    --ra-visual-fill: rgba(255, 255, 255, 0.04);
+    --ra-visual-glow: rgba(255, 213, 74, 0.14);
+    --ra-timeline-line: rgba(255, 213, 74, 0.38);
+
+    --ra-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --ra-shadow-2: 0 2px 4px rgba(0, 0, 0, 0.5), 0 14px 30px rgba(0, 0, 0, 0.45);
+    --ra-shadow-3: 0 4px 10px rgba(0, 0, 0, 0.5), 0 26px 54px rgba(0, 0, 0, 0.55);
+}
+
+/* dark-mode.css memaksa semua teks jadi #e0e0e0; blok ini memulihkan
+   hierarki visual (judul > paragraf > keterangan) dengan spesifisitas
+   lebih tinggi (2 kelas > 1 kelas pada selector dark-mode.css). */
+html.dark-mode body .ra-body { color: #d4d4d8 !important; }
+html.dark-mode body .ra-muted,
+html.dark-mode body .ra-card__text,
+html.dark-mode body .ra-step__text { color: #a1a1aa !important; }
+html.dark-mode body .ra-gold-ink,
+html.dark-mode body .ra-eyebrow,
+html.dark-mode body .ra-step__num { color: #ffd54a !important; }
+
+/* dark-mode.css memaksa `html.dark-mode body a { color: #9cc3ff !important }`.
+   Tanpa baris ini, teks kedua tombol landing ikut berubah jadi biru tautan:
+   tombol utama jadi biru muda di atas emas (kontras anjlok), tombol ghost
+   jadi biru muda di atas arang tua. !important wajib karena aturan global
+   tersebut juga memakai !important. */
+html.dark-mode body .ra-btn--primary { color: #121212 !important; }
+html.dark-mode body .ra-btn--ghost { color: #e0e0e0 !important; }
+
+/* ─── Mode kontras tinggi (hitam / kuning) ───────────────────── */
+body.accessibility-high-contrast {
+    --ra-ink: #ffff00;
+    --ra-body: #ffff00;
+    --ra-muted: #ffff00;
+    --ra-gold: #ffff00;
+    --ra-gold-ink: #ffff00;
+    --ra-on-gold: #000000;
+
+    --ra-surface: #000000;
+    --ra-band: #000000;
+    --ra-line: #ffff00;
+    --ra-line-strong: #ffff00;
+
+    --ra-chip-bg: #000000;
+    --ra-chip-line: #ffff00;
+    --ra-visual-fill: transparent;
+    --ra-visual-glow: transparent;
+    --ra-timeline-line: #ffff00;
+
+    /* Bayangan tidak terlihat di atas hitam — dimatikan agar tidak sia-sia. */
+    --ra-shadow-1: none;
+    --ra-shadow-2: none;
+    --ra-shadow-3: none;
+}
+
+/* ─── Ritme section + garis pembatas ──────────────────────────── */
+html { scroll-behavior: smooth; }
+
+.ra-section {
+    position: relative;
+    padding-block: 3.5rem;
+}
+@media (min-width: 640px) {
+    .ra-section { padding-block: 4.5rem; }
+}
+@media (min-width: 1024px) {
+    .ra-section { padding-block: 5.5rem; }
+}
+
+/* Garis tipis antar section: Alternatives-nya background bergantian
+   (putih → #FAFAFA) supaya ritmenya terbaca tanpa garis tebal. */
+.ra-divider { border-top: 1px solid var(--ra-line); }
+.ra-band { background-color: var(--ra-band); }
+
+/* ─── Tipografi section ───────────────────────────────────────── */
+.ra-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ra-gold-ink);
+}
+.ra-eyebrow::before {
+    content: "";
+    width: 1.5rem;
+    height: 1px;
+    background: var(--ra-gold);
+}
+
+.ra-h2 {
+    margin: 0;
+    color: var(--ra-ink);
+    font-size: 1.875rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+}
+@media (min-width: 640px) {
+    .ra-h2 { font-size: 2.25rem; }
+}
+
+.ra-h3 {
+    margin: 0;
+    color: var(--ra-ink);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+.ra-lead { color: var(--ra-body); }
+.ra-muted { color: var(--ra-muted); }
+.ra-gold-ink { color: var(--ra-gold-ink); }
+
+/* ─── Tombol ──────────────────────────────────────────────────── */
+.ra-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px; /* target sentuh ≥ 44px (WCAG 2.5.5) */
+    padding: 0.7rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease,
+        border-color 0.2s ease, color 0.2s ease;
+}
+.ra-btn:hover { transform: translateY(-2px); }
+.ra-btn:active { transform: translateY(0) scale(0.985); transition-duration: 0.08s; }
+
+.ra-btn--primary {
+    background-color: var(--ra-gold);
+    color: var(--ra-on-gold);
+    box-shadow: 0 1px 2px rgba(17, 17, 17, 0.1), 0 10px 24px rgba(201, 152, 26, 0.28);
+}
+.ra-btn--primary:hover {
+    box-shadow: 0 2px 4px rgba(17, 17, 17, 0.1), 0 18px 38px rgba(201, 152, 26, 0.36);
+}
+
+.ra-btn--ghost {
+    background-color: var(--ra-surface);
+    color: var(--ra-ink);
+    border-color: var(--ra-line-strong);
+    box-shadow: var(--ra-shadow-1);
+}
+
+/* Ikon di dalam tombol ikut bergerak saat hover. */
+.ra-btn__icon { width: 18px; height: 18px; flex-shrink: 0; transition: transform 0.2s ease; }
+.ra-btn:hover .ra-btn__icon { transform: translateX(2px); }
+
+/* layout.css memberi `border-radius: 4px` ke SEMUA elemen:focus-visible.
+   Tanpa aturan ini, tombol pill akan berubah jadi kotak siku saat difokus
+   — indikator fokus tetap terlihat, tapi bentuknya berubah di tengah
+   interaksi keyboard. */
+.ra-btn:focus-visible { border-radius: 999px; }
+.ra-card summary:focus-visible { border-radius: 12px; }
+
+/* Kontras tinggi: tombol utama jadi kuning penuh / teks hitam.
+   !important wajib: accessibility.css:353 memaksa
+   `body.accessibility-high-contrast a { color: #ffff00 !important }` pada
+   semua <a>, dan itu mengalahkan selector kita apa pun spesifisitasnya
+   ( Importance beating specificity ). Tanpa !important, tombol utama
+   berakhir kuning-di-atas-kuning. */
+body.accessibility-high-contrast .ra-btn--primary {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border-color: #ffff00 !important;
+}
+body.accessibility-high-contrast .ra-btn--ghost {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+}
+
+/* ─── Card ────────────────────────────────────────────────────── */
+.ra-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.5rem;
+    background-color: var(--ra-surface);
+    border: 1px solid var(--ra-line);
+    border-radius: 18px;
+    box-shadow: var(--ra-shadow-1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+/* Hover: naik 6px + shadow bertambah, transisi 200ms. */
+.ra-card--lift:hover,
+.ra-card--lift:focus-within {
+    transform: translateY(-6px);
+    border-color: var(--ra-chip-line);
+    box-shadow: var(--ra-shadow-3);
+}
+
+.ra-card__icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background-color: var(--ra-chip-bg);
+    border: 1px solid var(--ra-chip-line);
+    color: var(--ra-gold-ink);
+    transition: transform 0.2s ease;
+}
+.ra-card__icon svg { width: 24px; height: 24px; }
+.ra-card--lift:hover .ra-card__icon,
+.ra-card--lift:focus-within .ra-card__icon { transform: scale(1.09); }
+
+.ra-card__text {
+    margin: 0;
+    color: var(--ra-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ─── FAQ ─────────────────────────────────────────────────────── */
+.ra-faq__toggle {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    border-radius: 999px;
+    background-color: var(--ra-chip-bg);
+    border: 1px solid var(--ra-chip-line);
+    color: var(--ra-gold-ink);
+}
+/* Chevron berputar saat <details> dibuka — murni dekoratif (aria-hidden). */
+.ra-faq__chevron {
+    width: 16px;
+    height: 16px;
+    transform: rotate(90deg);
+    transition: transform 0.2s ease;
+}
+details[open] .ra-faq__chevron { transform: rotate(-90deg); }
+
+/* ─── Timeline "Cara Kerja" ────────────────────────────────────── */
+.ra-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+/* Penghubung vertikal (mobile). */
+.ra-timeline::before {
+    content: "";
+    position: absolute;
+    left: 23px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    border-radius: 2px;
+    background-color: var(--ra-timeline-line);
+}
+
+.ra-step { position: relative; display: flex; gap: 1rem; align-items: flex-start; }
+
+.ra-step__icon {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background-color: var(--ra-surface);
+    border: 1px solid var(--ra-chip-line);
+    color: var(--ra-gold-ink);
+    /* Cincin dengan warna section → garis timeline terlihat "terputus"
+       di balik ikon, persis seperti stepper modern. */
+    box-shadow: 0 0 0 8px var(--ra-band);
+    transition: transform 0.2s ease;
+}
+.ra-step__icon svg { width: 22px; height: 22px; }
+.ra-step:hover .ra-step__icon { transform: scale(1.09); }
+
+.ra-step__body { min-width: 0; }
+.ra-step__num {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--ra-gold-ink);
+    margin-bottom: 0.15rem;
+}
+.ra-step__text {
+    margin: 0.4rem 0 0;
+    color: var(--ra-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+    .ra-timeline { flex-direction: row; gap: 0; }
+    /* Penghubung horizontal: tepat dari pusat kolom pertama ke pusat
+       kolom terakhir (12,5% → 87,5%) karena kolom tanpa gap. */
+    .ra-timeline::before {
+        left: 12.5%;
+        right: 12.5%;
+        top: 23px;
+        bottom: auto;
+        width: auto;
+        height: 2px;
+    }
+    .ra-step { flex-direction: column; align-items: center; text-align: center; padding-inline: 0.6rem; }
+    .ra-step__body { min-width: 0; }
+}
+
+/* ─── Ilustrasi ───────────────────────────────────────────────── */
+.ra-visual { position: relative; }
+.ra-visual::before {
+    content: "";
+    position: absolute;
+    inset: 10% 8% 8% 10%;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(58% 58% at 50% 42%, var(--ra-visual-glow), transparent 72%);
+}
+.ra-visual__frame {
+    position: relative;
+    z-index: 1;
+    color: var(--ra-ink);
+}
+.ra-visual__art { display: block; width: 100%; height: auto; }
+
+/* Kontras tinggi: cincin pemutus garis timeline ikut warna section. */
+body.accessibility-high-contrast .ra-step__icon { box-shadow: 0 0 0 8px #000000; }
+body.accessibility-high-contrast .ra-card__icon,
+body.accessibility-high-contrast .ra-step__icon { border-width: 2px; }
+
+/* ─── Reveal on scroll ────────────────────────────────────────── */
+/* State awal HANYA aktif setelah JS menambahkan `.ra-js` di <html>.
+   Tanpa JS (atau bundel gagal) konten tetap tampil utuh — penting untuk
+   SEO dan untuk pengguna yang memblokir JavaScript. */
+.ra-js [data-ra-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    will-change: opacity, transform;
+}
+.ra-js [data-ra-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+}
+/* Jaring pengaman: elemen yang pernah menerima fokus keyboard tidak boleh
+   pernah tersembunyi, apa pun kondisi JS-nya. */
+.ra-js [data-ra-reveal]:focus-within {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .ra-js [data-ra-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    .ra-card--lift:hover,
+    .ra-card--lift:focus-within,
+    .ra-step:hover .ra-step__icon,
+    .ra-btn:hover,
+    .ra-btn:active {
+        transform: none;
+    }
+    .ra-faq__chevron { transition: none; }
+}
