@@ -58,6 +58,73 @@ class AudioBukuTest extends TestCase
             ->assertDontSee('id="mini-audio-player"', false);
     }
 
+    public function test_catalog_page_has_seo_meta_and_canonical()
+    {
+        AudioBuku::factory()->create();
+
+        $this->get('/katalog-audio')
+            ->assertSee('<title>Katalog Buku Audio</title>', false)
+            ->assertSee('rel="canonical" href="'.route('audio-books.index').'"', false)
+            ->assertSee('name="robots" content="index, follow, max-image-preview:large"', false);
+    }
+
+    public function test_filtered_catalog_is_noindex()
+    {
+        AudioBuku::factory()->create();
+
+        $this->get('/katalog-audio?search=foo&sort=judul')
+            ->assertSee('name="robots" content="noindex, follow"', false);
+    }
+
+    public function test_book_detail_has_audio_object_schema()
+    {
+        $book = AudioBuku::factory()->create([
+            'judul' => 'Novel Laut dan Cahaya',
+            'penulis' => 'Siti Aminah',
+            'kategori' => 'Fiksi',
+            'deskripsi' => 'Kisah nelayan yang melawan badai demi keluarganya.',
+            'audio_status' => 'completed',
+        ]);
+
+        $response = $this->get("/katalog-audio/{$book->id}");
+
+        $response->assertStatus(200)
+            ->assertSee('<title>Novel Laut dan Cahaya</title>', false)
+            ->assertSee('"@type":"AudioObject"', false)
+            ->assertSee('"name":"Novel Laut dan Cahaya"', false)
+            ->assertSee('"contentUrl":"'.route('audio.stream', $book->id).'"', false)
+            ->assertSee('"encodingFormat":"audio/mpeg"', false);
+    }
+
+    public function test_sitemap_xml_lists_public_pages_and_books()
+    {
+        AudioBuku::factory()->count(2)->create();
+
+        $response = $this->get('/sitemap.xml');
+
+        $response->assertStatus(200)
+            ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false)
+            ->assertSee('<loc>'.route('home').'</loc>', false)
+            ->assertSee('<loc>'.route('audio-books.index').'</loc>', false);
+
+        foreach (AudioBuku::pluck('id') as $id) {
+            $response->assertSee('<loc>'.route('katalog.show', $id).'</loc>', false);
+        }
+    }
+
+    public function test_auth_pages_are_noindex()
+    {
+        $this->get('/login')
+            ->assertSee('name="robots" content="noindex, nofollow"', false);
+
+        $this->get('/register')
+            ->assertSee('name="robots" content="noindex, nofollow"', false);
+
+        $this->get('/lupa-password')
+            ->assertSee('name="robots" content="noindex, nofollow"', false);
+    }
+
     public function test_catalog_shows_empty_state()
     {
         $response = $this->get('/katalog-audio');

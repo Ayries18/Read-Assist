@@ -39,6 +39,8 @@ Route::get('/sw.js', $serveWorker);
 
 Route::get('/', [AudioBukuController::class, 'landing'])->name('home');
 
+Route::get('/sitemap.xml', [AudioBukuController::class, 'sitemap'])->name('sitemap');
+
 Route::get('/read-assist', [ReadAssistController::class, 'index'])->name('read.index');
 Route::post('/proses-teks', [ReadAssistController::class, 'process'])->name('read.process');
 

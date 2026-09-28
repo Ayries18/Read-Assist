@@ -114,7 +114,14 @@ class AudioBukuController extends Controller
             ->sort()
             ->values();
 
-        return view('audio-books.index', compact('audioBooks', 'search', 'selectedCategory', 'sort', 'categories') + ['withMiniPlayer' => true]);
+        $isFiltered = $search !== null || $selectedCategory !== null || $sort !== 'terbaru';
+
+        return view('audio-books.index', compact('audioBooks', 'search', 'selectedCategory', 'sort', 'categories') + [
+            'withMiniPlayer' => true,
+            'seo' => $isFiltered
+                ? SeoBuilder::filteredCatalog(url()->current())
+                : SeoBuilder::catalog(route('audio-books.index')),
+        ]);
     }
 
     public function create()
@@ -210,7 +217,7 @@ class AudioBukuController extends Controller
         $qrUrl = $this->buildQrUrl($book);
 
         return response()
-            ->view('katalog.show', compact('book', 'qrUrl'))
+            ->view('katalog.show', compact('book', 'qrUrl') + ['seo' => SeoBuilder::book($book)])
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -604,7 +611,41 @@ class AudioBukuController extends Controller
 
         session(['qr_restricted_token' => $slug]);
 
-        return view('audio-books.play', compact('audioBook'));
+        return view('audio-books.play', compact('audioBook') + ['seo' => SeoBuilder::book($audioBook)]);
+    }
+
+    public function sitemap()
+    {
+        $now = now()->toAtomString();
+
+        $rows = collect([route('home'), route('audio-books.index')])
+            ->map(fn (string $loc): array => ['loc' => $loc, 'lastmod' => $now])
+            ->merge(
+                AudioBuku::query()
+                    ->orderBy('id')
+                    ->get(['id', 'updated_at'])
+                    ->map(fn (AudioBuku $book): array => [
+                        'loc' => route('katalog.show', $book->id),
+                        'lastmod' => $book->updated_at ? $book->updated_at->toAtomString() : $now,
+                    ])
+            );
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+
+        foreach ($rows as $row) {
+            $xml .= sprintf(
+                "  <url>\n    <loc>%s</loc>\n    <lastmod>%s</lastmod>\n  </url>\n",
+                htmlspecialchars($row['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8'),
+                $row['lastmod'],
+            );
+        }
+
+        $xml .= '</urlset>'."\n";
+
+        return response($xml)
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Cache-Control', 'public, max-age=3600');
     }
 
     public function scan(string $qrToken)
@@ -626,7 +667,12 @@ class AudioBukuController extends Controller
         $qrUrl = $this->buildQrUrl($book);
 
         return response()
-            ->view('katalog.show', compact('book', 'qrUrl'))
+            ->view('katalog.show', compact('book', 'qrUrl') + [
+                'seo' => array_replace(
+                    SeoBuilder::book($book),
+                    ['robots' => 'noindex, nofollow']
+                ),
+            ])
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');

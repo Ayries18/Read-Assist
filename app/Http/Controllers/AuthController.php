@@ -16,9 +16,20 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    /**
+     * Halaman autentikasi/dashboard bersifat privat (session) tidak boleh
+     * diindex Google, terutama yang berisi token reset password.
+     *
+     * @return array<string, mixed>
+     */
+    private function noindexSeo(): array
+    {
+        return ['seo' => ['robots' => 'noindex, nofollow']];
+    }
+
     public function showLogin()
     {
-        return view('auth.login');
+        return view('auth.login', $this->noindexSeo());
     }
 
     public function login(Request $request)
@@ -56,7 +67,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return view('auth.register');
+        return view('auth.register', $this->noindexSeo());
     }
 
     public function register(Request $request)
@@ -117,7 +128,7 @@ class AuthController extends Controller
             \Log::warning('Admin dashboard stats unavailable: '.$e->getMessage());
         }
 
-        return view('auth.admin-dashboard', compact('stats'));
+        return view('auth.admin-dashboard', compact('stats') + $this->noindexSeo());
     }
 
     public function userDashboard()
@@ -147,7 +158,7 @@ class AuthController extends Controller
             \Log::warning('User dashboard stats unavailable: '.$e->getMessage());
         }
 
-        return view('auth.user-dashboard', compact('stats'));
+        return view('auth.user-dashboard', compact('stats') + $this->noindexSeo());
     }
 
     // ─── Profile ──────────────────────────────────────────
@@ -160,7 +171,7 @@ class AuthController extends Controller
         $id = session('auth_id');
         $account = $role === 'admin' ? Admin::findOrFail($id) : User::findOrFail($id);
 
-        return view('auth.profile', compact('account', 'role'));
+        return view('auth.profile', compact('account', 'role') + $this->noindexSeo());
     }
 
     public function updateProfile(Request $request)
@@ -221,7 +232,7 @@ class AuthController extends Controller
     // ─── Forgot Password ──────────────────────────────────
     public function showForgotPassword()
     {
-        return view('auth.forgot-password');
+        return view('auth.forgot-password', $this->noindexSeo());
     }
 
     public function sendResetLink(Request $request)
@@ -269,7 +280,7 @@ class AuthController extends Controller
             'resetUrl' => $showDebugLink ? $resetUrl : null,
             'emailSent' => $emailSent,
             'validated' => $validated,
-        ]);
+        ] + $this->noindexSeo());
     }
 
     public function showResetForm($token)
@@ -286,7 +297,7 @@ class AuthController extends Controller
             return redirect('/login')->withErrors(['email' => 'Link reset sudah kadaluarsa. Silakan ajukan ulang.']);
         }
 
-        return view('auth.reset-password', compact('token', 'record'));
+        return view('auth.reset-password', compact('token', 'record') + $this->noindexSeo());
     }
 
     public function resetPassword(Request $request)
