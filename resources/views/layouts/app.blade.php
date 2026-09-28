@@ -1275,8 +1275,11 @@
         @endif
 
         // ─── PWA Service Worker ─────────────────────────────
+        // Pakai path /service-worker.js (dilayani Laravel, no-store) karena
+        // /sw.js yang dulu file static sudah di-cache Cloudflare sebagai
+        // immutable dan bertahan lama di edge; path baru dijamin bebas cache.
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
+            navigator.serviceWorker.register('/service-worker.js');
         }
     </script>
     @stack('scripts')

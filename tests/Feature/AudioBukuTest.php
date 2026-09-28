@@ -21,19 +21,21 @@ class AudioBukuTest extends TestCase
 
     public function test_service_worker_served_by_laravel_with_no_cache()
     {
-        $response = $this->get('/sw.js');
+        foreach (['/service-worker.js', '/sw.js'] as $path) {
+            $response = $this->get($path);
 
-        $response->assertStatus(200)
-            ->assertHeader('Content-Type', 'application/javascript')
-            ->assertHeader('Pragma', 'no-cache')
-            ->assertHeader('CDN-Cache-Control', 'no-store')
-            ->assertSee('addEventListener', false);
+            $response->assertStatus(200)
+                ->assertHeader('Content-Type', 'application/javascript')
+                ->assertHeader('Pragma', 'no-cache')
+                ->assertHeader('CDN-Cache-Control', 'no-store')
+                ->assertSee('addEventListener', false);
 
-        $cacheControl = $response->headers->get('Cache-Control');
-        $this->assertStringContainsString('no-cache', $cacheControl);
-        $this->assertStringContainsString('must-revalidate', $cacheControl);
-        $this->assertStringNotContainsString('immutable', $cacheControl);
-        $this->assertStringNotContainsString('max-age=31536000', $cacheControl);
+            $cacheControl = $response->headers->get('Cache-Control');
+            $this->assertStringContainsString('no-cache', $cacheControl);
+            $this->assertStringContainsString('must-revalidate', $cacheControl);
+            $this->assertStringNotContainsString('immutable', $cacheControl);
+            $this->assertStringNotContainsString('max-age=31536000', $cacheControl);
+        }
     }
 
     public function test_catalog_page_returns_200()

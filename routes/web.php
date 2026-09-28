@@ -15,8 +15,14 @@ Route::get('/qr-code', [QRCodeController::class, 'generate'])->name('qr-code.gen
 // update service worker tidak pernah keluar.
 // Catatan: sesi sengaja TIDAK dilepas. Respons ber-Set-Cookie membuat
 // Cloudflare mengirim cf-cache-status: BYPASS, jadi worker tidak pernah
-// tersimpan di edge cache Cloudflare.
-Route::get('/sw.js', function () {
+// tersimpan di edge cache Cloudflare (CDN-Cache-Control: no-store
+// mempertebalnya untuk CDN apa pun yang menghormatinya).
+//
+// URL PRIMER: /service-worker.js — path baru yang belum pernah ter-cache
+// sebagai file static, jadi worker tidak mungkin disajikan basi. /sw.js
+// dibiarkan sebagai alias untuk unit lama yang masih meregistrasikan di
+// situ (broswer lama) sampai mereka pindah ke path baru.
+$serveWorker = static function () {
     $worker = file_get_contents(resource_path('pwa/sw.js'));
 
     return response($worker, 200, [
@@ -26,7 +32,10 @@ Route::get('/sw.js', function () {
         'Pragma' => 'no-cache',
         'X-Content-Type-Options' => 'nosniff',
     ]);
-})->name('service-worker');
+};
+
+Route::get('/service-worker.js', $serveWorker)->name('service-worker');
+Route::get('/sw.js', $serveWorker);
 
 Route::get('/', [AudioBukuController::class, 'landing'])->name('home');
 
