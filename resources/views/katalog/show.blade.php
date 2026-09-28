@@ -137,7 +137,7 @@
                         <div id="book-description" class="hidden">{{ $book->deskripsi ?? 'Tidak ada deskripsi.' }}</div>
                     </div>
 
-                    <a href="/read-assist?text={{ urlencode(\Illuminate\Support\Str::limit($book->deskripsi, 5000, '')) }}" target="_blank" rel="noopener" class="btn btn-primary w-full sm:w-auto px-7 py-3 text-sm mt-1 mb-6 inline-flex items-center justify-center gap-2">
+                    <a href="/read-assist?text={{ urlencode(\Illuminate\Support\Str::limit($book->deskripsi, 1200, '')) }}" target="_blank" rel="noopener" class="btn btn-primary w-full sm:w-auto px-7 py-3 text-sm mt-1 mb-6 inline-flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Analisis dengan Read Assist
                     </a>

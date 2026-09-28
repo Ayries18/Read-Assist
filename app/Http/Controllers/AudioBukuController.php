@@ -10,6 +10,7 @@ use App\Services\TunnelService;
 use App\Support\Seo\Faq;
 use App\Support\Seo\SeoBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -27,9 +28,14 @@ class AudioBukuController extends Controller
     public function landing()
     {
         try {
-            $bookCount = AudioBuku::count();
-            $totalChars = AudioBuku::sum(\DB::raw('LENGTH(deskripsi)'));
+            [$bookCount, $totalChars] = Cache::remember('landing_chars_v1', 3600, function () {
+                $bookCount = AudioBuku::count();
+                $totalChars = AudioBuku::sum(\DB::raw('LENGTH(deskripsi)'));
+
+                return [$bookCount, $totalChars];
+            });
         } catch (\Exception $e) {
+            Cache::forget('landing_chars_v1');
             $bookCount = 0;
             $totalChars = 0;
             \Log::warning('Database connection failed on landing page: '.$e->getMessage());
@@ -108,7 +114,7 @@ class AudioBukuController extends Controller
             ->sort()
             ->values();
 
-        return view('audio-books.index', compact('audioBooks', 'search', 'selectedCategory', 'sort', 'categories'));
+        return view('audio-books.index', compact('audioBooks', 'search', 'selectedCategory', 'sort', 'categories') + ['withMiniPlayer' => true]);
     }
 
     public function create()
@@ -186,6 +192,7 @@ class AudioBukuController extends Controller
         // Generate QR code and trigger audio generation automatically
         $this->generateQrFile($audioBook);
         GenerateBookAudio::dispatch($audioBook);
+        Cache::forget('landing_chars_v1');
 
         return redirect()
             ->route('katalog.show', $audioBook->id)
@@ -375,6 +382,7 @@ class AudioBukuController extends Controller
         ];
 
         $audioBook->update($updateData);
+        Cache::forget('landing_chars_v1');
 
         return redirect()
             ->route('katalog.show', $audioBook->id)
@@ -437,6 +445,7 @@ class AudioBukuController extends Controller
         }
 
         $audioBook->delete();
+        Cache::forget('landing_chars_v1');
 
         return redirect()
             ->route('audio-books.index')

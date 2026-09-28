@@ -76,13 +76,13 @@
                     </div>
 
                     <p class="text-sm text-slate-600 line-clamp-3 mb-4 leading-relaxed">
-                        {{ $book->deskripsi ?: 'Tidak ada deskripsi yang tersedia untuk buku ini.' }}
+                        {{ \Illuminate\Support\Str::limit($book->deskripsi, 160) ?: 'Tidak ada deskripsi yang tersedia untuk buku ini.' }}
                     </p>
                 </div>
 
                 <div class="flex flex-col gap-2 border-t border-black/10 pt-3 mt-auto z-10">
                     <!-- Mini Player Trigger -->
-                    <button type="button" data-play-mini data-title="{{ $book->judul }}" data-description="{{ $book->deskripsi }}" data-cover="{{ $book->cover ? '/storage/'.$book->cover : '' }}" class="btn btn-ghost w-full py-2 text-sm flex items-center justify-center gap-1">
+                    <button type="button" data-play-mini data-title="{{ $book->judul }}" data-description="{{ \Illuminate\Support\Str::limit($book->deskripsi, 300, '') }}" data-cover="{{ $book->cover ? '/storage/'.$book->cover : '' }}" class="btn btn-ghost w-full py-2 text-sm flex items-center justify-center gap-1">
                         Dengar Ringkasan
                     </button>
                     <div class="flex gap-2 w-full">

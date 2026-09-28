@@ -9,6 +9,8 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="apple-touch-icon" href="/favicon.png">
     <link rel="manifest" href="/manifest.json">
+    <link rel="preconnect" href="https://images.pexels.com" crossorigin>
+    @stack('head')
     <script>
         // Tema (Terang/Gelap/System) + dominasi kontras tinggi — dijalankan sebelum paint
         (function () {
@@ -35,8 +37,13 @@
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));
         $hasHot = file_exists(public_path('hot'));
+        // Manifest dibaca sekali lalu di-cache (hash hanya berubah saat deploy,
+        // dan script deploy selalu menjalankan cache:clear saat itu juga).
         $manifest = $hasBuild
-            ? (json_decode(file_get_contents(public_path('build/manifest.json')), true) ?: [])
+            ? (\Illuminate\Support\Facades\Cache::rememberForever(
+                'build_manifest',
+                fn () => json_decode((string) file_get_contents(public_path('build/manifest.json')), true) ?: []
+            ))
             : [];
         $isMobile = (bool) preg_match('/(android|iphone|ipad|mobile|phone)/i', request()->header('User-Agent', ''));
         
@@ -933,6 +940,7 @@
         }
     </script>
 
+    @if ($withMiniPlayer ?? false)
     <div id="mini-audio-player">
         <div class="mini-player-details">
             <div id="mini-player-cover-area" class="mini-cover">
@@ -970,7 +978,9 @@
             </button>
         </div>
     </div>
+@endif
 
+    @if ($withMiniPlayer ?? false)
     <script>
         // Mini Audio Player Logic
         let miniChunks = [];
@@ -1223,7 +1233,10 @@
             miniPlayer.classList.remove('playing');
             miniChunks = [];
         }
+    </script>
+    @endif
 
+    <script>
         // ─── Session timeout warning ─────────────────────────
         @if (session('auth_role'))
         (function() {
@@ -1266,5 +1279,6 @@
             navigator.serviceWorker.register('/sw.js');
         }
     </script>
+    @stack('scripts')
 </body>
 </html>

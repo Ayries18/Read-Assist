@@ -26,6 +26,19 @@ class AudioBukuTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_mini_player_only_renders_on_catalog_page()
+    {
+        AudioBuku::factory()->count(3)->create(['deskripsi' => str_repeat('Ini adalah teks buku yang cukup panjang. ', 40)]);
+
+        $this->get('/katalog-audio')
+            ->assertSee('id="mini-audio-player"', false)
+            ->assertDontSee('book-description-tts');
+
+        $book = AudioBuku::first();
+        $this->get("/katalog-audio/{$book->id}")
+            ->assertDontSee('id="mini-audio-player"', false);
+    }
+
     public function test_catalog_shows_empty_state()
     {
         $response = $this->get('/katalog-audio');

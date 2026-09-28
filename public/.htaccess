@@ -98,6 +98,14 @@
         Header set Cache-Control "no-cache, private, must-revalidate"
     </FilesMatch>
 
+    # Service worker TIDAK boleh immutable: peramban harus selalu bisa
+    # mendeteksi versi baru sw.js, kalau tidak update PWA tidak pernah
+    # sampai ke pengguna. Blok ini harus muncul SETELAH FilesMatch atomic
+    # di atas supaya Cache-Control di atasnya tergantikan.
+    <FilesMatch "^sw\.js$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </FilesMatch>
+
     # Header keamanan dasar. HSTS sengaja TIDAK diaktifkan di sini karena
     # cPanel sudah memakai HTTPS dan salah set bisa mengunci Anda keluar situs.
     Header always set X-Content-Type-Options "nosniff"

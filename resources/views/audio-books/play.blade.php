@@ -176,9 +176,6 @@
                 }
             </style>
 
-            <!-- Hidden full description source -->
-            <p id="book-description-tts" class="hidden">{{ $audioBook->deskripsi ?? 'Tidak ada deskripsi.' }}</p>
-
             <!-- Wave Animation -->
             <div class="wave-animation paused mb-3" id="wave-animation"></div>
 
