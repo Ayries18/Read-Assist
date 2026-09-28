@@ -3,14 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Read Assist' }}</title>
-    <meta name="description" content="Read-Assist: Platform aksesibilitas buku audio untuk tunanetra. Dengarkan buku cetak dengan pemindaian QR code dan pemutaran teks otomatis.">
-    <meta name="keywords" content="buku audio, tunanetra, aksesibilitas, read-assist, qr code, text to speech, Indonesia">
-    <meta name="author" content="Read-Assist">
-    <meta property="og:title" content="Read Assist - Buku Audio untuk Tunanetra">
-    <meta property="og:description" content="Platform aksesibilitas buku audio untuk tunanetra. Cukup pindai QR code untuk mendengarkan.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
+@include('partials.seo', ['seo' => $seo ?? []])
     <meta name="theme-color" content="#ffffff">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -42,21 +35,43 @@
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));
         $hasHot = file_exists(public_path('hot'));
-        if ($hasBuild) {
-            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-        }
+        $manifest = $hasBuild
+            ? (json_decode(file_get_contents(public_path('build/manifest.json')), true) ?: [])
+            : [];
         $isMobile = (bool) preg_match('/(android|iphone|ipad|mobile|phone)/i', request()->header('User-Agent', ''));
         
         // If accessed externally (not via localhost/127.0.0.1) or from a mobile device,
         // we bypass the local Vite HMR server and directly load the compiled assets from the build directory.
         $isLocalHost = in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'], true);
         $useBuild = $hasBuild && (!$hasHot || !$isLocalHost || $isMobile);
+
+        // Hash aset dibaca dari manifest. Fallback hash lama DIHAPUS: kalau
+        // manifest gagal dibaca, hash yang dipatok di sini pasti sudah basi dan
+        // hanya menghasilkan request 404 yang sia-sia.
+        $cssEntry = $manifest['resources/css/app.css']['file'] ?? null;
+        $jsEntry = $manifest['resources/js/app.js']['file'] ?? null;
+
+        // Jangan pernah membuat request Vite untuk bundle yang isinya nol byte.
+        // resources/js/app.js masih kosong, sehingga emit tag <script> hanya
+        // menambah satu request yang selalu 0 byte.
+        $jsPath = $jsEntry ? public_path('build/'.$jsEntry) : null;
+        $jsHasContent = $jsPath !== null && is_file($jsPath) && filesize($jsPath) > 0;
     @endphp
     @if ($useBuild)
-        <link rel="stylesheet" href="{{ asset('build/' . ($manifest['resources/css/app.css']['file'] ?? 'assets/app-B9pJSmzU.css')) }}">
-        <script type="module" src="{{ asset('build/' . ($manifest['resources/js/app.js']['file'] ?? 'assets/app-34mOoJaZ.js')) }}"></script>
-    @else
+        @if ($cssEntry)
+            <link rel="stylesheet" href="{{ asset('build/'.$cssEntry) }}">
+        @endif
+        @if ($jsHasContent)
+            <script type="module" src="{{ asset('build/'.$jsEntry) }}"></script>
+        @endif
+    @elseif ($hasHot)
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        {{-- Neither build/manifest.json nor public/hot exists. @vite MUST NOT be
+             called here: it throws ViteManifestNotFoundException, which turns every
+             page into HTTP 500. A slightly unstyled page is far better than a dead
+             site, so degrade quietly and fix it at the deploy step with
+             `npm ci && npm run build`. --}}
     @endif
 </head>
 <body>
@@ -73,6 +88,8 @@
                     alt="ReadAssist Logo"
                     width="256"
                     height="128"
+                    loading="eager"
+                    decoding="async"
                 >
             </a>
         </div>
@@ -983,7 +1000,7 @@
             
             // Set cover thumbnail
             if (coverUrl) {
-                miniCoverArea.innerHTML = `<img src="${coverUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                miniCoverArea.innerHTML = `<img src="${coverUrl}" alt="Sampul ${title}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">`;
             } else {
                 const initials = title.substring(0, 2).toUpperCase();
                 miniCoverArea.innerHTML = `<span style="font-weight: 700; color: #a5b4fc; font-size: 0.75rem;">${initials}</span>`;

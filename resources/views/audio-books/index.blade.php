@@ -55,7 +55,7 @@
                     <!-- Book Cover -->
                     <div class="book-cover-wrapper">
                         @if ($book->cover)
-                            <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="book-cover-img">
+                            <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="book-cover-img" loading="lazy" decoding="async">
                         @else
                             <div class="book-cover-placeholder">
                                 <span class="book-cover-placeholder-title">{{ $book->judul }}</span>

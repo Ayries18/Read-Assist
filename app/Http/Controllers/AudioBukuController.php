@@ -7,6 +7,8 @@ use App\Jobs\GenerateBookAudio;
 use App\Models\AudioBuku;
 use App\Models\ListeningProgress;
 use App\Services\TunnelService;
+use App\Support\Seo\Faq;
+use App\Support\Seo\SeoBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -44,7 +46,31 @@ class AudioBukuController extends Controller
         $totalWords = (int) ($totalChars / 6);
         $readDuration = ceil($totalWords / 150).' Mins';
 
-        return view('home', compact('bookCount', 'charCount', 'readDuration'));
+        // FAQ didefinisikan sekali lalu dipakai untuk markup body DAN JSON-LD,
+        // supaya keduanya tidak mungkin berbeda isi.
+        $faq = Faq::landing();
+
+        // Gambar hero dilayani Pexels yang sudah bisa mengubah format, jadi
+        // WebP bisa dipilih lewat <picture> dan ukuran dikunci lewat srcset.
+        // Tanpa ini, ponsel mengunduh berkas 2000px yang tidak pernah dipakai.
+        $hero = fn (int $width, int $height, string $format): string => sprintf(
+            'https://images.pexels.com/photos/6606144/pexels-photo-6606144.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=%d&h=%d&fm=%s',
+            $width,
+            $height,
+            $format,
+        );
+
+        return view('home', [
+            'bookCount' => $bookCount,
+            'charCount' => $charCount,
+            'readDuration' => $readDuration,
+            'faq' => $faq,
+            'hero720' => $hero(720, 540, 'webp'),
+            'hero1200' => $hero(1200, 900, 'webp'),
+            'hero1800' => $hero(1800, 1350, 'webp'),
+            'heroJpeg' => $hero(1200, 900, 'jpg'),
+            'seo' => SeoBuilder::landing(route('home'), $faq),
+        ]);
     }
 
     public function index(Request $request)

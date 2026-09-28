@@ -8,7 +8,7 @@
             <!-- Cover -->
             <div class="w-[90px] h-[125px] sm:w-[130px] sm:h-[180px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
                 @if ($audioBook->cover)
-                    <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover">
+                    <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                 @else
                     <div class="cover-placeholder w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center">
                         <span class="text-[0.6rem] sm:text-xs font-bold text-black line-clamp-3 leading-relaxed">{{ $audioBook->judul }}</span>

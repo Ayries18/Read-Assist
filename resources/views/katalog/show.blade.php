@@ -24,7 +24,7 @@
                         <!-- Book Cover -->
                         <div class="w-[140px] h-[190px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-black/10">
                             @if ($book->cover)
-                                <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="w-full h-full object-cover">
+                                <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                             @else
                                 <div class="book-cover-placeholder">
                                     <span class="book-cover-placeholder-title text-sm">{{ $book->judul }}</span>
@@ -285,6 +285,10 @@
                         src="{{ route('qr-code.generate', ['data' => $qrUrl, 'size' => 320], false) }}"
                         alt="QR Code untuk membuka audio {{ $book->judul }}"
                         class="block mx-auto w-[260px] h-[260px]"
+                        width="320"
+                        height="320"
+                        loading="lazy"
+                        decoding="async"
                     >
                 </div>
 
@@ -1153,7 +1157,7 @@
                 <body>
                     <div class="container">
                         <h2>{{ $book->judul }}</h2>
-                        <img src="${document.getElementById('qr-code-img').src}" />
+                        <img src="${document.getElementById('qr-code-img').src}" alt="QR Code {{ $book->judul }}" width="320" height="320" loading="eager" decoding="sync" />
                         <div class="footer">SISTEM READ-ASSIST QR-AUDIO</div>
                     </div>
                     <script>
