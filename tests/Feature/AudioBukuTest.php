@@ -19,6 +19,23 @@ class AudioBukuTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_service_worker_served_by_laravel_with_no_cache()
+    {
+        $response = $this->get('/sw.js');
+
+        $response->assertStatus(200)
+            ->assertHeader('Content-Type', 'application/javascript')
+            ->assertHeader('Pragma', 'no-cache')
+            ->assertSee('addEventListener', false);
+
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-cache', $cacheControl);
+        $this->assertStringContainsString('no-store', $cacheControl);
+        $this->assertStringContainsString('must-revalidate', $cacheControl);
+        $this->assertStringNotContainsString('immutable', $cacheControl);
+        $this->assertStringNotContainsString('max-age=31536000', $cacheControl);
+    }
+
     public function test_catalog_page_returns_200()
     {
         AudioBuku::factory()->create();
