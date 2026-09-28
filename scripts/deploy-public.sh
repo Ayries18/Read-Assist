@@ -530,30 +530,63 @@ head1 "8. Health check"
 
 cat > "$WORK/health.php" <<'PHPEOF'
 <?php
+// Health check memakai cURL. file_get_contents untuk https:// gagal di PHP CLI
+// beberapa host cPanel (allow_url_fopen On, tetapi ssl_verify tidak bisa
+// menemukan CA bundle), sementara cURL di host yang sama berfungsi. Karena itu
+// cURL jadi jalur utama dan file_get_contents hanya cadangan.
 $base = rtrim($argv[1], '/');
+$paths = array_slice($argv, 2);
 $fail = 0;
-foreach (array_slice($argv, 2) as $path) {
+
+$errorPattern = '/(Fatal error|Parse error|Uncaught|Whoops, looks like'
+    .'|Laravel\\\\Exceptions|Read-Assist: folder aplikasi)/i';
+
+foreach ($paths as $path) {
     $code = '000';
-    $body = '';
-    $ctx = stream_context_create(['http' => [
-        'method' => 'GET', 'timeout' => 25, 'ignore_errors' => true,
-        'follow_location' => 0, 'header' => "User-Agent: deploy-healthcheck\r\n",
-    ]]);
-    $body = @file_get_contents($base.$path, false, $ctx);
-    if (isset($http_response_header[0])
-        && preg_match('#^HTTP/\S+\s+(\d{3})#', $http_response_header[0], $m)) {
-        $code = $m[1];
+    $body = false;
+    $note = '';
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init($base.$path);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_TIMEOUT        => 25,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_FOLLOWLOCATION => 0,
+            CURLOPT_USERAGENT      => 'readassist-deploy-healthcheck',
+        ]);
+        $body = curl_exec($ch);
+        if ($body === false) {
+            $note = ' curl: '.curl_error($ch);
+        } else {
+            $code = (string) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        }
+        curl_close($ch);
+    } else {
+        $ctx = stream_context_create(['http' => [
+            'method'          => 'GET',
+            'timeout'         => 25,
+            'ignore_errors'   => true,
+            'follow_location' => 0,
+        ]]);
+        $body = @file_get_contents($base.$path, false, $ctx);
+        if (isset($http_response_header[0])
+            && preg_match('#^HTTP/\S+\s+(\d{3})#', $http_response_header[0], $m)) {
+            $code = $m[1];
+        }
     }
-    $bad = '';
-    if ($body !== false && preg_match(
-        '/(Fatal error|Parse error|Uncaught|Whoops, looks like|Laravel\\Exceptions|Read-Assist: folder aplikasi)/i',
-        $body, $m2)) {
-        $bad = ' ISI: ' . trim(substr($m2[0], 0, 40));
+
+    if (is_string($body) && preg_match($errorPattern, $body, $m2)) {
+        $note = ' ISI: '.trim(substr($m2[0], 0, 40));
     }
-    $good = ($code === '200' && $bad === '');
-    printf("  %s %-16s %s%s\n", $good ? 'OK  ' : 'FAIL', $path, $code, $bad);
-    if (! $good) { $fail++; }
+
+    $good = ($code === '200' && $note === '');
+    printf("  %s %-16s %s%s\n", $good ? 'OK  ' : 'FAIL', $path, $code, $note);
+    if (! $good) {
+        $fail++;
+    }
 }
+
 exit($fail === 0 ? 0 : 1);
 PHPEOF
 
@@ -574,10 +607,11 @@ fi
 if [ "$VERIFY_ONLY" -eq 0 ]; then
   head1 "9. Manifest deployment"
 
-  COMMIT="$("$PHP_BIN" -r '
-    $d = trim(@shell_exec("cd " . escapeshellarg($argv[1]) . " 2>/dev/null && git rev-parse HEAD"));
-    echo $d ?: "unknown";
-  ' "$APP_DIR")"
+  # Commit diambil langsung dari git, bukan lewat subproses PHP, supaya tidak
+  # bergantung pada PATH yang diwarisi PHP dan tidak melempar exit code 255.
+  COMMIT="$(git -C "$APP_DIR" rev-parse HEAD 2>/dev/null || true)"
+  [ -n "$COMMIT" ] || COMMIT="unknown"
+  [ -n "$COMMIT" ] || warn "commit tidak terbaca; deploy tetap dilanjutkan"
 
   cat > "$WORK/manifest.php" <<'PHPEOF'
 <?php
@@ -589,7 +623,13 @@ $bak    = $argv[5];
 $health = $argv[6] === '1';
 $engine = $argv[7];
 
-$list = function (array $a) { return array_values($a); };
+// Nama dikirim sebagai satu string dipisah baris baru. String kosong harus
+// dibuang, kalau tidak akan muncul sebagai entri array berisi string kosong.
+$list = function (string $s): array {
+    $parts = $s === '' ? [] : explode("\n", $s);
+
+    return array_values(array_filter($parts, fn ($v) => $v !== ''));
+};
 
 $checksums = [];
 foreach (['index.php', '.htaccess', '.user.ini', 'robots.txt', 'manifest.json', 'sw.js',
@@ -625,9 +665,9 @@ $data = [
     'doc_dir'           => $doc,
     'sync_engine'       => $engine,
     'changed_count'     => (int) ($argv[8] ?? 0),
-    'added'             => $list(explode("\n", $argv[9] ?? '')),
-    'changed'           => $list(explode("\n", $argv[10] ?? '')),
-    'removed'           => $list(explode("\n", $argv[11] ?? '')),
+    'added'             => $list($argv[9] ?? ''),
+    'changed'           => $list($argv[10] ?? ''),
+    'removed'           => $list($argv[11] ?? ''),
     'synced_entries'    => $entries,
     'symlinks_verified' => $symlinks,
     'protected_present' => array_values(array_filter(
