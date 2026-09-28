@@ -134,3 +134,39 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ---------------------------------------------------------------------------
+# cPanel php ini directives
+# ---------------------------------------------------------------------------
+# Blok di bawah ini identik dengan yang dihasilkan cPanel MultiPHP INI Editor
+# di document root, dan sengaja disimpan di repo agar sinkronisasi lewat
+# scripts/deploy-public.sh tidak menghapus batas PHP produksi.
+#
+# PENTING: file ini boleh disunting lewat cPanel, tetapi cPanel TIDAK membaca
+# file di dalam folder aplikasi. Jadi bila Anda mengubah batas PHP melalui
+# cPanel MultiPHP INI Editor, salin kembali blok ini ke public/.htaccess lalu
+# commit, supaya repo dan produksi tidak berbeda lagi.
+<IfModule php8_module>
+   php_flag display_errors Off
+   php_value max_execution_time 30
+   php_value max_input_time 60
+   php_value max_input_vars 1000
+   php_value memory_limit 256M
+   php_value post_max_size 64M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/var/cpanel/php/sessions/ea-php81"
+   php_value upload_max_filesize 50M
+   php_flag zlib.output_compression Off
+</IfModule>
+<IfModule lsapi_module>
+   php_flag display_errors Off
+   php_value max_execution_time 30
+   php_value max_input_time 60
+   php_value max_input_vars 1000
+   php_value memory_limit 256M
+   php_value post_max_size 64M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/var/cpanel/php/sessions/ea-php81"
+   php_value upload_max_filesize 50M
+   php_flag zlib.output_compression Off
+</IfModule>
