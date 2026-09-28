@@ -85,9 +85,11 @@
 </IfModule>
 
 # Header Cache-Control eksplisit untuk aset ber-hash, supaya tidak
-# bergantung pada modul lain.
+# bergantung pada modul lain. sw.js DIKECUALIKAN (negative lookahead)
+# karena LiteSpeed tidak menjamin urutan override antar FilesMatch,
+# sehingga blok sw.js di bawah WAJIB jadi satu-satunya yang menyentuhnya.
 <IfModule mod_headers.c>
-    <FilesMatch "\.(css|js|woff2?|ttf|eot|webp|png|jpe?g|svg|ico)$">
+    <FilesMatch "^(?!sw\.js$).*\.(css|js|woff2?|ttf|eot|webp|png|jpe?g|svg|ico)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
 
@@ -100,9 +102,10 @@
 
     # Service worker TIDAK boleh immutable: peramban harus selalu bisa
     # mendeteksi versi baru sw.js, kalau tidak update PWA tidak pernah
-    # sampai ke pengguna. Blok ini harus muncul SETELAH FilesMatch atomic
-    # di atas supaya Cache-Control di atasnya tergantikan.
+    # sampai ke pengguna. Expires (dari mod_expires di atas) juga dibuang,
+    # karena LiteSpeed bisa saja mengutamakan Expires bila keduanya ada.
     <FilesMatch "^sw\.js$">
+        Header unset Expires
         Header set Cache-Control "no-cache, no-store, must-revalidate"
     </FilesMatch>
 
