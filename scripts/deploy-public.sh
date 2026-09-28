@@ -267,6 +267,17 @@ esac
 DOC_REAL="$(readlink -f "$DOC_DIR")"
 [ -d "$DOC_REAL" ] || die "Document root tidak bisa diresolve: $DOC_REAL"
 
+# Peringatan, bukan pembatalan. Script ini boleh dipakai sendiri untuk
+# sinkronisasi statis tanpa menyentuh git. Bila working tree kotor, kode yang
+# disinkronkan bisa tidak cocok dengan commit mana pun yang sedang dikerjakan.
+# Yang membatalkan deploy bila tree kotor adalah scripts/deploy.sh.
+if git -C "$APP_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+  if ! git -C "$APP_DIR" diff --quiet || ! git -C "$APP_DIR" diff --cached --quiet; then
+    warn "working tree tidak bersih; aset statis bisa tidak cocok dengan commit"
+    sub "lebih baik pakai: bash scripts/deploy.sh"
+  fi
+fi
+
 ok "sumber       : $SRC"
 ok "document root: $DOC_DIR (real: $DOC_REAL)"
 ok "user         : $(id -un)"

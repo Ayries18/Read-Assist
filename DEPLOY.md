@@ -143,23 +143,23 @@ ssh readassist 'ls -d ~/public_html/.well-known && ls ~/public_html/php.ini'
 ssh readassist
 cd ~/Read-Assist
 
-git pull --ff-only origin master     # 1. kode
-php artisan optimize:clear           # 2. bersihkan cache
-php artisan config:cache             # 3
-php artisan route:cache              # 4
-php artisan view:cache               # 5
-
-bash scripts/deploy-public.sh        # 6. sinkron + verifikasi + health check
+bash scripts/deploy.sh              # git safety -> cache -> sinkron -> health
 ```
 
-Langkah 6 sudah mencakup semuanya: backup, sinkron, upkeep symlink, verifikasi
-byte-per-byte, health check, dan penulisan manifest.
+Satu perintah itu saja. `scripts/deploy.sh` menjalankan `git fetch`, memastikan
+working tree bersih, `git pull --ff-only`, mencocokkan `HEAD` dengan
+`origin/master`, membangun ulang cache, lalu memanggil `scripts/deploy-public.sh`
+untuk backup, sinkron, upkeep symlink, verifikasi byte-per-byte, dan health check.
+
+Jangan lagi mengetik `git pull` sendiri sebelum deploy._version baris manual itu
+yang dulu bisa gagal tanpa terdeteksi. Lihat [Git Safety](#9-git-safety).
 
 ### Opsi script
 
 | Perintah | Fungsi |
 |---|---|
-| `bash scripts/deploy-public.sh` | Deploy penuh, lalu health check |
+| `bash scripts/deploy.sh` | **Entry point produksi.** Git safety + cache + sinkron + health check |
+| `bash scripts/deploy-public.sh` | Hanya sinkron aset statis, lalu health check |
 | `bash scripts/deploy-public.sh --dry-run` | Rencana saja: file baru/berubah/dihapus/symlink. Tidak menulis |
 | `bash scripts/deploy-public.sh --verify` | Verifikasi + health check, tanpa menulis |
 | `bash scripts/deploy-public.sh --list-backups` | Daftar backup beserta jumlah berkas |
@@ -325,11 +325,17 @@ PHP produksi bisa berubah tanpa disadari.
 ssh readassist 'grep -c "RewriteRule.*index.php" ~/public_html/.htaccess'   # harus 1
 ```
 
-### Bila deploy ditolakprotected file
+### Bila deploy ditolak: protected file
 
 `deploy-public.sh` berhenti sebelum menyalin apa pun bila `.well-known` atau
-`php.ini` tidak ada di document root. almost always berarti `DOC_DIR` salah, bukan
+`php.ini` tidak ada di document root. Almost always berarti `DOC_DIR` salah, bukan
 repo rusak. Periksa `DOC_DIR` sebelum memaksa.
+
+### Bila deploy ditolak: Git Safety
+
+`deploy.sh` berhenti sebelum menyentuh `public_html` bila pemeriksaan git gagal.
+Pesan yang muncul sudah menyebut penyebabnya. Baca [Git Safety](#9-git-safety)
+untuk cara memperbaikinya.
 
 ### Menghapus backup lama
 
@@ -338,4 +344,81 @@ ssh readassist 'ls -1dt ~/public_html/.deploy-backups/* | tail -n +8 | xargs rm 
 # menyisakan 7 backup terbaru
 ```
 
-Backup berisi aset statis saja,Ukuran kecil, tapi tetap perlu dibatasi.
+Backup berisi aset statis saja, ukurannya kecil, tapi tetap perlu dibatasi.
+
+---
+
+## 9. Git Safety
+
+`scripts/deploy.sh` bersifat **fail-fast**. Setiap pemeriksaan berikut dijalankan
+sebelum satu byte pun ditulis ke `public_html`. Bila salah satu gagal, script
+berhenti dengan `exit 1` dan **tidak** melanjutkan ke cache, sinkronisasi public,
+maupun health check.
+
+| # | Pemeriksaan | Cara deteksi | Kalau gagal |
+|---|---|---|---|
+| 1 | Tidak sedang detached HEAD | `rev-parse --abbrev-ref HEAD` | `git checkout master` lalu ulangi |
+| 2 | Working tree bersih | `git diff --quiet` dan `git diff --cached --quiet` | Commit atau buang perubahan lokal |
+| 3 | Fetch berhasil | `git fetch --prune origin` | Periksa koneksi dan kredensial git |
+| 4 | Pull berhasil | `git pull --ff-only origin master` | Penyebabnya sudah ditampilkan script |
+| 5 | HEAD == origin/master | bandingkan kedua `rev-parse` | `git log --oneline HEAD..origin/master` |
+
+Berkas untracked hanya memunculkan peringatan, tidak membatalkan deploy. Changes
+yang belum di-`git add` tidak akan menimpa berkas hasil pull, jadi risikonya
+rendah, dan memblokir deploy karena `public/build` atau berkas sementara lain
+justru akan menjebak.
+
+### Contoh: pull gagal
+
+```text
+[1/5] Git safety
+  branch aktif    : master
+  HEAD sebelum    : 3d4c0c24b7b064ed475ec36236523ff0905fe864
+  fetch origin ...
+  OK    fetch origin berhasil
+  pull --ff-only master ...
+         error: Your local changes to the following files would be overwritten by merge:
+         	scripts/deploy-public.sh
+         Please commit your changes or stash them before you merge.
+         Aborting
+
+============================================================
+ERROR: git pull gagal.
+============================================================
+Deployment dibatalkan. public_html tidak disentuh.
+```
+
+### Contoh: HEAD tidak sinkron dengan origin
+
+```text
+  HEAD sesudah    : 3d4c0c24b7b064ed475ec36236523ff0905fe864
+  origin/master : 04c850cb56dc945011cf9132b0ee80dcc417b88a
+
+============================================================
+ERROR: HEAD tidak sama dengan origin/master
+============================================================
+HEAD            : 3d4c0c24b7b064ed475ec36236523ff0905fe864
+origin/master : 04c850cb56dc945011cf9132b0ee80dcc417b88a
+
+Server tidak menjalankan kode yang sama dengan remote.
+Jalankan manual: git -C /home/cp2ujcb5545/Read-Assist log --oneline HEAD..origin/master
+
+Deployment dibatalkan. public_html tidak disentuh.
+```
+
+### Cara memperbaiki working tree kotor
+
+```bash
+# Lihat apa yang berubah
+ssh readassist 'cd ~/Read-Assist && git status --porcelain'
+
+# Buang perubahan pada satu berkas (hanya untuk berkas yang tidak boleh diubah)
+ssh readassist 'cd ~/Read-Assist && git checkout -- <file>'
+
+# Simpan sebagai commit
+ssh readassist 'cd ~/Read-Assist && git add -A && git commit -m "fix di server"'
+```
+
+`git reset --hard` di server produksi akan membuang perubahan tanpa jejak dan
+tidak dapat dibatalkan dari server. Jangan dipakai sebagai jalan pintas untuk
+membuat deploy lolos.
