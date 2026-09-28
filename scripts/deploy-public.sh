@@ -70,11 +70,14 @@ PROTECTED_NAMES=(
 SYMLINK_NAMES=("build" "storage" "favicon.ico")
 
 # Berkas yang isinya harus identik antara repo dan document root.
+# sw.js SENGAJA tidak disertakan: worker kini disajikan oleh Laravel
+# (routes/web.php) dengan header no-cache yang mustahil ditimpa server,
+# jadi tidak boleh ada lagi file static public/sw.js di document root.
 CHECK_FILES=(
   "index.php" ".htaccess" ".user.ini" "robots.txt"
   "favicon.png" "favicon.svg"
   "logo.png" "logo-horizontal.png" "logo-horizontal.svg" "logo-horizontal-hc.svg"
-  "manifest.json" "sw.js"
+  "manifest.json"
 )
 
 PHP_BIN=""
@@ -642,7 +645,7 @@ $list = function (string $s): array {
 };
 
 $checksums = [];
-foreach (['index.php', '.htaccess', '.user.ini', 'robots.txt', 'manifest.json', 'sw.js',
+foreach (['index.php', '.htaccess', '.user.ini', 'robots.txt', 'manifest.json',
           'favicon.png', 'favicon.svg', 'logo.png', 'logo-horizontal.png',
           'logo-horizontal.svg', 'logo-horizontal-hc.svg'] as $f) {
     $p = $doc.'/'.$f;
