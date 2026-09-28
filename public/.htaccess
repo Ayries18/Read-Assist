@@ -6,8 +6,8 @@
 #   2. Cache per tipe berkas (mod_expires)
 #   3. Routing Laravel (mod_rewrite)
 #
-# Semua blok dibungkus <IfModule> supaya tidak/error 500 di host yang
-# modulnya tidak aktif.
+# Semua blok dibungkus IfModule supaya tidak menghasilkan error 500 di host
+# yang modulnya tidak aktif.
 # =============================================================================
 
 
