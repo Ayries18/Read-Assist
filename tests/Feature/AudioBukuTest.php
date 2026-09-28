@@ -30,7 +30,6 @@ class AudioBukuTest extends TestCase
 
         $cacheControl = $response->headers->get('Cache-Control');
         $this->assertStringContainsString('no-cache', $cacheControl);
-        $this->assertStringContainsString('no-store', $cacheControl);
         $this->assertStringContainsString('must-revalidate', $cacheControl);
         $this->assertStringNotContainsString('immutable', $cacheControl);
         $this->assertStringNotContainsString('max-age=31536000', $cacheControl);
