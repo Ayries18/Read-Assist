@@ -38,6 +38,7 @@
 
     --ra-chip-bg: rgba(201, 152, 26, 0.1);
     --ra-chip-line: rgba(201, 152, 26, 0.28);
+    --ra-chip-line-hover: rgba(201, 152, 26, 0.4);
     --ra-visual-fill: rgba(17, 17, 17, 0.025);
     --ra-visual-glow: rgba(201, 152, 26, 0.2);
     --ra-timeline-line: rgba(201, 152, 26, 0.4);
@@ -63,6 +64,7 @@ html.dark-mode {
 
     --ra-chip-bg: rgba(255, 213, 74, 0.13);
     --ra-chip-line: rgba(255, 213, 74, 0.32);
+    --ra-chip-line-hover: rgba(255, 213, 74, 0.45);
     --ra-visual-fill: rgba(255, 255, 255, 0.04);
     --ra-visual-glow: rgba(255, 213, 74, 0.14);
     --ra-timeline-line: rgba(255, 213, 74, 0.38);
@@ -107,6 +109,7 @@ body.accessibility-high-contrast {
 
     --ra-chip-bg: #000000;
     --ra-chip-line: #ffff00;
+    --ra-chip-line-hover: #ffff00;
     --ra-visual-fill: transparent;
     --ra-visual-glow: transparent;
     --ra-timeline-line: #ffff00;
@@ -288,6 +291,56 @@ body.accessibility-high-contrast .ra-btn--ghost {
     line-height: 1.6;
 }
 
+/* ─── Feature card (grid 2×2 "Keunggulan Sistem") ──────────────────
+   REGRESSION: keempat card sebenarnya memakai kelas yang identik, jadi
+   bedanya bukan di markup. Penyebabnya `.ra-card--lift:hover` terlalu
+   agresif: border emas penuh + angkat 6px + ikon ×1.09 membuat kartu yang   sedang di-hover terbaca seperti "active state" permanen — dan karena
+   kursor biasanya diam di kartu pertama, hanya kartu pertama yang terlihat
+   berbeda. Di sini:
+     • default state dikunci abu-abu untuk keempat card (tidak ada
+       `:first-child`/`:nth-child` yang boleh membedakan),
+     • hover jadi subtle dan seragam: border emas tipis, lift 4px,
+       shadow menengah, ikon hanya ×1.04. */
+.ra-card--feature {
+    background-color: var(--ra-surface);
+    border: 1px solid var(--ra-line);
+    border-radius: 18px;
+    box-shadow: var(--ra-shadow-1);
+    /* Lift memakai properti `translate`, BUKAN `transform`. `[data-ra-reveal]`
+       memakai `transform` dan spesifisitas `.ra-js [data-ra-reveal].is-revealed`
+       (0,3,0) mengalahkan selector `.ra-card--feature:hover` (0,2,0) — kalau lift
+       lewat `transform`, hover akan hilang begitu card selesai reveal (atau
+      -even Worse saat belum reveal, card terdorong 16px ke bawah).
+       `translate` dan `transform` adalah properti terpisah, jadi keduanya
+       bisa dipakai bersamaan tanpa saling menimpa. */
+    transform: none;
+    translate: 0 0;
+    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out,
+        translate 0.2s ease-out;
+}
+.ra-card--feature:hover,
+.ra-card--feature:focus-within {
+    translate: 0 -4px;
+    border-color: var(--ra-chip-line-hover);
+    box-shadow: var(--ra-shadow-2);
+}
+.ra-card--feature .ra-card__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background-color: var(--ra-chip-bg);
+    border: 1px solid var(--ra-chip-line);
+    color: var(--ra-gold-ink);
+}
+.ra-card--feature .ra-card__icon svg {
+    width: 28px;
+    height: 28px;
+}
+.ra-card--feature:hover .ra-card__icon,
+.ra-card--feature:focus-within .ra-card__icon {
+    transform: scale(1.04);
+}
+
 /* ─── FAQ ─────────────────────────────────────────────────────── */
 .ra-faq__toggle {
     display: grid;
@@ -439,10 +492,17 @@ body.accessibility-high-contrast .ra-step__icon { border-width: 2px; }
     }
     .ra-card--lift:hover,
     .ra-card--lift:focus-within,
+    .ra-card--feature:hover,
+    .ra-card--feature:focus-within,
     .ra-step:hover .ra-step__icon,
     .ra-btn:hover,
     .ra-btn:active {
         transform: none;
+    }
+    /* Lift feature card memakai `translate`, jadi harus dinetralkan sendiri. */
+    .ra-card--feature:hover,
+    .ra-card--feature:focus-within {
+        translate: none;
     }
     .ra-faq__chevron { transition: none; }
 }

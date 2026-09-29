@@ -36,6 +36,11 @@ class LandingPageSeoTest extends TestCase
 
         preg_match('/<title>(.+?)<\/title>/s', $html, $title);
         $this->assertNotEmpty($title);
+        $this->assertSame(
+            'Read-Assist',
+            html_entity_decode($title[1], ENT_QUOTES),
+            'Tab browser harus selalu menampilkan nama aplikasi, bukan judul halaman.'
+        );
         $this->assertLessThanOrEqual(
             60,
             mb_strlen(html_entity_decode($title[1], ENT_QUOTES)),
@@ -82,6 +87,41 @@ class LandingPageSeoTest extends TestCase
             route('home'),
             html_entity_decode($canonical[1], ENT_QUOTES),
             'Canonical harus dibangun dari route("home"), bukan URL yang diketik manual.'
+        );
+    }
+
+    public function test_feature_cards_share_identical_markup(): void
+    {
+        $html = $this->get('/')->getContent();
+
+        // Keempat card fitur harus memakai kelas yang sama persis. Dulu tidak
+        // ada pengaman ini, sehingga satu card bisa diberi state "aktif"
+        // sendiri tanpa controller atau test lain ikut gagal.
+        $this->assertSame(
+            4,
+            preg_match_all('/<article class="([^"]*ra-card--feature[^"]*)"/', $html, $m),
+            'Section Keunggulan Sistem harus punya tepat 4 feature card.'
+        );
+
+        $this->assertCount(
+            1,
+            array_unique($m[1]),
+            'Semua feature card wajib memakai kelas yang identik: '.implode(' | ', array_unique($m[1]))
+        );
+    }
+
+    public function test_feature_card_lift_uses_translate_not_transform(): void
+    {
+        $css = file_get_contents(resource_path('css/landing.css'));
+
+        // `transform` dipakai [data-ra-reveal] dengan spesifisitas
+        // (0,3,0) yang mengalahkan selector :hover (0,2,0). Kalau lift hover
+        // memakai `transform`, efeknya hilang setelah reveal.
+        $this->assertStringContainsString('.ra-card--feature:hover', $css);
+        $this->assertMatchesRegularExpression(
+            '/\.ra-card--feature:hover,?\s*\n?\.ra-card--feature:focus-within\s*\{[^}]*translate:\s*0 -4px/s',
+            $css,
+            'Lift hover harus memakai properti `translate`, bukan `transform`.'
         );
     }
 

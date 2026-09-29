@@ -283,7 +283,7 @@
             />
 
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <article class="ra-card ra-card--lift" data-ra-reveal>
+                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal>
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                             <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
@@ -298,7 +298,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card ra-card--lift" data-ra-reveal style="transition-delay: 60ms">
+                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 60ms">
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                             <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
@@ -314,7 +314,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card ra-card--lift" data-ra-reveal style="transition-delay: 120ms">
+                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 120ms">
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                             <path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" /><path d="M11 7h10" /><path d="M11 17h10" />
@@ -327,7 +327,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card ra-card--lift" data-ra-reveal style="transition-delay: 180ms">
+                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 180ms">
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                             <path d="M20 7h-5" /><path d="M9 20H4" /><path d="M15 4 5 14" /><path d="M15 14 5 4" />
