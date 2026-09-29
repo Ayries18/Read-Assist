@@ -330,8 +330,10 @@
                 <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 180ms">
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                            <path d="M20 7h-5" /><path d="M9 20H4" /><path d="M15 4 5 14" /><path d="M15 14 5 4" />
-                            <path d="M8 9h7" /><path d="M8 15h7" />
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                            <path d="M21 3v5h-5" />
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                            <path d="M8 16H3v5" />
                         </svg>
                     </span>
                     <h3 class="ra-h3">Pemrosesan Ulang Otomatis</h3>
