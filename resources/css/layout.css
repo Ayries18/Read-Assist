@@ -32,7 +32,18 @@ body {
     top: 0;
 }
 
-/* Visible keyboard focus indicator (keyboard users) */
+/* Visible keyboard focus indicator (keyboard users)
+   —
+   INI rule fokus SATU-SATUNYA untuk seluruh aplikasi. Warna, lebar, dan offset
+   semuanya datang dari token `--focus-ring-*` di base.css. Semua override
+   per-komponen yang dulu ada (warna berbeda di .nav-btn / .nav-icon-btn /
+   .mobile-nav-btn) sudah dihapus.
+
+   Penting: DaisyUI menulis `outline-color: currentColor` pada
+   `.btn:where(...):focus-visible` — specificity (0,2,1), lebih tinggi dari
+   selector di sini. Karena itu `outline-color` ditulis TERPISA (bukan hanya
+   lewat shorthand) dan diberi `!important`, supaya warna ring tidak pernah
+   ikut warna teks elemen. */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -40,8 +51,9 @@ select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible,
 [tabindex]:focus-visible {
-    outline: 3px solid #b8860b !important;
-    outline-offset: 2px !important;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color) !important;
+    outline-color: var(--focus-ring-color) !important;
+    outline-offset: var(--focus-ring-offset) !important;
     border-radius: 4px;
 }
 
@@ -54,11 +66,14 @@ summary:focus-visible,
 }
 
 /* Navbar Enhancements */
+/* 44×44px (bukan 40×40): target sentuh minimum yang nyaman untuk pengguna
+   tunanetra dan pengguna motor lambat. `.mobile-nav-btn` sudah 44px dan
+   `.ra-btn` sudah 48px, jadi 40px ini satu-satunya yang tertinggal. */
 .nav-icon-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     flex-shrink: 0;
     background: none;
     color: #4b5563;
@@ -351,6 +366,17 @@ summary:focus-visible,
         display: none !important;
     }
 }
+/* Layar sangat sempit (320px): tombol caret tema adalah satu-satunya kontrol
+   yang boleh dikorbankan. Tanpanya, logo + hamburger + dua tombol tema melebihi
+   lebar viewport dan 12px terpotong (tanpa opsi scroll, karena
+   `.navbar-center { overflow: hidden }` menelan overflow-nya). Sisi terang/
+   gelap tetap tersedia lewat tombol toggle tema, dan pilihan "Ikuti Sistem"
+   masih dapat dicapai dari panel aksesibilitas. */
+@media (max-width: 360px) {
+    .theme-caret-btn {
+        display: none !important;
+    }
+}
 
 /* Reset padding bawaan DaisyUI pada item .menu.
    Dulu ditulis tanpa pengecualian: `.navbar .menu-horizontal > li > a { padding: 0 !important }`
@@ -430,17 +456,34 @@ summary:focus-visible,
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* `visibility: hidden` withdrawing the drawer from the tab order. The JS
+       toggles the `inert` attribute for browsers that support it, but this is
+       the safety net for those that don't: without it, the 6 links inside stay
+       focusable while parked at `left:-300px`, so keyboard users tab into links
+       they cannot see (WCAG 2.4.3). The 0.3s delay lets the slide-out finish
+       before the drawer is actually hidden. */
+    visibility: hidden;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.3s;
     overflow-y: auto;
     box-shadow: 8px 0 30px rgba(0,0,0,0.5);
 }
-.mobile-drawer.open { left: 0; }
+.mobile-drawer.open {
+    left: 0;
+    visibility: visible;
+    /* No delay on the way in, or the drawer would flash before appearing. */
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s;
+}
 .mobile-drawer-close {
     align-self: flex-start;
     background: none;
     border: none;
     color: var(--text-secondary);
     padding: 0.5rem;
+    /* 22px ikon + 0.5rem*2 padding = 38px, di bawah ambang 44px WCAG 2.2
+       (2.5.8 Target Size, Minimum). min-width/min-height menaikkan zona
+       sentuh tanpa mengubah ukuran glyph ikon. */
+    min-width: 44px;
+    min-height: 44px;
     cursor: pointer;
     border-radius: 8px;
     display: flex;

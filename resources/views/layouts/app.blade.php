@@ -105,7 +105,7 @@
     <nav aria-label="Navigasi utama" class="navbar sticky top-0 z-[1000] min-h-[72px] h-[72px] px-6 lg:px-8 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-b border-black/[0.08] dark:border-white/[0.08] shadow-sm flex items-center justify-between">
         <div class="navbar-start flex shrink-0 items-center gap-4">
             <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
-            <button class="nav-icon-btn shrink-0" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
+            <button class="nav-icon-btn shrink-0" id="mobile-drawer-trigger" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="mobile-drawer">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
             <a href="/" class="logo-navbar flex shrink-0 items-center no-underline transition-all duration-200 ease-out hover:scale-[1.02] active:scale-95" aria-label="Beranda Read-Assist">
@@ -319,7 +319,11 @@
 
     <!-- Mobile Drawer -->
     <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="toggleMobileDrawer()"></div>
-    <div id="mobile-drawer" class="mobile-drawer">
+    {{-- Drawer starts CLOSED and stays out of the a11y tree + tab order until
+         JS opens it. Without `inert`, the 6 links inside stay focusable while the
+         drawer is parked at `left:-300px`, so keyboard users tab into links they
+         cannot see (WCAG 2.4.3). `inert` also covers the pre-JS first paint. --}}
+    <div id="mobile-drawer" class="mobile-drawer" inert aria-hidden="true">
         <button class="mobile-drawer-close" onclick="toggleMobileDrawer()" aria-label="Tutup menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -517,11 +521,19 @@
             const overlay = document.getElementById('mobile-drawer-overlay');
             if (!drawer || !overlay) return;
             const isOpen = drawer.classList.contains('open');
+            const hamburger = document.getElementById('mobile-drawer-trigger');
             drawer.classList.toggle('open');
             overlay.classList.toggle('open');
             document.body.style.overflow = isOpen ? '' : 'hidden';
+            if (hamburger) {
+                hamburger.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+                hamburger.setAttribute('aria-label', isOpen ? 'Buka menu navigasi' : 'Tutup menu navigasi');
+            }
             const closeBtn = document.querySelector('.mobile-drawer-close');
             if (!isOpen) {
+                // `inert` harus dilepas SEBELUM fokus masuk, kalau tidak `.focus()`
+                // diabaikan dan fokus tetap tertahan di hamburger.
+                drawer.removeAttribute('inert');
                 // Move focus into the drawer when opened
                 drawer.setAttribute('role', 'dialog');
                 drawer.setAttribute('aria-modal', 'true');
@@ -533,7 +545,10 @@
                 drawer.removeAttribute('role');
                 drawer.removeAttribute('aria-label');
                 drawer.setAttribute('aria-hidden', 'true');
-                const hamburger = document.querySelector('.nav-icon-btn[onclick="toggleMobileDrawer()"]');
+                // Kunci drawer beserta seluruh isinya keluar dari tab order.
+                // `aria-hidden` saja tidak cukup: link di dalamnya masih bisa
+                // difokus keyboard (WCAG 2.4.3 / 4.1.2).
+                drawer.setAttribute('inert', '');
                 if (hamburger) hamburger.focus();
             }
         }

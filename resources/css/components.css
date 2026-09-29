@@ -80,12 +80,31 @@
     border: 2px solid #000000 !important;
     background-color: #ffffff !important;
     color: #000 !important;
+    /* min-height, bukan height: isi (label helper,ikon, padding) tetap boleh
+       membuat kolom lebih tinggi tanpa memotong teks. */
+    min-height: 44px;
 }
 
+/* Border emas tetap mengikuti perilaku lama (klik mouse), dan TIDAK lagi
+   mematikan indikator fokus. Sebelumnya `outline: none !important` di sini
+   mengalahkan rule global di layout.css — specificity `.input:focus` (0,2,0)
+   > `input:focus-visible` (0,1,1) — sehingga form login/register TIDAK PUNYA
+   indikator fokus sama sekali untuk pengguna keyboard (WCAG 2.4.7). */
 .input:focus, .select:focus, .textarea:focus {
     border-color: var(--accent-primary) !important;
-    outline: none !important;
     box-shadow: none !important;
+}
+
+/* Ring fokus keyboard untuk input, memakai token global yang sama.
+   Ditulis ulang di sini (bukan mengandalkan rule layout.css) karena
+   `.input:focus` + `!important` di atas tetap mengalahkan selector global. */
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color) !important;
+    outline-color: var(--focus-ring-color) !important;
+    outline-offset: var(--focus-ring-offset) !important;
+    border-radius: 6px;
 }
 
 /* ─── Kartu & komponen ────────────────────────────────────── */
@@ -397,7 +416,10 @@
         -webkit-appearance: none;
         appearance: none;
         height: auto;
-        min-height: 2.5rem;
+        /* 2.75rem = 44px, sama dengan min-height di aturan .select utama.
+           Nilai lama 2.5rem (40px) menimpa balik dan menurunkan target
+           sentuh tepat di mobile, tempat touch paling sering dipakai. */
+        min-height: 2.75rem;
         line-height: 1.2;
         font-size: 1rem;
         padding-top: 0.65rem;

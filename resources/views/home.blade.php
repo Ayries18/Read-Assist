@@ -12,7 +12,11 @@
                 <div class="flex flex-col gap-5">
                     <p class="ra-eyebrow">Platform Aksesibilitas Buku</p>
 
-                    <h1 id="h1-hero" class="m-0 max-w-2xl text-3xl sm:text-5xl font-extrabold leading-[1.12] tracking-tight text-black">
+                    {{-- 32px (bukan `text-3xl` 30px) di bawah 640px: nilai 30px
+                         identik dengan `.ra-h2` mobile, sehingga hierarki
+                         H1 → H2 hilang total di 320–639px. Pada 640px ke atas
+                         H1 48px vs H2 36px sudah terpisah jelas. --}}
+                    <h1 id="h1-hero" class="m-0 max-w-2xl text-[2rem] sm:text-5xl font-extrabold leading-[1.12] tracking-tight text-black">
                         Jembatan Audio untuk <br class="hidden sm:block"><span class="text-gradient">Membaca Buku Fisik</span>
                     </h1>
 

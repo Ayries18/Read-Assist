@@ -11,6 +11,14 @@
     --border-glass: #000000;
     --bg-secondary: #ffffff;
     --bg-glass: #ffffff;
+
+    /* Indikator fokus keyboard — SATU token untuk seluruh aplikasi.
+       Dipakai layout.css (rule global) dan components.css (input).
+       Dipisah dari --accent-primary supayaUSS ring fokus bisa diubah
+       tanpa mengubah warna brand semua teks. */
+    --focus-ring-color: #7a5a00;
+    --focus-ring-width: 3px;
+    --focus-ring-offset: 2px;
 }
 
 .text-gradient {
@@ -20,13 +28,18 @@
     -webkit-text-fill-color: transparent;
 }
 
+/* Rule ini sengaja memakai :focus (bukan :focus-visible) dan TIDAK memakai
+   !important. Rule global di layout.css yang menang; di sini hanya Cadangan
+   bila layout.css belum dimuat. Jangan tambah specificity/!important —
+   justru itu yang dulu membuat warna ring berbeda-beda antar komponen. */
 a:focus,
 button:focus,
 input:focus,
 select:focus,
-textarea:focus {
-    outline: 3px solid var(--accent-primary);
-    outline-offset: 2px;
+textarea:focus,
+summary:focus {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
 }
 
 /* Visually hidden (screen-reader only) text */

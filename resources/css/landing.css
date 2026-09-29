@@ -41,7 +41,11 @@
     --ra-chip-line-hover: rgba(201, 152, 26, 0.4);
     --ra-visual-fill: rgba(17, 17, 17, 0.025);
     --ra-visual-glow: rgba(201, 152, 26, 0.2);
-    --ra-timeline-line: rgba(201, 152, 26, 0.4);
+    /* Garis timeline adalah komponen NON-TEKS yang membawa struktur, jadi
+       wajib ≥ 3:1 (WCAG 1.4.11). Nilai lama rgba(201,152,26,0.4) hanya
+       ≈1.35:1 di atas putih. Sekarang memakai --ra-gold-ink (#7a5a00,
+       ≈6.5:1) pada 85% — cukup tegas tanpa berubah menjadi garis hitam. */
+    --ra-timeline-line: rgba(122, 90, 0, 0.85);
 
     --ra-shadow-1: 0 1px 2px rgba(17, 17, 17, 0.05), 0 2px 8px rgba(17, 17, 17, 0.04);
     --ra-shadow-2: 0 2px 4px rgba(17, 17, 17, 0.05), 0 14px 30px rgba(17, 17, 17, 0.09);
@@ -67,7 +71,9 @@ html.dark-mode {
     --ra-chip-line-hover: rgba(255, 213, 74, 0.45);
     --ra-visual-fill: rgba(255, 255, 255, 0.04);
     --ra-visual-glow: rgba(255, 213, 74, 0.14);
-    --ra-timeline-line: rgba(255, 213, 74, 0.38);
+    /* Sama seperti mode terang: dinaikkan dari 0.38 ke 0.85 agar tetap ≥ 3:1
+       terhadap permukaan gelap #1e1e1e (WCAG 1.4.11). */
+    --ra-timeline-line: rgba(255, 213, 74, 0.85);
 
     --ra-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
     --ra-shadow-2: 0 2px 4px rgba(0, 0, 0, 0.5), 0 14px 30px rgba(0, 0, 0, 0.45);
@@ -172,7 +178,11 @@ html { scroll-behavior: smooth; }
 .ra-h3 {
     margin: 0;
     color: var(--ra-ink);
-    font-size: 1.0625rem;
+    /* 1.125rem (18px) — nilai lama 1.0625rem (17px) satu-satunya ukuran
+       huruf di sistem ini yang tidak ada di skala Tailwind, dan jaraknya ke
+       body card (0.9rem / 14.4px) cuma 2.6px sehingga hierarki H3→paragraf
+       nyaris tidak terbaca. 18px memulihkan jarak sekaligus ke skala. */
+    font-size: 1.125rem;
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: -0.01em;
@@ -221,7 +231,10 @@ html { scroll-behavior: smooth; }
 }
 
 /* Ikon di dalam tombol ikut bergerak saat hover. */
-.ra-btn__icon { width: 18px; height: 18px; flex-shrink: 0; transition: transform 0.2s ease; }
+/* Ikon panah di dalam tombol — 20px, satu-satunya ukuran yang dipakai
+   bersama ikon badge hero, supaya glyph seukuran saat keduanya berdampingan.
+   Nilai lama 18px adalah satu-satunya ukuran di luar skala {16, 20, 24, 28}. */
+.ra-btn__icon { width: 20px; height: 20px; flex-shrink: 0; transition: transform 0.2s ease; }
 .ra-btn:hover .ra-btn__icon { transform: translateX(2px); }
 
 /* layout.css memberi `border-radius: 4px` ke SEMUA elemen:focus-visible.
@@ -252,18 +265,26 @@ body.accessibility-high-contrast .ra-btn--ghost {
 .ra-card {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    /* 0.875rem (14px) — sejajar dengan skala spasi Tailwind. Nilai lama
+       0.85rem (13.6px) adalah satu-satunya jarak yang tidak ada di skala. */
+    gap: 0.875rem;
     padding: 1.5rem;
     background-color: var(--ra-surface);
     border: 1px solid var(--ra-line);
     border-radius: 18px;
     box-shadow: var(--ra-shadow-1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    /* Lift memakai `translate`, bukan `transform` — alasan yang sama seperti
+       `.ra-card--feature` di bawah: `transform` dipakai blok reveal
+       (`[data-ra-reveal]`), jadi `translate` & `transform` tidak saling
+       menimpa dan kartu bisa dilift tanpa mengganggu animasi masuknya. */
+    transform: none;
+    translate: 0 0;
+    transition: translate 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 /* Hover: naik 6px + shadow bertambah, transisi 200ms. */
 .ra-card--lift:hover,
 .ra-card--lift:focus-within {
-    transform: translateY(-6px);
+    translate: 0 -6px;
     border-color: var(--ra-chip-line);
     box-shadow: var(--ra-shadow-3);
 }
@@ -274,7 +295,10 @@ body.accessibility-high-contrast .ra-btn--ghost {
     width: 48px;
     height: 48px;
     flex-shrink: 0;
-    border-radius: 14px;
+    /* 16px — sama dengan `.ra-step__icon` (kotak 48px) dan
+       `.ra-card--feature .ra-card__icon` (kotak 64px). Nilai lama 14px
+       membuat dua kotak ikon 48px di halaman ini berbeda radius. */
+    border-radius: 16px;
     background-color: var(--ra-chip-bg);
     border: 1px solid var(--ra-chip-line);
     color: var(--ra-gold-ink);
@@ -315,8 +339,13 @@ body.accessibility-high-contrast .ra-btn--ghost {
        bisa dipakai bersamaan tanpa saling menimpa. */
     transform: none;
     translate: 0 0;
-    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out,
-        translate 0.2s ease-out;
+    /* Easing `ease` (bukan `ease-out`) supaya hover kartu ini persis sama
+       dengan setiap transisi lain di halaman: .ra-btn, .ra-card,
+       .ra-card__icon, .ra-step__icon, .ra-faq__chevron semuanya `ease`.
+       `ease-out` lama membuat Keunggulan Sistem terasa "berbeda" dari
+       Fitur Utama, padahal keduanya kartu interaktif yang sama. */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease,
+        translate 0.2s ease;
 }
 .ra-card--feature:hover,
 .ra-card--feature:focus-within {
@@ -342,6 +371,14 @@ body.accessibility-high-contrast .ra-btn--ghost {
 }
 
 /* ─── FAQ ─────────────────────────────────────────────────────── */
+/* Baris pertanyaan adalah satu-satunya target sentuh di section ini, dan
+   tinggi alaminya hanya 34px (dari `.ra-faq__toggle` 32px + margin 2px).
+   48px memberi zona sentuh yang nyaman tanpa mengubah alignment: `align-items`
+   tetap `items-start` dari utility di markup, jadi isi tidak bergeser. */
+.ra-card summary {
+    min-height: 48px;
+}
+
 .ra-faq__toggle {
     display: grid;
     place-items: center;
@@ -404,7 +441,9 @@ details[open] .ra-faq__chevron { transform: rotate(-90deg); }
     box-shadow: 0 0 0 8px var(--ra-band);
     transition: transform 0.2s ease;
 }
-.ra-step__icon svg { width: 22px; height: 22px; }
+/* 24px — sama dengan `.ra-card__icon svg` (Fitur Utama). Nilai lama 22px
+   adalah satu-satunya ukuran di luar skala {16, 20, 24, 28}. */
+.ra-step__icon svg { width: 24px; height: 24px; }
 .ra-step:hover .ra-step__icon { transform: scale(1.09); }
 
 .ra-step__body { min-width: 0; }
@@ -475,6 +514,34 @@ body.accessibility-high-contrast .ra-step__icon { border-width: 2px; }
     opacity: 1;
     transform: none;
     will-change: auto;
+    /* Stagger (60/120/180ms) ditulis sebagai INLINE style di Blade
+       (`style="transition-delay: ..."`), dan inline style mengalahkan
+       selector stylesheet apa pun, seberapa pun specificity-nya. Tanpa reset
+       di sini, delay itu juga menahan transisi hover/fokus pada elemen yang
+       sama - dan selamanya, karena `is-revealed` tidak pernah dilepas.
+       Efeknya kartu terasa lamban saat di-hover.
+       `!important` di sini adalah satu-satunya cara mengalahkan inline style
+       tanpa mengganggu stagger reveal itu sendiri: delay tetap berlaku saat
+       elemen masuk viewport, sebelum state ini aktif. */
+    transition-delay: 0ms !important;
+    /* REGRESSION (terbukti di browser): setiap kartu landing sekaligus punya
+       `data-ra-reveal`, dan blok reveal di atas punya specificity (0,2,0) —
+       lebih tinggi dari `.ra-card` (0,1,0) maupun `.ra-card--feature`
+       (0,1,0). Akibatnya `transition` kartu SELALU hanya berisi
+       `opacity, transform`, sehingga `box-shadow`, `border-color`, dan
+       `translate` TIDAK ada di daftar itu: hover kartu berubah INSTAN (0ms)
+       sementara tombol tetap 200ms. Diperbaiki di sini.
+
+       Durasi ditulis per-properti agar tidak saling mengganggu:
+         • opacity + transform 0.5s → animasi reveal tetap sama seperti semula.
+         • translate + shadow + border 0.2s → hover kartu kembali 200ms.
+
+       Rules ini hanya berlaku setelah reveal. Tanpa JavaScript `.ra-js` tidak
+       pernah dipasang, blok reveal tidak berlaku sama sekali, dan setiap
+       komponen memakai `transition` miliknya sendiri. */
+    transition-property: opacity, transform, translate, box-shadow, border-color;
+    transition-duration: 0.5s, 0.5s, 0.2s, 0.2s, 0.2s;
+    transition-timing-function: ease;
 }
 /* Jaring pengaman: elemen yang pernah menerima fokus keyboard tidak boleh
    pernah tersembunyi, apa pun kondisi JS-nya. */
@@ -499,7 +566,9 @@ body.accessibility-high-contrast .ra-step__icon { border-width: 2px; }
     .ra-btn:active {
         transform: none;
     }
-    /* Lift feature card memakai `translate`, jadi harus dinetralkan sendiri. */
+    /* Lift semua kartu memakai `translate`, jadi harus dinetralkan sendiri. */
+    .ra-card--lift:hover,
+    .ra-card--lift:focus-within,
     .ra-card--feature:hover,
     .ra-card--feature:focus-within {
         translate: none;
