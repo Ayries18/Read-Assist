@@ -33,7 +33,7 @@
     $seoSchema = $seo['schema'] ?? null;
 @endphp
 
-<title>{{ $seoTitle }}</title>
+<title>{{ config('app.name', 'Read-Assist') }}</title>
 <meta name="description" content="{{ $seoDescription }}">
 <meta name="keywords" content="{{ $seoKeywords }}">
 <meta name="author" content="{{ $seoSiteName }}">

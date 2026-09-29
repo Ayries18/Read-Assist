@@ -96,7 +96,7 @@ class AudioBukuTest extends TestCase
         AudioBuku::factory()->create();
 
         $this->get('/katalog-audio')
-            ->assertSee('<title>Katalog Buku Audio</title>', false)
+            ->assertSee('<title>Read-Assist</title>', false)
             ->assertSee('rel="canonical" href="'.route('audio-books.index').'"', false)
             ->assertSee('name="robots" content="index, follow, max-image-preview:large"', false);
     }
@@ -122,7 +122,7 @@ class AudioBukuTest extends TestCase
         $response = $this->get("/katalog-audio/{$book->id}");
 
         $response->assertStatus(200)
-            ->assertSee('<title>Novel Laut dan Cahaya</title>', false)
+            ->assertSee('<title>Read-Assist</title>', false)
             ->assertSee('"@type":"AudioObject"', false)
             ->assertSee('"name":"Novel Laut dan Cahaya"', false)
             ->assertSee('"contentUrl":"'.route('audio.stream', $book->id).'"', false)
