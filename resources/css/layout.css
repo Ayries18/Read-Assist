@@ -315,6 +315,20 @@ summary:focus-visible,
     .navbar-end .nav-end-group { gap: 0.25rem; }
     .avatar-btn { padding: 0; }
 }
+/* Desktop sempit (1280–1535px) dengan user login: menu tengah grew dari
+   3 item jadi 4 item ("Tambah Buku"/"Dashboard") DAN blok kanan grew dari
+   tombol Login/Daftar jadi avatar + nama. Kombinasi itu butuh ~753px untuk
+   menu, sedangkan yang tersedia hanya ~592px di 1280px → overlap. Di rentang
+   ini dibuat kompres: nama disembunyikan (tetap di dropdown avatar), padding
+   menu dikecilkan, dan logo dikecilkan. Wirkung: menu muat tanpa terpotong
+   dan tanpa menabrak blok kanan. */
+@media (min-width: 1280px) and (max-width: 1535px) {
+    .nav-user-name-text,
+    .avatar-chevron { display: none; }
+    .avatar-btn { padding: 0; }
+    .nav-btn { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+    .logo-navbar img { max-width: 130px; }
+}
 @media (max-width: 640px) {
     .navbar {
         height: 64px !important;
@@ -351,13 +365,19 @@ summary:focus-visible,
    `flex: 0 0 auto` untuk center. Akibatnya blok tengah tidak pernah mau
    menyusut, sedangkan kedua sisi dipaksa berbagi sisa ruang yang sangat
    kecil — isi mereka (logo 274px, avatar + nama) lalu meluber keluar
-   kotaknya dan menimpa menu tengah. Sekarang: kiri & kanan `shrink-0`
-   (konten utuh), tengah `flex-1` + `min-w-0` (satu-satunya penyerap ruang). */
+   kotaknya dan menimpa menu tengah.
+
+   `width: auto` itu WAJIB, bukan kosmetik: DaisyUI menulis
+   `.navbar-start { width: 50% }` dan `.navbar-end { width: 50% }`. Tanpa
+   me-reset-nya, kedua sisi tetap occupy 50%-each walau `flex` sudah
+   `flex: none`, dan `.navbar-center` tergusut jadi 0px sehingga seluruh
+   menu hilang (terpotong oleh `overflow: hidden`). */
 .navbar-start,
 .navbar-center,
 .navbar-end {
     display: flex;
     align-items: center;
+    width: auto;
     min-width: 0;
 }
 .navbar-start {
@@ -368,8 +388,7 @@ summary:focus-visible,
     flex: 1 1 auto;
     justify-content: center;
     overflow: hidden;
-}
-.navbar-end {
+}.navbar-end {
     flex: 0 0 auto;
     justify-content: flex-end !important;
     gap: 0.75rem !important;
