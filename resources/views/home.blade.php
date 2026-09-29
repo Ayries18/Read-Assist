@@ -301,10 +301,8 @@
                 <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 60ms">
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                            <path d="M21 3v5h-5" />
-                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                            <path d="M8 16H3v5" />
+                            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z" />
+                            <path d="m10 8 6 4-6 4Z" />
                         </svg>
                     </span>
                     <h3 class="ra-h3">Dukungan untuk Melanjutkan Proses</h3>
