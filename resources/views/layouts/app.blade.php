@@ -103,16 +103,16 @@
 <body>
     <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
     <nav aria-label="Navigasi utama" class="navbar sticky top-0 z-[1000] min-h-[72px] h-[72px] px-6 lg:px-8 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-b border-black/[0.08] dark:border-white/[0.08] shadow-sm flex items-center justify-between">
-        <div class="navbar-start flex items-center gap-4">
+        <div class="navbar-start flex shrink-0 items-center gap-4">
             <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
-            <button class="nav-icon-btn" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
+            <button class="nav-icon-btn shrink-0" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
-            <a href="/" class="logo-navbar flex items-center no-underline transition-all duration-200 ease-out hover:scale-[1.02] active:scale-95" aria-label="Beranda Read-Assist">
+            <a href="/" class="logo-navbar flex shrink-0 items-center no-underline transition-all duration-200 ease-out hover:scale-[1.02] active:scale-95" aria-label="Beranda Read-Assist">
                 <img
                     src="{{ asset('logo-horizontal.svg') }}"
                     alt="ReadAssist Logo"
-                    class="h-10 w-auto object-contain"
+                    class="h-10 max-w-[150px] w-auto shrink-0 object-contain"
                     width="180"
                     height="40"
                     loading="eager"
@@ -122,8 +122,8 @@
         </div>
 
         @if (!$isMobile)
-        <div class="navbar-center hidden xl:flex items-center">
-            <ul class="menu menu-horizontal p-0 gap-2 lg:gap-4 flex items-center">
+        <div class="navbar-center hidden min-w-0 flex-1 items-center justify-center overflow-hidden xl:flex">
+            <ul class="menu menu-horizontal flex flex-nowrap items-center gap-1 whitespace-nowrap p-0 lg:gap-2">
                 <li>
                     <a href="/" class="nav-btn {{ request()->is('/') ? 'active' : '' }}" aria-current="{{ request()->is('/') ? 'page' : '' }}">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
@@ -173,7 +173,7 @@
         </div>
         @endif
 
-        <div class="navbar-end flex items-center justify-end gap-3 lg:gap-4">
+        <div class="navbar-end flex shrink-0 items-center justify-end gap-3">
             @if (!$isMobile)
                 <div class="nav-end-group nav-end-group--icons flex items-center gap-2">
                 <!-- Accessibility options (Desktop) -->

@@ -59,12 +59,13 @@ summary:focus-visible,
     height: 40px;
     min-width: 40px;
     min-height: 40px;
+    flex-shrink: 0;
     background: none;
     color: #4b5563;
     font-size: 1.15rem;
     cursor: pointer;
     padding: 0;
-    border-radius: 12px;
+    border-radius: 9999px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -197,13 +198,15 @@ summary:focus-visible,
 
 .avatar-btn {
     background: none;
-    border: 1px solid transparent;
-    padding: 0.375rem 0.625rem;
-    border-radius: 12px;
+    border: 0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
     cursor: pointer;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     gap: 0.625rem;
+    min-width: 0;
     transition: all 0.2s ease-out;
     transform-origin: center;
 }
@@ -218,7 +221,11 @@ summary:focus-visible,
     font-size: 0.875rem;
     color: #171717;
     font-weight: 500;
+    /* Batas keras 140px + min-width:0 = nama terpotong rapi (ellipsis)
+       alih-alih mendorong tombol/ikon lain keluar dari navbar. */
     max-width: 140px;
+    min-width: 0;
+    flex: 0 1 auto;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -227,13 +234,15 @@ summary:focus-visible,
 .avatar-chevron {
     font-size: 0.6rem;
     color: var(--text-muted);
+    flex-shrink: 0;
     transition: transform 0.2s ease-out;
 }
 .user-avatar--nav {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    flex-shrink: 0;
     font-size: 0.875rem;
     border-radius: 50%;
     font-weight: 700;
@@ -271,6 +280,7 @@ summary:focus-visible,
     justify-content: center;
     text-decoration: none;
     transition: transform 0.2s ease-out;
+    flex-shrink: 0;
 }
 .logo-navbar:hover {
     transform: scale(1.02);
@@ -278,15 +288,32 @@ summary:focus-visible,
 .logo-navbar:active {
     transform: scale(0.95);
 }
+/* SVG logo punya rasio asli 890:130 (~6.85:1). Tanpa `max-width`, `h-10`
+   memaksa lebar natural menjadi ~274px sehingga blok kiri memakan hampir
+   seperempat layar dan menabrak menu tengah. `max-width` + `object-fit:
+   contain` menjaga proporsi asli tanpa overflow. */
 .logo-navbar img {
     height: 40px !important;
     width: auto !important;
+    max-width: 150px;
     max-height: 40px !important;
+    flex-shrink: 0;
     object-fit: contain;
     display: block;
 }
 @media (max-width: 1279px) {
     .navbar-center { display: none !important; }
+}
+/* Tablet (641–899px): menu tengah sudah disembunyikan, tapi nama user +
+   lima ikon kanan masih melebihi lebar. Nama disembunyikan (masih tersedia
+   di dropdown avatar) dan jarak dikecilkan agar tidak ada overflow. */
+@media (min-width: 641px) and (max-width: 899px) {
+    .navbar-start { gap: 0.75rem !important; }
+    .nav-user-name-text,
+    .avatar-chevron { display: none; }
+    .navbar-end { gap: 0.5rem !important; }
+    .navbar-end .nav-end-group { gap: 0.25rem; }
+    .avatar-btn { padding: 0; }
 }
 @media (max-width: 640px) {
     .navbar {
@@ -297,7 +324,8 @@ summary:focus-visible,
     .navbar .navbar-start { gap: 0.75rem !important; }
     .nav-icon-btn { font-size: 1.15rem !important; }
     .navbar-end { gap: 0.5rem !important; }
-    .logo-navbar img { height: 34px !important; max-height: 34px !important; }
+    /* Menu tengah tersembunyi, jadi logo boleh sedikit lebih lebar lagi. */
+    .logo-navbar img { height: 34px !important; max-height: 34px !important; max-width: 180px; }
 
     /* Fix navbar mobile (390px dsb.): sembunyikan item desktop-only dari
        navbar-end agar logo & tombol tidak overlap. Login/Daftar/Profil tetap
@@ -318,34 +346,40 @@ summary:focus-visible,
 .navbar .menu-horizontal > li > a:not(.nav-btn) {
     padding: 0 !important;
 }
+/* Distribusi ruang tiga section.
+   REGRESSION: versi lama memakai `flex: 1 1 0` untuk start & end dan
+   `flex: 0 0 auto` untuk center. Akibatnya blok tengah tidak pernah mau
+   menyusut, sedangkan kedua sisi dipaksa berbagi sisa ruang yang sangat
+   kecil — isi mereka (logo 274px, avatar + nama) lalu meluber keluar
+   kotaknya dan menimpa menu tengah. Sekarang: kiri & kanan `shrink-0`
+   (konten utuh), tengah `flex-1` + `min-w-0` (satu-satunya penyerap ruang). */
 .navbar-start,
 .navbar-center,
 .navbar-end {
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 .navbar-start {
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 0 0 auto;
     justify-content: flex-start;
 }
 .navbar-center {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     justify-content: center;
+    overflow: hidden;
 }
 .navbar-end {
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 0 0 auto;
     justify-content: flex-end !important;
     gap: 0.75rem !important;
 }
 /* Grup ikon kanan (Community, Notification, Avatar, Theme Toggle).
-   Nilai lama 0.45rem (7px) bikin tombol-tombol bersentuhan. Brief meminta
-   gap-4. */
+   Nilai lama 0.45rem (7px) bikin tombol-tombol bersentuhan. */
 .navbar-end .nav-end-group {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 /* Mobile drawer overlay */
@@ -418,14 +452,19 @@ summary:focus-visible,
     margin: 0.5rem 0;
 }
 
-/* Jarak antar item navbar desktop: gap-2 lg:gap-4 */
+/* Jarak antar item navbar: gap-1 (lg: gap-2).
+   Nilai lama memaksa `1rem` (16px) pada ≥1024px lewat `!important`, sehingga
+   total lebar menu tengah melebihi ruang yang tersedia tepat di 1280px —
+   lebar terkecil saat menu tengah masih tampil — dan memicu overlap. */
 .navbar .menu-horizontal {
-    gap: 0.5rem !important;
+    gap: 0.25rem !important;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 @media (min-width: 1024px) {
     .navbar .menu-horizontal {
-        gap: 1rem !important;
+        gap: 0.5rem !important;
     }
 }
 
@@ -434,15 +473,16 @@ summary:focus-visible,
     position: relative;
     display: flex !important;
     align-items: center !important;
+    flex-shrink: 0;
     gap: 0.5rem;
-    padding: 0.625rem 1rem !important;
-    min-height: 44px;
+    padding: 0.75rem 1rem !important;
+    min-height: 48px;
     border-radius: 12px !important;
     font-size: 0.9rem;
     font-weight: 500;
     color: #171717 !important;
     background: transparent !important;
-    border: 1px solid transparent !important;
+    border: 0 !important;
     transition: all 0.2s ease-out !important;
     text-decoration: none;
     cursor: pointer;
