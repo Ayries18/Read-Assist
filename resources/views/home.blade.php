@@ -107,7 +107,7 @@
                         </h2>
                     </div>
 
-                    <div class="flex flex-col gap-3.5" data-ra-reveal style="transition-delay: 80ms">
+                    <div class="flex flex-col gap-3.5" data-ra-reveal>
                         <p class="ra-body m-0 text-[0.98rem] leading-[1.75]">
                             Read-Assist mengubah buku cetak menjadi buku audio yang bisa didengarkan sendiri, kapan pun.
                             Pengajar atau relawan mengunggah naskah digital berformat PDF atau EPUB ke katalog, lalu
@@ -127,7 +127,7 @@
                         </p>
                     </div>
 
-                    <div class="mt-1 flex flex-wrap items-center gap-3" data-ra-reveal style="transition-delay: 160ms">
+                    <div class="mt-1 flex flex-wrap items-center gap-3" data-ra-reveal>
                         <a href="{{ route('audio-books.index') }}" class="ra-btn ra-btn--primary">
                             Mulai Mendengarkan
                             <svg class="ra-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -165,25 +165,21 @@
                     icon='<rect width="5" height="5" x="3" y="3" rx="1" /><rect width="5" height="5" x="16" y="3" rx="1" /><rect width="5" height="5" x="3" y="16" rx="1" /><path d="M21 16h-3a2 2 0 0 0-2 2v3" /><path d="M21 21v.01" /><path d="M12 7v3a2 2 0 0 1-2 2H7" /><path d="M3 12h.01" /><path d="M12 3h.01" /><path d="M12 16v.01" /><path d="M16 12h1" /><path d="M21 12v.01" /><path d="M12 21v-1" />'
                     title="QR-Audio"
                     text="Satu kode QR untuk setiap buku, cukup dipindai kamera ponsel untuk membuka pemutar."
-                    :delay="0"
                 />
                 <x-landing.feature-card
                     icon='<path d="M2 13.5v-3" /><path d="M7 16.5v-9" /><path d="M12 19.5v-15" /><path d="M17 16.5v-9" /><path d="M22 13.5v-3" />'
                     title="Text-to-Speech"
                     text="Naskah PDF atau EPUB dipecah per kalimat lalu disintesis menjadi audio yang jernih."
-                    :delay="60"
                 />
                 <x-landing.feature-card
                     icon='<path d="m16 6 4 14" /><path d="M12 6v14" /><path d="M8 8v12" /><path d="M4 4v16" />'
                     title="Katalog Buku"
                     text="Koleksi digital terstruktur dalam satu katalog yang bebas dicari dan dijelajahi."
-                    :delay="120"
                 />
                 <x-landing.feature-card
                     icon='<path d="M19 21V5a2 2 0 0 0-2-2H7A2 2 0 0 0 5 5v16l7-4 7 4Z" /><path d="m9 10 2 2 4-4" />'
                     title="Progress Otomatis"
                     text="Kalimat terakhir tersimpan, jadi bacaan panjang dilanjutkan dari titik yang sama."
-                    :delay="180"
                 />
             </div>
         </section>
@@ -205,28 +201,24 @@
                     num="01"
                     title="Upload"
                     text="Naskah digital PDF atau EPUB diunggah ke katalog oleh pengajar, relawan, atau pengelola buku."
-                    :delay="0"
                 />
                 <x-landing.timeline-step
                     icon='<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" />'
                     num="02"
                     title="Ekstraksi"
                     text="Teks diekstraksi otomatis lalu dipecah menjadi potongan kalimat berukuran wajar."
-                    :delay="70"
                 />
                 <x-landing.timeline-step
                     icon='<path d="M2 13.5v-3" /><path d="M7 16.5v-9" /><path d="M12 19.5v-15" /><path d="M17 16.5v-9" /><path d="M22 13.5v-3" />'
                     num="03"
                     title="Audio"
                     text="Setiap potongan disintesis menjadi berkas MP3, diverifikasi, lalu digabungkan menjadi satu buku audio."
-                    :delay="140"
                 />
                 <x-landing.timeline-step
                     icon='<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />'
                     num="04"
                     title="Dengarkan"
                     text="Kode QR ditempel pada buku fisik. Pindai, lalu dengarkan per kalimat langsung dari ponsel."
-                    :delay="210"
                 />
             </ol>
         </section>
@@ -249,7 +241,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card" data-ra-reveal style="transition-delay: 60ms">
+                <article class="ra-card" data-ra-reveal>
                     <h3 class="ra-h3">Kebebasan Membaca Mandiri</h3>
                     <p class="ra-card__text">
                         Bacaan tidak lagi bergantung pada ketersediaan orang lain. Penyandang tunanetra yang ingin
@@ -257,7 +249,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card" data-ra-reveal style="transition-delay: 120ms">
+                <article class="ra-card" data-ra-reveal>
                     <h3 class="ra-h3">Navigasi yang Sudah Dikenal</h3>
                     <p class="ra-card__text">
                         Pemutar bekerja dengan pola yang lazim pada aplikasi pembaca layar: jeda dengan spasi, mundur
@@ -265,7 +257,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card" data-ra-reveal style="transition-delay: 180ms">
+                <article class="ra-card" data-ra-reveal>
                     <h3 class="ra-h3">Hemat Kuota dan Ringan</h3>
                     <p class="ra-card__text">
                         Audio dipecah per kalimat sehingga tidak perlu mengunduh satu berkas besar sekaligus.
@@ -302,7 +294,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 60ms">
+                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal>
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                             <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z" />
@@ -316,7 +308,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 120ms">
+                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal>
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                             <path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" /><path d="M11 7h10" /><path d="M11 17h10" />
@@ -329,7 +321,7 @@
                     </p>
                 </article>
 
-                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal style="transition-delay: 180ms">
+                <article class="ra-card ra-card--lift ra-card--feature" data-ra-reveal>
                     <span class="ra-card__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                             <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />

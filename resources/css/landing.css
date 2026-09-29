@@ -506,24 +506,23 @@ body.accessibility-high-contrast .ra-step__icon { border-width: 2px; }
    SEO dan untuk pengguna yang memblokir JavaScript. */
 .ra-js [data-ra-reveal] {
     opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    /* Reveal dipangkas: geser 16px → 6px, durasi 500ms → 300ms, stagger 0.
+       Nilai lama terasa lambat di halaman setinggi ini (±9000px di 320px),
+       karena tiap section fade-in beruntun saat scroll. */
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* Stagger dihapus total (dari 210ms → 0). Diformulasikan di sini, di
+       aturan DASAR, bukan di `.is-revealed`, sehingga tidak ada inline
+       `transition-delay` yang perlu dikalahkan dan `!important` pun tidak
+       diperlukan lagi. Kalau suatu saat stagger ditambahkan lagi, delay harus
+       di sini — bukan sebagai inline style di Blade. */
+    transition-delay: 0ms;
     will-change: opacity, transform;
 }
 .ra-js [data-ra-reveal].is-revealed {
     opacity: 1;
     transform: none;
     will-change: auto;
-    /* Stagger (60/120/180ms) ditulis sebagai INLINE style di Blade
-       (`style="transition-delay: ..."`), dan inline style mengalahkan
-       selector stylesheet apa pun, seberapa pun specificity-nya. Tanpa reset
-       di sini, delay itu juga menahan transisi hover/fokus pada elemen yang
-       sama - dan selamanya, karena `is-revealed` tidak pernah dilepas.
-       Efeknya kartu terasa lamban saat di-hover.
-       `!important` di sini adalah satu-satunya cara mengalahkan inline style
-       tanpa mengganggu stagger reveal itu sendiri: delay tetap berlaku saat
-       elemen masuk viewport, sebelum state ini aktif. */
-    transition-delay: 0ms !important;
     /* REGRESSION (terbukti di browser): setiap kartu landing sekaligus punya
        `data-ra-reveal`, dan blok reveal di atas punya specificity (0,2,0) —
        lebih tinggi dari `.ra-card` (0,1,0) maupun `.ra-card--feature`
@@ -533,14 +532,14 @@ body.accessibility-high-contrast .ra-step__icon { border-width: 2px; }
        sementara tombol tetap 200ms. Diperbaiki di sini.
 
        Durasi ditulis per-properti agar tidak saling mengganggu:
-         • opacity + transform 0.5s → animasi reveal tetap sama seperti semula.
-         • translate + shadow + border 0.2s → hover kartu kembali 200ms.
+         • opacity + transform 0.3s → reveal (identik dengan aturan dasar).
+         • translate + shadow + border 0.2s → hover kartu tetap 200ms.
 
        Rules ini hanya berlaku setelah reveal. Tanpa JavaScript `.ra-js` tidak
        pernah dipasang, blok reveal tidak berlaku sama sekali, dan setiap
        komponen memakai `transition` miliknya sendiri. */
     transition-property: opacity, transform, translate, box-shadow, border-color;
-    transition-duration: 0.5s, 0.5s, 0.2s, 0.2s, 0.2s;
+    transition-duration: 0.3s, 0.3s, 0.2s, 0.2s, 0.2s;
     transition-timing-function: ease;
 }
 /* Jaring pengaman: elemen yang pernah menerima fokus keyboard tidak boleh
