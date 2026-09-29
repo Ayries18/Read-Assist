@@ -102,18 +102,19 @@
 </head>
 <body>
     <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
-    <nav aria-label="Navigasi utama" class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
-        <div class="navbar-start gap-1 sm:gap-2">
+    <nav aria-label="Navigasi utama" class="navbar sticky top-0 z-[1000] min-h-[72px] h-[72px] px-6 lg:px-8 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-b border-black/[0.08] dark:border-white/[0.08] shadow-sm flex items-center justify-between">
+        <div class="navbar-start flex items-center gap-4">
             <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
-            <button class="nav-icon-btn mr-4" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <button class="nav-icon-btn" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
-            <a href="/" class="logo-navbar no-underline transition-transform hover:-translate-y-0.5">
+            <a href="/" class="logo-navbar flex items-center no-underline transition-all duration-200 ease-out hover:scale-[1.02] active:scale-95" aria-label="Beranda Read-Assist">
                 <img
                     src="{{ asset('logo-horizontal.svg') }}"
                     alt="ReadAssist Logo"
-                    width="256"
-                    height="128"
+                    class="h-10 w-auto object-contain"
+                    width="180"
+                    height="40"
                     loading="eager"
                     decoding="async"
                 >
@@ -121,8 +122,8 @@
         </div>
 
         @if (!$isMobile)
-        <div class="navbar-center flex">
-            <ul class="menu menu-horizontal px-1 gap-1">
+        <div class="navbar-center hidden xl:flex items-center">
+            <ul class="menu menu-horizontal p-0 gap-2 lg:gap-4 flex items-center">
                 <li>
                     <a href="/" class="nav-btn {{ request()->is('/') ? 'active' : '' }}" aria-current="{{ request()->is('/') ? 'page' : '' }}">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
@@ -172,9 +173,9 @@
         </div>
         @endif
 
-        <div class="navbar-end gap-4">
+        <div class="navbar-end flex items-center justify-end gap-3 lg:gap-4">
             @if (!$isMobile)
-                <div class="nav-end-group nav-end-group--icons">
+                <div class="nav-end-group nav-end-group--icons flex items-center gap-2">
                 <!-- Accessibility options (Desktop) -->
                 <div class="nav-accessibility-wrapper accessibility-nav-wrapper">
                     <button class="nav-icon-btn accessibility-nav-trigger" onclick="toggleAccessibilityDropdown(event)" title="Opsi Aksesibilitas" aria-label="Buka opsi aksesibilitas" aria-controls="accessibility-dropdown" aria-expanded="false">
@@ -291,14 +292,14 @@
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                         <span class="nav-btn-text">Login</span>
                     </a>
-                    <a href="/register" class="btn btn-primary btn-sm shadow-lg shadow-[#b8860b]/25 hover:shadow-[#b8860b]/40 transition-all duration-200 hover:-translate-y-0.5">
+                    <a href="/register" class="btn btn-primary btn-sm rounded-xl px-4 py-2 min-h-[40px] text-sm font-semibold shadow-md shadow-[#b8860b]/20 hover:shadow-[#b8860b]/30 transition-all duration-200 ease-out hover:scale-[1.02] active:scale-95 flex items-center gap-1.5">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Daftar
                     </a>
                 @endif
             @endif
 
             <!-- Tema (Terang/Gelap/System) -->
-            <div class="nav-theme-wrapper" style="position: relative; display: flex; align-items: center; gap: 2px;">
+            <div class="nav-theme-wrapper flex items-center gap-1" style="position: relative;">
                 <button class="nav-icon-btn" id="theme-toggle-btn" title="Ganti terang / gelap" aria-label="Sakelar mode gelap terang">
                     <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
                     <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>

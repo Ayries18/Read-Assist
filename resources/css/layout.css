@@ -55,30 +55,37 @@ summary:focus-visible,
 
 /* Navbar Enhancements */
 .nav-icon-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     background: none;
-    color: var(--text-muted);
+    color: #4b5563;
     font-size: 1.15rem;
     cursor: pointer;
-    padding: 0.4rem;
-    border-radius: 8px;
+    padding: 0;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* border 1px permanen ( transparan ) → warna border saat hover bisa
-       berubah tanpa menggeser layout. */
     border: 1px solid transparent;
-    /* Samakan dengan .nav-btn: 250ms ease-out. */
-    transition: background 0.25s ease-out, color 0.25s ease-out,
-        border-color 0.25s ease-out, transform 0.25s ease-out;
+    transition: all 0.2s ease-out;
     transform-origin: center;
     position: relative;
 }
+.nav-icon-btn svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
 .nav-icon-btn:hover {
-    color: #000;
+    color: #000000;
     background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(184, 134, 11, 0.32);
-    /* transform tidak memengaruhi flow layout → tidak ada layout shift. */
+    border-color: transparent;
     transform: scale(1.02);
+}
+.nav-icon-btn:active {
+    transform: scale(0.95);
 }
 .notification-badge {
     position: absolute;
@@ -188,8 +195,49 @@ summary:focus-visible,
     color: #000 !important;
 }
 
+.avatar-btn {
+    background: none;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.625rem;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    transition: all 0.2s ease-out;
+    transform-origin: center;
+}
 .avatar-btn:hover {
-    opacity: 0.95;
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.02);
+}
+.avatar-btn:active {
+    transform: scale(0.95);
+}
+.nav-user-name-text {
+    font-size: 0.875rem;
+    color: #171717;
+    font-weight: 500;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+.avatar-chevron {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    transition: transform 0.2s ease-out;
+}
+.user-avatar--nav {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 0.875rem;
+    border-radius: 50%;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(184, 134, 11, 0.2);
 }
 
 /* Search Input */
@@ -199,48 +247,57 @@ summary:focus-visible,
     box-shadow: none !important;
 }
 
-/* Navbar: gunakan DaisyUI navbar component (flex + center) */
+/* Navbar: flex + center + balanced spacing */
 .navbar {
     background: #ffffff !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
-    backdrop-filter: none;
-    padding: 0.5rem 1.5rem !important;
-    align-items: center;
+    backdrop-filter: blur(8px);
+    height: 72px !important;
+    min-height: 72px !important;
+    padding: 0 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+@media (min-width: 1024px) {
+    .navbar {
+        padding: 0 2rem !important;
+    }
 }
 .logo-navbar {
     display: flex;
     align-items: center;
     justify-content: center;
-    max-height: 56px;
-    overflow: hidden;
-    align-self: center;
+    text-decoration: none;
+    transition: transform 0.2s ease-out;
+}
+.logo-navbar:hover {
+    transform: scale(1.02);
+}
+.logo-navbar:active {
+    transform: scale(0.95);
 }
 .logo-navbar img {
-    height: 42px;
-    width: auto;
+    height: 40px !important;
+    width: auto !important;
+    max-height: 40px !important;
     object-fit: contain;
     display: block;
 }
-@media (max-width: 1369px) {
+@media (max-width: 1279px) {
     .navbar-center { display: none !important; }
-    .navbar { padding-left: 1rem !important; padding-right: 1rem !important; }
-}
-@media (max-width: 1024px) {
-    .logo-navbar img { height: 36px; }
 }
 @media (max-width: 640px) {
-    .navbar { padding: 0.45rem 0.75rem !important; }
-    .navbar .navbar-start { gap: 0.15rem !important; }
-    .nav-icon-btn { font-size: 1.25rem !important; padding: 0.55rem !important; color: #000 !important; }
-    .navbar-end { gap: 0.4rem !important; }
-    .navbar-end .nav-end-group { gap: 0.5rem; }
-    /* Di mobile mr-4 (16px) terlalu rakus untuk ruang setel 390px —
-       mr-2 (8px) cukup untuk memisahkan hamburger dari logo tanpa
-       memicu overflow horizontal. */
-    .navbar-start .nav-icon-btn { margin-right: 0.5rem !important; }
-    .navbar-center { margin-left: 0.75rem; }
-    .logo-navbar img { height: 31px; }
+    .navbar {
+        height: 64px !important;
+        min-height: 64px !important;
+        padding: 0 1rem !important;
+    }
+    .navbar .navbar-start { gap: 0.75rem !important; }
+    .nav-icon-btn { font-size: 1.15rem !important; }
+    .navbar-end { gap: 0.5rem !important; }
+    .logo-navbar img { height: 34px !important; max-height: 34px !important; }
 
     /* Fix navbar mobile (390px dsb.): sembunyikan item desktop-only dari
        navbar-end agar logo & tombol tidak overlap. Login/Daftar/Profil tetap
@@ -361,43 +418,32 @@ summary:focus-visible,
     margin: 0.5rem 0;
 }
 
-/* Jarak antar item navbar desktop. Nilai lama 0.25rem (4px) membuat
-   "Tambah Buku Saya" dan "Dashboard User" nyaris menempel. Mengikuti
-   pola gap-4 md:gap-5 dari brief: 4 desktop, 5 di layar sangat lebar. */
+/* Jarak antar item navbar desktop: gap-2 lg:gap-4 */
 .navbar .menu-horizontal {
-    gap: 1rem !important;
+    gap: 0.5rem !important;
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 1024px) {
     .navbar .menu-horizontal {
-        gap: 1.25rem !important;
+        gap: 1rem !important;
     }
 }
 
-/* Natural nav buttons — ukuran nyaman untuk tunanetra */
+/* Nav buttons — rounded-xl, hover halus, active soft gold, micro-interaction */
 .nav-btn {
     position: relative;
     display: flex !important;
-    align-items: center;
+    align-items: center !important;
     gap: 0.5rem;
-    /* px-4 py-2.5 — padding lama 0.5rem 0.7rem bikin label berdempetan
-       dan area sentuh di tepi bawah 40px (batas minimum WCAG 2.5.8 = 44px
-       bila difokuskan). py 0.625rem + min-height 44px menutup keduanya. */
     padding: 0.625rem 1rem !important;
     min-height: 44px;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     font-size: 0.9rem;
     font-weight: 500;
-    color: #000 !important;
+    color: #171717 !important;
     background: transparent !important;
-    /* Border 1px selalu ada (hanya warnanya yang berubah) — inilah yang
-       membuat state aktif/hover TIDAK menggeser layout. Kalau border
-       di-set 0 lalu muncul saat hover, itu jadi sumber CLS. */
     border: 1px solid transparent !important;
-    /* border-color ikut ditransisikan supaya garis emas muncul halus,
-       bukan melompat di frame pertama. */
-    transition: background 0.25s ease-out, color 0.25s ease-out,
-        border-color 0.25s ease-out, transform 0.25s ease-out !important;
+    transition: all 0.2s ease-out !important;
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
@@ -405,39 +451,40 @@ summary:focus-visible,
     transform-origin: center;
 }
 .nav-btn:hover {
-    color: #000 !important;
-    background: rgba(184, 134, 11, 0.08) !important;
-    border-color: rgba(184, 134, 11, 0.32) !important;
-    /* scale ringan (maks 1.02 sesuai brief). `transform` TIDAK memengaruhi
-       flow layout, jadi-items tetangga tidak bergeser sama sekali. */
+    color: #000000 !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-color: transparent !important;
     transform: scale(1.02) !important;
     box-shadow: none !important;
 }
+.nav-btn:active {
+    transform: scale(0.95) !important;
+}
 .nav-btn.active {
-    color: #000 !important;
-    background: rgba(184, 134, 11, 0.12) !important;
+    color: #b8860b !important;
+    background: rgba(184, 134, 11, 0.1) !important;
+    font-weight: 600 !important;
+    border-color: transparent !important;
     box-shadow: none !important;
 }
-/* Item yang sedang aktif TETAP terbaca saat di-hover — tanpa ini hover
-   menutupi warna aktif dan user kehilangan "di halaman mana saya". */
 .nav-btn.active:hover {
-    background: rgba(184, 134, 11, 0.12) !important;
-    border-color: #b8860b !important;
-    transform: scale(1) !important;
+    background: rgba(184, 134, 11, 0.15) !important;
+    color: #b8860b !important;
+    border-color: transparent !important;
+    transform: scale(1.02) !important;
+}
+.nav-btn.active:active {
+    transform: scale(0.95) !important;
 }
 .nav-btn .nav-btn-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
-    opacity: 0.75;
+    opacity: 0.85;
     color: currentColor;
+    transition: transform 0.2s ease-out;
 }
-.nav-btn:hover .nav-btn-icon {
+.nav-btn:hover .nav-btn-icon,
+.nav-btn.active .nav-btn-icon {
     opacity: 1;
 }
-
-/* Catatan: aturan lama
-   `.navbar .nav-btn[href="/user/dashboard"] { padding-left/right: .55rem }`
-   SUDAH DIHAPUS. Aturan itu hanya mengecilkan "Dashboard User" satu item
-   sehingga jarak "Tambah Buku Saya" → "Dashboard User" terlihat melompat.
-   Sekarang semua item memakai padding yang sama, jadi rata. */
