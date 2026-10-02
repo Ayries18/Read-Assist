@@ -50,9 +50,17 @@ Read-Assist is a Laravel 13 web platform providing accessible audio books for vi
   ```bash
   php artisan migrate:fresh --seed
   ```
-- Default Seeder Accounts:
-  - Admin: `admin@example.com` / `password`
-  - User: `muwarisin@gmail.com` / `Aris1234`
+- Seeder **tidak lagi membawa kredensial default**. Akun dummy hanya dibuat
+  bila `.env` lokal mengisi:
+  ```dotenv
+  SEED_ADMIN_EMAIL=<email admin dummy>
+  ADMIN_SEED_PASSWORD=<password kuat>
+  SEED_USER_EMAIL=<email user dummy>
+  USER_SEED_PASSWORD=<password kuat>
+  ```
+  Kosongkan = seeder melewati bagian terkait. Account **production dikelola
+  manual di luar repository** (bukan lewat seeder); kredensialnya tidak pernah
+  ditulis di source code atau dokumen ini.
 
 ---
 
