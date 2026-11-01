@@ -56,12 +56,15 @@
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));
         $hasHot = file_exists(public_path('hot'));
-        // Manifest dibaca sekali lalu di-cache (hash hanya berubah saat deploy,
-        // dan script deploy selalu menjalankan cache:clear saat itu juga).
+        // Manifest dibaca sekali lalu di-cache. Cache key memakai hash isi
+        // manifest, jadi setiap `npm run build` otomatis memakai entri baru
+        // tanpa perlu cache:clear. Key statis pernah membuat halaman menunjuk
+        // ke nama aset lama yang sudah tidak ada (CSS 404, tampilan rusak).
+        $manifestPath = public_path('build/manifest.json');
         $manifest = $hasBuild
             ? (\Illuminate\Support\Facades\Cache::rememberForever(
-                'build_manifest',
-                fn () => json_decode((string) file_get_contents(public_path('build/manifest.json')), true) ?: []
+                'build_manifest_'.(md5_file($manifestPath) ?: 'static'),
+                fn () => json_decode((string) file_get_contents($manifestPath), true) ?: []
             ))
             : [];
         $isMobile = (bool) preg_match('/(android|iphone|ipad|mobile|phone)/i', request()->header('User-Agent', ''));
