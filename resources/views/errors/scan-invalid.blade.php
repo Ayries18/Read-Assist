@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QR Tidak Valid - Read Assist</title>
+    <title>{{ config('app.name', 'Read-Assist') }}</title>
     <meta name="theme-color" content="#000000">
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));

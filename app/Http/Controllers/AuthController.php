@@ -16,9 +16,20 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    /**
+     * Halaman autentikasi/dashboard bersifat privat (session) tidak boleh
+     * diindex Google, terutama yang berisi token reset password.
+     *
+     * @return array<string, mixed>
+     */
+    private function noindexSeo(): array
+    {
+        return ['seo' => ['robots' => 'noindex, nofollow']];
+    }
+
     public function showLogin()
     {
-        return view('auth.login');
+        return view('auth.login', $this->noindexSeo());
     }
 
     public function login(Request $request)
@@ -56,51 +67,34 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return view('auth.register');
+        return view('auth.register', $this->noindexSeo());
     }
 
     public function register(Request $request)
     {
+        // Registrasi publik SELALU membuat akun user. Peran tidak pernah
+        // diterima dari input form agar tidak ada eskalasi privilege.
         $validated = $request->validate([
-            'role' => ['required', 'in:admin,user'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email', 'unique:admin,email'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        if ($validated['role'] === 'admin') {
-            $admin = Admin::create([
-                'nama' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+        ]);
 
-            $request->session()->regenerate();
-            $request->session()->forget('qr_restricted_token');
-            $request->session()->put([
-                'auth_id' => $admin->id,
-                'auth_role' => 'admin',
-                'auth_name' => $admin->nama,
-            ]);
+        $request->session()->regenerate();
+        $request->session()->forget('qr_restricted_token');
+        $request->session()->put([
+            'auth_id' => $user->id,
+            'auth_role' => 'user',
+            'auth_name' => $user->name,
+        ]);
 
-            return redirect('/admin/dashboard');
-        } else {
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]);
-
-            $request->session()->regenerate();
-            $request->session()->forget('qr_restricted_token');
-            $request->session()->put([
-                'auth_id' => $user->id,
-                'auth_role' => 'user',
-                'auth_name' => $user->name,
-            ]);
-
-            return redirect('/user/dashboard');
-        }
+        return redirect('/user/dashboard');
     }
 
     public function adminDashboard()
@@ -114,6 +108,7 @@ class AuthController extends Controller
                 'total_books' => AudioBuku::count(),
                 'audio_completed' => AudioBuku::where('audio_status', 'completed')->count(),
                 'audio_processing' => AudioBuku::whereIn('audio_status', ['pending', 'processing'])->count(),
+                'audio_partial' => AudioBuku::where('audio_status', 'partial')->count(),
                 'audio_failed' => AudioBuku::where('audio_status', 'failed')->count(),
                 'total_users' => User::count(),
                 'user_uploads' => AudioBuku::whereNotNull('user_id')->count(),
@@ -124,6 +119,7 @@ class AuthController extends Controller
                 'total_books' => 0,
                 'audio_completed' => 0,
                 'audio_processing' => 0,
+                'audio_partial' => 0,
                 'audio_failed' => 0,
                 'total_users' => 0,
                 'user_uploads' => 0,
@@ -132,7 +128,7 @@ class AuthController extends Controller
             \Log::warning('Admin dashboard stats unavailable: '.$e->getMessage());
         }
 
-        return view('auth.admin-dashboard', compact('stats'));
+        return view('auth.admin-dashboard', compact('stats') + $this->noindexSeo());
     }
 
     public function userDashboard()
@@ -162,7 +158,7 @@ class AuthController extends Controller
             \Log::warning('User dashboard stats unavailable: '.$e->getMessage());
         }
 
-        return view('auth.user-dashboard', compact('stats'));
+        return view('auth.user-dashboard', compact('stats') + $this->noindexSeo());
     }
 
     // ─── Profile ──────────────────────────────────────────
@@ -175,7 +171,7 @@ class AuthController extends Controller
         $id = session('auth_id');
         $account = $role === 'admin' ? Admin::findOrFail($id) : User::findOrFail($id);
 
-        return view('auth.profile', compact('account', 'role'));
+        return view('auth.profile', compact('account', 'role') + $this->noindexSeo());
     }
 
     public function updateProfile(Request $request)
@@ -236,7 +232,7 @@ class AuthController extends Controller
     // ─── Forgot Password ──────────────────────────────────
     public function showForgotPassword()
     {
-        return view('auth.forgot-password');
+        return view('auth.forgot-password', $this->noindexSeo());
     }
 
     public function sendResetLink(Request $request)
@@ -284,7 +280,7 @@ class AuthController extends Controller
             'resetUrl' => $showDebugLink ? $resetUrl : null,
             'emailSent' => $emailSent,
             'validated' => $validated,
-        ]);
+        ] + $this->noindexSeo());
     }
 
     public function showResetForm($token)
@@ -301,7 +297,7 @@ class AuthController extends Controller
             return redirect('/login')->withErrors(['email' => 'Link reset sudah kadaluarsa. Silakan ajukan ulang.']);
         }
 
-        return view('auth.reset-password', compact('token', 'record'));
+        return view('auth.reset-password', compact('token', 'record') + $this->noindexSeo());
     }
 
     public function resetPassword(Request $request)

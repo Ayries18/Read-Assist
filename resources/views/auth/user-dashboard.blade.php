@@ -158,7 +158,7 @@
                     </div>
 
                     <div class="bg-white p-3 rounded-xl flex items-center justify-center mx-auto" style="width: 140px; height: 140px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); margin: 0.2rem auto;">
-                        <img id="quick-qr-img" src="" alt="Quick QR Preview" class="rounded" style="width: 116px; height: 116px; min-width: 116px; min-height: 116px; flex-shrink: 0; object-fit: contain;">
+                        <img id="quick-qr-img" src="" alt="Pratinjau QR kode buku" width="116" height="116" loading="lazy" decoding="async" class="rounded" style="width: 116px; height: 116px; min-width: 116px; min-height: 116px; flex-shrink: 0; object-fit: contain;">
                     </div>
                     
                     <div class="flex gap-2 w-full mt-4">
@@ -205,7 +205,7 @@
                     <body>
                         <div class="container">
                             <h2>${title}</h2>
-                            <img src="${qrImg.src}" />
+                            <img src="${qrImg.src}" alt="QR Code untuk ${title}" width="320" height="320" loading="eager" decoding="sync" />
                             <div class="footer">SISTEM READ-ASSIST QR-AUDIO</div>
                         </div>
                         <script>

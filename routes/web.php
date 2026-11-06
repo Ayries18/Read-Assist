@@ -9,7 +9,37 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/qr-code', [QRCodeController::class, 'generate'])->name('qr-code.generate');
 
+// Service worker disajikan via Laravel (bukan file static) supaya header
+// caching-nya bisa dijamin 'no-cache' — server-proxy (LiteSpeed/Cloudflare)
+// menimpa header static sw.js menjadi immutable ke browser, yang berakibat
+// update service worker tidak pernah keluar.
+// Catatan: sesi sengaja TIDAK dilepas. Respons ber-Set-Cookie membuat
+// Cloudflare mengirim cf-cache-status: BYPASS, jadi worker tidak pernah
+// tersimpan di edge cache Cloudflare (CDN-Cache-Control: no-store
+// mempertebalnya untuk CDN apa pun yang menghormatinya).
+//
+// URL PRIMER: /service-worker.js — path baru yang belum pernah ter-cache
+// sebagai file static, jadi worker tidak mungkin disajikan basi. /sw.js
+// dibiarkan sebagai alias untuk unit lama yang masih meregistrasikan di
+// situ (broswer lama) sampai mereka pindah ke path baru.
+$serveWorker = static function () {
+    $worker = file_get_contents(resource_path('pwa/sw.js'));
+
+    return response($worker, 200, [
+        'Content-Type' => 'application/javascript',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'CDN-Cache-Control' => 'no-store',
+        'Pragma' => 'no-cache',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+};
+
+Route::get('/service-worker.js', $serveWorker)->name('service-worker');
+Route::get('/sw.js', $serveWorker);
+
 Route::get('/', [AudioBukuController::class, 'landing'])->name('home');
+
+Route::get('/sitemap.xml', [AudioBukuController::class, 'sitemap'])->name('sitemap');
 
 Route::get('/read-assist', [ReadAssistController::class, 'index'])->name('read.index');
 Route::post('/proses-teks', [ReadAssistController::class, 'process'])->name('read.process');

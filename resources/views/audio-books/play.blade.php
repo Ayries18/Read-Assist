@@ -8,7 +8,7 @@
             <!-- Cover -->
             <div class="w-[90px] h-[125px] sm:w-[130px] sm:h-[180px] rounded-xl overflow-hidden shrink-0 shadow-lg border border-white/10">
                 @if ($audioBook->cover)
-                    <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover">
+                    <img src="/storage/{{ $audioBook->cover }}" alt="Cover {{ $audioBook->judul }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                 @else
                     <div class="cover-placeholder w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center">
                         <span class="text-[0.6rem] sm:text-xs font-bold text-black line-clamp-3 leading-relaxed">{{ $audioBook->judul }}</span>
@@ -59,10 +59,15 @@
         </div>
     </div>
 
-    @if ($audioBook->audio_status === 'completed' && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
+    @if (in_array($audioBook->audio_status, ['completed', 'partial']) && $audioBook->file_audio && $audioBook->file_audio !== 'tts')
         <!-- Generated MP3 Player -->
         <div class="card border shadow-sm p-4 sm:p-6 text-center mb-5 card--soft">
             <h2 class="text-sm sm:text-base text-black mb-3">Dengarkan Audio</h2>
+            @if ($audioBook->audio_status === 'partial')
+                <div class="mb-3 bg-amber-100 border-2 border-amber-400 text-amber-900 text-sm rounded-xl p-3" role="alert">
+                    <strong>Perhatian:</strong> audio tidak lengkap — {{ $audioBook->audio_message ?: 'sebagian kalimat gagal disintesis.' }}
+                </div>
+            @endif
             <audio id="generated-audio-player" controls class="w-full max-w-md mx-auto">
                 <source src="{{ route('audio.stream', $audioBook) }}" type="audio/mpeg">
                 Browser Anda tidak mendukung pemutar audio.
@@ -170,9 +175,6 @@
                     border: 2px solid #000000 !important;
                 }
             </style>
-
-            <!-- Hidden full description source -->
-            <p id="book-description-tts" class="hidden">{{ $audioBook->deskripsi ?? 'Tidak ada deskripsi.' }}</p>
 
             <!-- Wave Animation -->
             <div class="wave-animation paused mb-3" id="wave-animation"></div>
@@ -300,7 +302,7 @@
                 if (barEl) barEl.style.width = pct + '%';
                 if (percentEl) percentEl.innerText = pct + '%';
                 if (messageEl) messageEl.innerText = data.audio_message || 'Sedang diproses...';
-                if (data.audio_status === 'completed') {
+                if (data.audio_status === 'completed' || data.audio_status === 'partial') {
                     window.location.reload();
                     return;
                 }
@@ -570,6 +572,15 @@
                     statusBadge.style.borderColor = '';
                 }
             }
+        }
+
+        // Jangan sampai keyboard user tertinggal di tombol yang kini disembunyikan
+        // (mis. btn-pause/btn-stop saat dijeda/dihentikan). Pindahkan fokus ke
+        // tombol yang terlihat setelah state berubah.
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl !== document.body && activeEl.style && activeEl.style.display === 'none') {
+            const target = isSpeaking && !isPaused ? btnPause : btnPlay;
+            if (target) target.focus();
         }
     }
 
@@ -970,11 +981,33 @@
 
     document.addEventListener('keydown', (e) => {
         const settingsModal = document.getElementById('reader-settings-modal');
-        if (settingsModal && settingsModal.style.display === 'flex' && e.key === 'Escape') {
-            e.preventDefault();
-            e.stopPropagation();
-            closeReaderSettings();
-            return;
+        if (settingsModal && settingsModal.style.display === 'flex') {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeReaderSettings();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const focusable = settingsModal.querySelectorAll(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey) {
+                    if (document.activeElement === first || document.activeElement === settingsModal) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+                return;
+            }
         }
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
         switch(e.key) {

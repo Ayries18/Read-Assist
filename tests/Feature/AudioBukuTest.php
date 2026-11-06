@@ -19,11 +19,143 @@ class AudioBukuTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_service_worker_served_by_laravel_with_no_cache()
+    {
+        foreach (['/service-worker.js', '/sw.js'] as $path) {
+            $response = $this->get($path);
+
+            $response->assertStatus(200)
+                ->assertHeader('Content-Type', 'application/javascript')
+                ->assertHeader('Pragma', 'no-cache')
+                ->assertHeader('CDN-Cache-Control', 'no-store')
+                ->assertSee('addEventListener', false);
+
+            $cacheControl = $response->headers->get('Cache-Control');
+            $this->assertStringContainsString('no-cache', $cacheControl);
+            $this->assertStringContainsString('must-revalidate', $cacheControl);
+            $this->assertStringNotContainsString('immutable', $cacheControl);
+            $this->assertStringNotContainsString('max-age=31536000', $cacheControl);
+        }
+    }
+
     public function test_catalog_page_returns_200()
     {
         AudioBuku::factory()->create();
         $response = $this->get('/katalog-audio');
         $response->assertStatus(200);
+    }
+
+    public function test_mini_player_only_renders_on_catalog_page()
+    {
+        AudioBuku::factory()->count(3)->create(['deskripsi' => str_repeat('Ini adalah teks buku yang cukup panjang. ', 40)]);
+
+        $this->get('/katalog-audio')
+            ->assertSee('id="mini-audio-player"', false)
+            ->assertDontSee('book-description-tts');
+
+        $book = AudioBuku::first();
+        $this->get("/katalog-audio/{$book->id}")
+            ->assertDontSee('id="mini-audio-player"', false);
+    }
+
+    public function test_player_and_mini_player_have_accessible_semantics()
+    {
+        AudioBuku::factory()->create([
+            'judul' => 'Buku Aksesibel',
+            'deskripsi' => 'Contoh paragraf untuk diuji aksesibilitas.',
+            'file_audio' => 'tts',
+            'audio_status' => 'completed',
+        ]);
+        $book = AudioBuku::first();
+
+        $this->get('/katalog-audio')
+            ->assertSee('id="mini-audio-player"', false)
+            ->assertSee('aria-label="Pemutar audio mini"', false)
+            ->assertSee('aria-hidden="true"', false)
+            ->assertSee('aria-live="polite"', false);
+
+        $this->get(route('audio-books.play', $book->qr_token))
+            ->assertSee('role="dialog"', false)
+            ->assertSee('aria-modal="true"', false)
+            ->assertSee('aria-label="Pengaturan Membaca"', false)
+            ->assertSee('aria-live="polite"', false)
+            ->assertSee('aria-atomic="true"', false);
+    }
+
+    public function test_reader_settings_modal_has_focus_trap_script()
+    {
+        $book = AudioBuku::factory()->create(['file_audio' => 'tts']);
+
+        $this->get(route('audio-books.play', $book->qr_token))
+            ->assertSee('e.shiftKey', false)
+            ->assertSee('last.focus();', false);
+    }
+
+    public function test_catalog_page_has_seo_meta_and_canonical()
+    {
+        AudioBuku::factory()->create();
+
+        $this->get('/katalog-audio')
+            ->assertSee('<title>Read-Assist</title>', false)
+            ->assertSee('rel="canonical" href="'.route('audio-books.index').'"', false)
+            ->assertSee('name="robots" content="index, follow, max-image-preview:large"', false);
+    }
+
+    public function test_filtered_catalog_is_noindex()
+    {
+        AudioBuku::factory()->create();
+
+        $this->get('/katalog-audio?search=foo&sort=judul')
+            ->assertSee('name="robots" content="noindex, follow"', false);
+    }
+
+    public function test_book_detail_has_audio_object_schema()
+    {
+        $book = AudioBuku::factory()->create([
+            'judul' => 'Novel Laut dan Cahaya',
+            'penulis' => 'Siti Aminah',
+            'kategori' => 'Fiksi',
+            'deskripsi' => 'Kisah nelayan yang melawan badai demi keluarganya.',
+            'audio_status' => 'completed',
+        ]);
+
+        $response = $this->get("/katalog-audio/{$book->id}");
+
+        $response->assertStatus(200)
+            ->assertSee('<title>Read-Assist</title>', false)
+            ->assertSee('"@type":"AudioObject"', false)
+            ->assertSee('"name":"Novel Laut dan Cahaya"', false)
+            ->assertSee('"contentUrl":"'.route('audio.stream', $book->id).'"', false)
+            ->assertSee('"encodingFormat":"audio/mpeg"', false);
+    }
+
+    public function test_sitemap_xml_lists_public_pages_and_books()
+    {
+        AudioBuku::factory()->count(2)->create();
+
+        $response = $this->get('/sitemap.xml');
+
+        $response->assertStatus(200)
+            ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false)
+            ->assertSee('<loc>'.route('home').'</loc>', false)
+            ->assertSee('<loc>'.route('audio-books.index').'</loc>', false);
+
+        foreach (AudioBuku::pluck('id') as $id) {
+            $response->assertSee('<loc>'.route('katalog.show', $id).'</loc>', false);
+        }
+    }
+
+    public function test_auth_pages_are_noindex()
+    {
+        $this->get('/login')
+            ->assertSee('name="robots" content="noindex, nofollow"', false);
+
+        $this->get('/register')
+            ->assertSee('name="robots" content="noindex, nofollow"', false);
+
+        $this->get('/lupa-password')
+            ->assertSee('name="robots" content="noindex, nofollow"', false);
     }
 
     public function test_catalog_shows_empty_state()
@@ -55,7 +187,6 @@ class AudioBukuTest extends TestCase
     public function test_user_can_register()
     {
         $response = $this->post('/register', [
-            'role' => 'user',
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -64,6 +195,24 @@ class AudioBukuTest extends TestCase
 
         $response->assertRedirect('/user/dashboard');
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+        $this->assertDatabaseMissing('admin', ['email' => 'test@example.com']);
+    }
+
+    public function test_registration_ignores_role_admin_payload()
+    {
+        $response = $this->post('/register', [
+            'role' => 'admin',
+            'name' => 'Penyerang',
+            'email' => 'attacker@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertRedirect('/user/dashboard');
+        $this->assertDatabaseHas('users', ['email' => 'attacker@example.com']);
+        $this->assertDatabaseMissing('admin', ['email' => 'attacker@example.com']);
+
+        $this->assertSame('user', session('auth_role'));
     }
 
     public function test_user_can_login()

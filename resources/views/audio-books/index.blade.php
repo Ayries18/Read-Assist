@@ -25,6 +25,7 @@
                     class="input input-bordered w-full bg-white text-black placeholder:text-slate-400 pl-10"
                     value="{{ $search ?? '' }}"
                     placeholder="Cari judul, penulis, atau kategori..."
+                    aria-label="Cari judul, penulis, atau kategori"
                 >
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs">Cari</span>
             </div>
@@ -55,7 +56,7 @@
                     <!-- Book Cover -->
                     <div class="book-cover-wrapper">
                         @if ($book->cover)
-                            <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="book-cover-img">
+                            <img src="/storage/{{ $book->cover }}" alt="Cover {{ $book->judul }}" class="book-cover-img" loading="lazy" decoding="async">
                         @else
                             <div class="book-cover-placeholder">
                                 <span class="book-cover-placeholder-title">{{ $book->judul }}</span>
@@ -76,13 +77,13 @@
                     </div>
 
                     <p class="text-sm text-slate-600 line-clamp-3 mb-4 leading-relaxed">
-                        {{ $book->deskripsi ?: 'Tidak ada deskripsi yang tersedia untuk buku ini.' }}
+                        {{ \Illuminate\Support\Str::limit($book->deskripsi, 160) ?: 'Tidak ada deskripsi yang tersedia untuk buku ini.' }}
                     </p>
                 </div>
 
                 <div class="flex flex-col gap-2 border-t border-black/10 pt-3 mt-auto z-10">
                     <!-- Mini Player Trigger -->
-                    <button type="button" data-play-mini data-title="{{ $book->judul }}" data-description="{{ $book->deskripsi }}" data-cover="{{ $book->cover ? '/storage/'.$book->cover : '' }}" class="btn btn-ghost w-full py-2 text-sm flex items-center justify-center gap-1">
+                    <button type="button" data-play-mini data-title="{{ $book->judul }}" data-description="{{ \Illuminate\Support\Str::limit($book->deskripsi, 300, '') }}" data-cover="{{ $book->cover ? '/storage/'.$book->cover : '' }}" class="btn btn-ghost w-full py-2 text-sm flex items-center justify-center gap-1">
                         Dengar Ringkasan
                     </button>
                     <div class="flex gap-2 w-full">

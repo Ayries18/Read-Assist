@@ -3,19 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Read Assist' }}</title>
-    <meta name="description" content="Read-Assist: Platform aksesibilitas buku audio untuk tunanetra. Dengarkan buku cetak dengan pemindaian QR code dan pemutaran teks otomatis.">
-    <meta name="keywords" content="buku audio, tunanetra, aksesibilitas, read-assist, qr code, text to speech, Indonesia">
-    <meta name="author" content="Read-Assist">
-    <meta property="og:title" content="Read Assist - Buku Audio untuk Tunanetra">
-    <meta property="og:description" content="Platform aksesibilitas buku audio untuk tunanetra. Cukup pindai QR code untuk mendengarkan.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
+@include('partials.seo', ['seo' => $seo ?? []])
     <meta name="theme-color" content="#ffffff">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="apple-touch-icon" href="/favicon.png">
     <link rel="manifest" href="/manifest.json">
+    <link rel="preconnect" href="https://images.pexels.com" crossorigin>
+    @stack('head')
     <script>
         // Tema (Terang/Gelap/System) + dominasi kontras tinggi — dijalankan sebelum paint
         (function () {
@@ -39,43 +34,99 @@
             try { return localStorage.getItem('read_assist_theme') || 'system'; } catch (e) { return 'system'; }
         })();
     </script>
+    <script>
+        // Reveal-on-scroll: class `.ra-js` diaktifkan SEBELUM paint pertama
+        // supaya elemen tidak berkedip (flash) lalu menghilang. Tanpa class ini
+        // konten tetap tampil normal — penting untuk SEO dan pengguna yang
+        // mematikan JavaScript.
+        (function () {
+            try {
+                if (!('IntersectionObserver' in window)) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                document.documentElement.classList.add('ra-js');
+                // Jaring pengaman: bila bundel JS gagal dimuat, semua konten
+                // tetap dibuka maksimal 4 detik setelah halaman selesai dimuat.
+                window.setTimeout(function () {
+                    var n = document.querySelectorAll('[data-ra-reveal]:not(.is-revealed)');
+                    for (var i = 0; i < n.length; i++) n[i].classList.add('is-revealed');
+                }, 4000);
+            } catch (e) {}
+        })();
+    </script>
     @php
         $hasBuild = file_exists(public_path('build/manifest.json'));
         $hasHot = file_exists(public_path('hot'));
-        if ($hasBuild) {
-            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-        }
+        // Manifest dibaca sekali lalu di-cache. Cache key memakai hash isi
+        // manifest, jadi setiap `npm run build` otomatis memakai entri baru
+        // tanpa perlu cache:clear. Key statis pernah membuat halaman menunjuk
+        // ke nama aset lama yang sudah tidak ada (CSS 404, tampilan rusak).
+        $manifestPath = public_path('build/manifest.json');
+        $manifest = $hasBuild
+            ? (\Illuminate\Support\Facades\Cache::rememberForever(
+                'build_manifest_'.(md5_file($manifestPath) ?: 'static'),
+                fn () => json_decode((string) file_get_contents($manifestPath), true) ?: []
+            ))
+            : [];
         $isMobile = (bool) preg_match('/(android|iphone|ipad|mobile|phone)/i', request()->header('User-Agent', ''));
         
         // If accessed externally (not via localhost/127.0.0.1) or from a mobile device,
         // we bypass the local Vite HMR server and directly load the compiled assets from the build directory.
         $isLocalHost = in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'], true);
         $useBuild = $hasBuild && (!$hasHot || !$isLocalHost || $isMobile);
+
+        // Hash aset dibaca dari manifest. Fallback hash lama DIHAPUS: kalau
+        // manifest gagal dibaca, hash yang dipatok di sini pasti sudah basi dan
+        // hanya menghasilkan request 404 yang sia-sia.
+        $cssEntry = $manifest['resources/css/app.css']['file'] ?? null;
+        $jsEntry = $manifest['resources/js/app.js']['file'] ?? null;
+
+        // Jangan pernah membuat request Vite untuk bundle yang isinya nol byte.
+        // resources/js/app.js masih kosong, sehingga emit tag <script> hanya
+        // menambah satu request yang selalu 0 byte.
+        $jsPath = $jsEntry ? public_path('build/'.$jsEntry) : null;
+        $jsHasContent = $jsPath !== null && is_file($jsPath) && filesize($jsPath) > 0;
     @endphp
     @if ($useBuild)
-        <link rel="stylesheet" href="{{ asset('build/' . ($manifest['resources/css/app.css']['file'] ?? 'assets/app-B9pJSmzU.css')) }}">
-        <script type="module" src="{{ asset('build/' . ($manifest['resources/js/app.js']['file'] ?? 'assets/app-34mOoJaZ.js')) }}"></script>
-    @else
+        @if ($cssEntry)
+            <link rel="stylesheet" href="{{ asset('build/'.$cssEntry) }}">
+        @endif
+        @if ($jsHasContent)
+            <script type="module" src="{{ asset('build/'.$jsEntry) }}"></script>
+        @endif
+    @elseif ($hasHot)
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        {{-- Neither build/manifest.json nor public/hot exists. @vite MUST NOT be
+             called here: it throws ViteManifestNotFoundException, which turns every
+             page into HTTP 500. A slightly unstyled page is far better than a dead
+             site, so degrade quietly and fix it at the deploy step with
+             `npm ci && npm run build`. --}}
     @endif
 </head>
 <body>
     <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
-    <nav aria-label="Navigasi utama" class="navbar bg-base-300/20 backdrop-blur-md border-b border-white/5 sticky top-0 z-[1000] shadow-sm">
-        <div class="navbar-start gap-1 sm:gap-2">
-            <a href="/" class="logo-navbar no-underline transition-transform hover:-translate-y-0.5">
+    <nav aria-label="Navigasi utama" class="navbar sticky top-0 z-[1000] min-h-[72px] h-[72px] px-6 lg:px-8 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-b border-black/[0.08] dark:border-white/[0.08] shadow-sm flex items-center justify-between">
+        <div class="navbar-start flex shrink-0 items-center gap-4">
+            <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
+            <button class="nav-icon-btn shrink-0" id="mobile-drawer-trigger" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="mobile-drawer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <a href="/" class="logo-navbar flex shrink-0 items-center no-underline transition-all duration-200 ease-out hover:scale-[1.02] active:scale-95" aria-label="Beranda Read-Assist">
                 <img
                     src="{{ asset('logo-horizontal.svg') }}"
                     alt="ReadAssist Logo"
-                    width="256"
-                    height="128"
+                    class="h-10 max-w-[150px] w-auto shrink-0 object-contain"
+                    width="180"
+                    height="40"
+                    loading="eager"
+                    decoding="async"
                 >
             </a>
         </div>
 
         @if (!$isMobile)
-        <div class="navbar-center flex">
-            <ul class="menu menu-horizontal px-1 gap-1">
+        <div class="navbar-center hidden min-w-0 flex-1 items-center justify-center overflow-hidden xl:flex">
+            <ul class="menu menu-horizontal flex flex-nowrap items-center gap-1 whitespace-nowrap p-0 lg:gap-2">
                 <li>
                     <a href="/" class="nav-btn {{ request()->is('/') ? 'active' : '' }}" aria-current="{{ request()->is('/') ? 'page' : '' }}">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
@@ -125,9 +176,9 @@
         </div>
         @endif
 
-        <div class="navbar-end gap-2">
+        <div class="navbar-end flex shrink-0 items-center justify-end gap-3">
             @if (!$isMobile)
-                <div class="nav-end-group nav-end-group--icons">
+                <div class="nav-end-group nav-end-group--icons flex items-center gap-2">
                 <!-- Accessibility options (Desktop) -->
                 <div class="nav-accessibility-wrapper accessibility-nav-wrapper">
                     <button class="nav-icon-btn accessibility-nav-trigger" onclick="toggleAccessibilityDropdown(event)" title="Opsi Aksesibilitas" aria-label="Buka opsi aksesibilitas" aria-controls="accessibility-dropdown" aria-expanded="false">
@@ -244,14 +295,14 @@
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                         <span class="nav-btn-text">Login</span>
                     </a>
-                    <a href="/register" class="btn btn-primary btn-sm shadow-lg shadow-[#b8860b]/25 hover:shadow-[#b8860b]/40 transition-all duration-200 hover:-translate-y-0.5">
+                    <a href="/register" class="btn btn-primary btn-sm rounded-xl px-4 py-2 min-h-[40px] text-sm font-semibold shadow-md shadow-[#b8860b]/20 hover:shadow-[#b8860b]/30 transition-all duration-200 ease-out hover:scale-[1.02] active:scale-95 flex items-center gap-1.5">
                         <svg class="nav-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Daftar
                     </a>
                 @endif
             @endif
 
             <!-- Tema (Terang/Gelap/System) -->
-            <div class="nav-theme-wrapper" style="position: relative; display: flex; align-items: center; gap: 2px;">
+            <div class="nav-theme-wrapper flex items-center gap-1" style="position: relative;">
                 <button class="nav-icon-btn" id="theme-toggle-btn" title="Ganti terang / gelap" aria-label="Sakelar mode gelap terang">
                     <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
                     <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
@@ -266,17 +317,16 @@
                     <button class="dropdown-item-link theme-option dropdown-row" data-theme-option="system" type="button">Ikuti Sistem</button>
                 </div>
             </div>
-
-            <!-- Hamburger Button (Visible on both Desktop and Mobile) -->
-            <button class="nav-icon-btn" onclick="toggleMobileDrawer()" title="Menu Navigasi" aria-label="Buka menu navigasi">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
         </div>
     </nav>
 
     <!-- Mobile Drawer -->
     <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="toggleMobileDrawer()"></div>
-    <div id="mobile-drawer" class="mobile-drawer">
+    {{-- Drawer starts CLOSED and stays out of the a11y tree + tab order until
+         JS opens it. Without `inert`, the 6 links inside stay focusable while the
+         drawer is parked at `left:-300px`, so keyboard users tab into links they
+         cannot see (WCAG 2.4.3). `inert` also covers the pre-JS first paint. --}}
+    <div id="mobile-drawer" class="mobile-drawer" inert aria-hidden="true">
         <button class="mobile-drawer-close" onclick="toggleMobileDrawer()" aria-label="Tutup menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -474,11 +524,19 @@
             const overlay = document.getElementById('mobile-drawer-overlay');
             if (!drawer || !overlay) return;
             const isOpen = drawer.classList.contains('open');
+            const hamburger = document.getElementById('mobile-drawer-trigger');
             drawer.classList.toggle('open');
             overlay.classList.toggle('open');
             document.body.style.overflow = isOpen ? '' : 'hidden';
+            if (hamburger) {
+                hamburger.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+                hamburger.setAttribute('aria-label', isOpen ? 'Buka menu navigasi' : 'Tutup menu navigasi');
+            }
             const closeBtn = document.querySelector('.mobile-drawer-close');
             if (!isOpen) {
+                // `inert` harus dilepas SEBELUM fokus masuk, kalau tidak `.focus()`
+                // diabaikan dan fokus tetap tertahan di hamburger.
+                drawer.removeAttribute('inert');
                 // Move focus into the drawer when opened
                 drawer.setAttribute('role', 'dialog');
                 drawer.setAttribute('aria-modal', 'true');
@@ -490,7 +548,10 @@
                 drawer.removeAttribute('role');
                 drawer.removeAttribute('aria-label');
                 drawer.setAttribute('aria-hidden', 'true');
-                const hamburger = document.querySelector('.nav-icon-btn[onclick="toggleMobileDrawer()"]');
+                // Kunci drawer beserta seluruh isinya keluar dari tab order.
+                // `aria-hidden` saja tidak cukup: link di dalamnya masih bisa
+                // difokus keyboard (WCAG 2.4.3 / 4.1.2).
+                drawer.setAttribute('inert', '');
                 if (hamburger) hamburger.focus();
             }
         }
@@ -917,18 +978,19 @@
         }
     </script>
 
-    <div id="mini-audio-player">
+    @if ($withMiniPlayer ?? false)
+    <div id="mini-audio-player" role="region" aria-label="Pemutar audio mini" aria-hidden="true">
         <div class="mini-player-details">
             <div id="mini-player-cover-area" class="mini-cover">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17"/></svg>
             </div>
             <div class="mini-details-text">
-                <h5 class="mini-player-title" id="mini-book-title">Judul Buku Audio</h5>
+                <p class="mini-player-title" id="mini-book-title">Judul Buku Audio</p>
                 <p class="mini-player-author" id="mini-book-author">Penulis Buku</p>
             </div>
         </div>
 
-        <div id="mini-audio-status-badge">
+        <div id="mini-audio-status-badge" aria-live="polite">
             Siap
         </div>
 
@@ -954,7 +1016,9 @@
             </button>
         </div>
     </div>
+@endif
 
+    @if ($withMiniPlayer ?? false)
     <script>
         // Mini Audio Player Logic
         let miniChunks = [];
@@ -984,7 +1048,7 @@
             
             // Set cover thumbnail
             if (coverUrl) {
-                miniCoverArea.innerHTML = `<img src="${coverUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                miniCoverArea.innerHTML = `<img src="${coverUrl}" alt="Sampul ${title}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">`;
             } else {
                 const initials = title.substring(0, 2).toUpperCase();
                 miniCoverArea.innerHTML = `<span style="font-weight: 700; color: #a5b4fc; font-size: 0.75rem;">${initials}</span>`;
@@ -997,7 +1061,8 @@
             miniPaused = false;
 
             miniPlayer.classList.add('active');
-            
+            miniPlayer.setAttribute('aria-hidden', 'false');
+
             speakNextMini();
         };
 
@@ -1205,9 +1270,13 @@
             window.speechSynthesis.cancel();
             miniPlayer.classList.remove('active');
             miniPlayer.classList.remove('playing');
+            miniPlayer.setAttribute('aria-hidden', 'true');
             miniChunks = [];
         }
+    </script>
+    @endif
 
+    <script>
         // ─── Session timeout warning ─────────────────────────
         @if (session('auth_role'))
         (function() {
@@ -1246,9 +1315,13 @@
         @endif
 
         // ─── PWA Service Worker ─────────────────────────────
+        // Pakai path /service-worker.js (dilayani Laravel, no-store) karena
+        // /sw.js yang dulu file static sudah di-cache Cloudflare sebagai
+        // immutable dan bertahan lama di edge; path baru dijamin bebas cache.
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
+            navigator.serviceWorker.register('/service-worker.js');
         }
     </script>
+    @stack('scripts')
 </body>
 </html>

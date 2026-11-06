@@ -74,7 +74,7 @@
         <!-- Header Section -->
         <div class="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-black/10">
             <div class="flex items-center gap-3">
-                <img src="{{ asset('logo-horizontal.svg') }}" alt="ReadAssist" class="h-8 w-auto object-contain">
+                <img src="{{ asset('logo-horizontal.svg') }}" alt="ReadAssist" class="h-8 w-auto object-contain" width="256" height="128" loading="eager" decoding="async">
                 <span class="text-xl font-bold text-black tracking-tight hidden sm:inline-block">Read Assist</span>
             </div>
 
