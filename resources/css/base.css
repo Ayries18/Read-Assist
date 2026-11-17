@@ -1,14 +1,19 @@
+/* Tipografi: hindari satu kata berdiri sendiri di akhir baris/paragraf.
+   Progresif — browser yang belum mendukung mengabaikan deklarasi ini. */
+p, li, blockquote { text-wrap: pretty; }
+h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
+
 :root {
     /* Aksen teks memakai #7a5a00 (kontras ≥ 6.1:1 di atas putih/base, ≥ AA 4.5:1).
        #b8860b hanya untuk aksen visual non-teks (wave bar, dot, badge latar). */
     --accent-primary: #7a5a00;
     --accent-secondary: #7a5a00;
-    --accent-success: #b8860b;
-    --accent-danger: #b8860b;
-    --text-primary: #000000;
-    --text-secondary: #000000;
-    --text-muted: #7a5a00;
-    --border-glass: #000000;
+    --accent-success: #a58442;
+    --accent-danger: #a58442;
+    --text-primary: #27231d;
+    --text-secondary: #4a453d;
+    --text-muted: #6b6456;
+    --border-glass: #a8a196;
     --bg-secondary: #ffffff;
     --bg-glass: #ffffff;
 
@@ -21,23 +26,24 @@
     --focus-ring-offset: 2px;
 }
 
+/* Teks aksen: warna solid, bukan background-clip: text.
+   Efek lama memakai background hitam + clip ke huruf — tanpa gradien
+   sungguhan, jadi cuma menambah kompleksitas dan terasa seperti AI tell. */
 .text-gradient {
-    background: #000000;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--ra-ink, #27231d);
 }
 
-/* Rule ini sengaja memakai :focus (bukan :focus-visible) dan TIDAK memakai
-   !important. Rule global di layout.css yang menang; di sini hanya Cadangan
-   bila layout.css belum dimuat. Jangan tambah specificity/!important —
-   justru itu yang dulu membuat warna ring berbeda-beda antar komponen. */
-a:focus,
-button:focus,
-input:focus,
-select:focus,
-textarea:focus,
-summary:focus {
+/* Cadangan indikator fokus bila layout.css belum dimuat. Memakai
+   :focus-visible (bukan :focus) supaya ring HANYA muncul untuk navigasi
+   keyboard. Versi lama memakai :focus, sehingga outline emas 3px ikut muncul
+   sebagai "kotak" pada <summary> FAQ setiap kali diklik dengan mouse.
+   Rule utama tetap di layout.css; jangan tambah !important di sini. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: var(--focus-ring-offset);
 }

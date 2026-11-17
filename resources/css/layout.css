@@ -7,8 +7,12 @@
    di base.css (single source of truth). */
 
 body {
+    /* Putih murni secara konsisten: html, navbar, kartu, dan band section
+       semuanya #ffffff. Tinta hangat dipertahankan agar teks tidak silau,
+       tapi tidak ada lagi campuran nada putih/abu di latar. Mode kontras-tinggi
+       dan dark mode punya override dengan specificity lebih tinggi. */
     background-color: #ffffff !important;
-    color: #000000 !important;
+    color: #27231d !important;
     font-family: var(--font-sans) !important;
     line-height: 1.6;
 }

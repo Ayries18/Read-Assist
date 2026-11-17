@@ -437,6 +437,8 @@
     padding: 2rem;
     margin-top: 3rem;
     border-top: 1px solid var(--border-glass);
-    background: rgba(0, 0, 0, 0.03);
+    /* Transparan: mengikuti latar body (putih murni di mode terang, gelap di
+       dark mode). Mode kontras-tinggi menimpa ini jadi hitam di accessibility.css. */
+    background: transparent;
 }
 .site-footer p { margin: 0; font-size: 0.9rem; }

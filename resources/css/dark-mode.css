@@ -116,13 +116,10 @@ html.dark-mode body .dropdown-time {
     color: #e0e0e0 !important;
 }
 
-/* Pertahankan warna aksen emas pada teks yang memang aksen (gradien terpotong ke teks) */
+/* Aksen emas solid di dark mode — tanpa background-clip: text */
 html.dark-mode body .text-gradient {
-    background-color: #ffd54a !important;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent !important;
+    color: #dcc27a !important;
+    -webkit-text-fill-color: #dcc27a !important;
 }
 
 /* Navbar: tepi atas/bawah gelap */

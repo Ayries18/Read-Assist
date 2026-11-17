@@ -23,61 +23,63 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-    /* Palet brand: hitam #111111, putih, emas #C9981A */
-    --ra-ink: #111111;
-    --ra-body: #3f3f46;
-    --ra-muted: #5b5b63;
-    --ra-gold: #c9981a;
+    /* Palet brand: tinta hangat, putih, emas direduksi jadi aksen.
+       Teks tebal tetap pakai --ra-gold-ink (#7a5a00, 6.4:1) supaya AA. */
+    --ra-ink: #27231d;
+    --ra-body: #4a453d;
+    --ra-muted: #6b6456;
+    --ra-gold: #a58442;
     --ra-gold-ink: #7a5a00;
-    --ra-on-gold: #111111;
+    --ra-on-gold: #1a1713;
 
     --ra-surface: #ffffff;
-    --ra-band: #fafafa;
-    --ra-line: rgba(17, 17, 17, 0.09);
-    --ra-line-strong: rgba(17, 17, 17, 0.16);
+    /* Band ikut putih murni supaya tidak ada selang abu-abu antara section.
+       Pemisah section tetap ada lewat .ra-divider (border atas). */
+    --ra-band: #ffffff;
+    --ra-line: rgba(39, 35, 29, 0.08);
+    --ra-line-strong: rgba(39, 35, 29, 0.14);
 
-    --ra-chip-bg: rgba(201, 152, 26, 0.1);
-    --ra-chip-line: rgba(201, 152, 26, 0.28);
-    --ra-chip-line-hover: rgba(201, 152, 26, 0.4);
-    --ra-visual-fill: rgba(17, 17, 17, 0.025);
-    --ra-visual-glow: rgba(201, 152, 26, 0.2);
+    --ra-chip-bg: rgba(165, 132, 66, 0.08);
+    --ra-chip-line: rgba(165, 132, 66, 0.24);
+    --ra-chip-line-hover: rgba(165, 132, 66, 0.34);
+    --ra-visual-fill: rgba(39, 35, 29, 0.02);
+    --ra-visual-glow: rgba(165, 132, 66, 0.1);
     /* Garis timeline adalah komponen NON-TEKS yang membawa struktur, jadi
-       wajib ≥ 3:1 (WCAG 1.4.11). Nilai lama rgba(201,152,26,0.4) hanya
-       ≈1.35:1 di atas putih. Sekarang memakai --ra-gold-ink (#7a5a00,
-       ≈6.5:1) pada 85% — cukup tegas tanpa berubah menjadi garis hitam. */
+       wajib ≥ 3:1 (WCAG 1.4.11). --ra-gold-ink (#7a5a00, ≈6.4:1) pada 85%
+       tetap memenuhi itu; hanya warnanya yang dilembutkan. */
     --ra-timeline-line: rgba(122, 90, 0, 0.85);
 
-    --ra-shadow-1: 0 1px 2px rgba(17, 17, 17, 0.05), 0 2px 8px rgba(17, 17, 17, 0.04);
-    --ra-shadow-2: 0 2px 4px rgba(17, 17, 17, 0.05), 0 14px 30px rgba(17, 17, 17, 0.09);
-    --ra-shadow-3: 0 4px 10px rgba(17, 17, 17, 0.06), 0 26px 54px rgba(17, 17, 17, 0.13);
+    --ra-shadow-1: 0 1px 2px rgba(39, 35, 29, 0.04), 0 2px 6px rgba(39, 35, 29, 0.03);
+    --ra-shadow-2: 0 2px 4px rgba(39, 35, 29, 0.04), 0 12px 24px rgba(39, 35, 29, 0.06);
+    --ra-shadow-3: 0 4px 8px rgba(39, 35, 29, 0.05), 0 20px 40px rgba(39, 35, 29, 0.08);
 }
 
 /* ─── Mode gelap ──────────────────────────────────────────────── */
 html.dark-mode {
-    --ra-ink: #f5f5f5;
-    --ra-body: #e5e5e7;
-    --ra-muted: #b0b0b8;
-    --ra-gold: #ffd54a;
-    --ra-gold-ink: #ffd54a;
-    --ra-on-gold: #121212;
+    --ra-ink: #f2efe8;
+    --ra-body: #d8d3c9;
+    --ra-muted: #b0a99a;
+    --ra-gold: #dcc27a;
+    --ra-gold-ink: #dcc27a;
+    --ra-on-gold: #1a1713;
 
     --ra-surface: #1e1e1e;
-    --ra-band: #171717;
-    --ra-line: rgba(255, 255, 255, 0.13);
-    --ra-line-strong: rgba(255, 255, 255, 0.24);
+    --ra-band: #191816;
+    --ra-line: rgba(242, 239, 232, 0.1);
+    --ra-line-strong: rgba(242, 239, 232, 0.19);
 
-    --ra-chip-bg: rgba(255, 213, 74, 0.13);
-    --ra-chip-line: rgba(255, 213, 74, 0.32);
-    --ra-chip-line-hover: rgba(255, 213, 74, 0.45);
-    --ra-visual-fill: rgba(255, 255, 255, 0.04);
-    --ra-visual-glow: rgba(255, 213, 74, 0.14);
-    /* Sama seperti mode terang: dinaikkan dari 0.38 ke 0.85 agar tetap ≥ 3:1
-       terhadap permukaan gelap #1e1e1e (WCAG 1.4.11). */
-    --ra-timeline-line: rgba(255, 213, 74, 0.85);
+    --ra-chip-bg: rgba(220, 194, 122, 0.1);
+    --ra-chip-line: rgba(220, 194, 122, 0.26);
+    --ra-chip-line-hover: rgba(220, 194, 122, 0.36);
+    --ra-visual-fill: rgba(242, 239, 232, 0.03);
+    --ra-visual-glow: rgba(220, 194, 122, 0.08);
+    /* Sama seperti mode terang: tetap ≥ 3:1 terhadap permukaan gelap
+       #1e1e1e (WCAG 1.4.11); emasnya saja yang dilembutkan. */
+    --ra-timeline-line: rgba(220, 194, 122, 0.85);
 
-    --ra-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --ra-shadow-2: 0 2px 4px rgba(0, 0, 0, 0.5), 0 14px 30px rgba(0, 0, 0, 0.45);
-    --ra-shadow-3: 0 4px 10px rgba(0, 0, 0, 0.5), 0 26px 54px rgba(0, 0, 0, 0.55);
+    --ra-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --ra-shadow-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.28);
+    --ra-shadow-3: 0 4px 8px rgba(0, 0, 0, 0.32), 0 20px 40px rgba(0, 0, 0, 0.34);
 }
 
 /* dark-mode.css memaksa semua teks jadi #e0e0e0; blok ini memulihkan
@@ -89,7 +91,7 @@ html.dark-mode body .ra-card__text,
 html.dark-mode body .ra-step__text { color: #a1a1aa !important; }
 html.dark-mode body .ra-gold-ink,
 html.dark-mode body .ra-eyebrow,
-html.dark-mode body .ra-step__num { color: #ffd54a !important; }
+html.dark-mode body .ra-step__num { color: #dcc27a !important; }
 
 /* dark-mode.css memaksa `html.dark-mode body a { color: #9cc3ff !important }`.
    Tanpa baris ini, teks kedua tombol landing ikut berubah jadi biru tautan:
@@ -167,7 +169,7 @@ html { scroll-behavior: smooth; }
     margin: 0;
     color: var(--ra-ink);
     font-size: 1.875rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.025em;
 }
@@ -183,7 +185,7 @@ html { scroll-behavior: smooth; }
        body card (0.9rem / 14.4px) cuma 2.6px sehingga hierarki H3→paragraf
        nyaris tidak terbaca. 18px memulihkan jarak sekaligus ke skala. */
     font-size: 1.125rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.3;
     letter-spacing: -0.01em;
 }
@@ -217,10 +219,10 @@ html { scroll-behavior: smooth; }
 .ra-btn--primary {
     background-color: var(--ra-gold);
     color: var(--ra-on-gold);
-    box-shadow: 0 1px 2px rgba(17, 17, 17, 0.1), 0 10px 24px rgba(201, 152, 26, 0.28);
+    box-shadow: 0 1px 2px rgba(39, 35, 29, 0.06), 0 8px 18px rgba(165, 132, 66, 0.12);
 }
 .ra-btn--primary:hover {
-    box-shadow: 0 2px 4px rgba(17, 17, 17, 0.1), 0 18px 38px rgba(201, 152, 26, 0.36);
+    box-shadow: 0 2px 4px rgba(39, 35, 29, 0.07), 0 14px 28px rgba(165, 132, 66, 0.16);
 }
 
 .ra-btn--ghost {
@@ -450,7 +452,7 @@ details[open] .ra-faq__chevron { transform: rotate(-90deg); }
 .ra-step__num {
     display: block;
     font-size: 0.7rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.12em;
     color: var(--ra-gold-ink);
     margin-bottom: 0.15rem;
