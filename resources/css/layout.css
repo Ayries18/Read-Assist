@@ -13,23 +13,29 @@ body {
     line-height: 1.6;
 }
 
-/* Skip link: visible only on keyboard focus */
+/* Skip link: tersembunyi sampai fokus keyboard (WCAG 2.4.1).
+   Chip kecil netral supaya tidak mencolok bagi pengguna publik yang
+   kebetulan memakai Tab; tetap bisa dibaca screen reader. */
 .skip-link {
     position: absolute;
-    left: 8px;
-    top: -48px;
+    left: 16px;
+    top: -60px;
     z-index: 2000;
-    padding: 10px 18px;
-    background: #b8860b;
-    color: #000;
-    font-weight: 700;
-    border-radius: 0 0 10px 10px;
-    border: 2px solid #000;
+    padding: 8px 14px;
+    background: #1f2937;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     text-decoration: none;
-    transition: top 0.15s ease;
+    opacity: 0;
+    transition: top 0.18s ease, opacity 0.18s ease;
 }
 .skip-link:focus {
     top: 0;
+    opacity: 1;
 }
 
 /* Visible keyboard focus indicator (keyboard users)

@@ -383,6 +383,16 @@ body.accessibility-high-contrast a {
     text-decoration: underline !important;
 }
 
+/* Skip link ikut skema hitam/kuning saat kontras-tinggi.
+   Ditempatkan setelah rule "semua teks → kuning" karena specificity-nya
+   sama (0,2,1), jadi urutan sumber yang menentukan. */
+body.accessibility-high-contrast .skip-link {
+    background: #ffff00 !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: 2px solid #ffff00 !important;
+}
+
 /* Field isian (input/select/textarea) → kuning di atas hitam */
 body.accessibility-high-contrast input,
 body.accessibility-high-contrast select,

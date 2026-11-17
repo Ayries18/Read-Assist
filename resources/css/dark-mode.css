@@ -213,9 +213,9 @@ html.dark-mode body .kbd-shortcut {
     box-shadow: 0 2px 0 #1e293b !important;
 }
 
-/* Skip-link (bantuan fokus) → teks gelap di atas latar emas agar terbaca */
+/* Skip-link (bantuan fokus) → teks terang di atas chip gelap agar terbaca */
 html.dark-mode body .skip-link {
-    color: #121212 !important;
+    color: #ffffff !important;
 }
 
 /* Halaman pembaca: kartu baca ikut mode gelap situs, TAPI mode kontras-tinggi baca
