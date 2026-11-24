@@ -1,0 +1,21 @@
+---
+# Deployment untuk cPanel Git™ Version Control (paket tanpa akses SSH).
+#
+# Cara pakai di cPanel:
+#   Git™ Version Control -> Manage -> Pull or Deploy
+#   1) Update from Remote   (git pull --ff-only dari GitHub)
+#   2) Deploy HEAD Commit   (menjalankan task di bawah)
+#
+# Task dijalankan cPanel dari root repository, sehingga APP_DIR diambil dari
+# pwd. DOC_DIR mengikuti layout yang sudah dipakai DEPLOY.md: folder aplikasi
+# sejajar dengan public_html.
+deployment:
+  tasks:
+    - export APP_DIR=$(pwd)
+    - export DOC_DIR=/home/cp2ujcb5545/public_html
+    - export PHP_BIN=/opt/alt/php85/usr/bin/php
+    - $PHP_BIN $APP_DIR/artisan optimize:clear
+    - $PHP_BIN $APP_DIR/artisan config:cache
+    - $PHP_BIN $APP_DIR/artisan route:cache
+    - $PHP_BIN $APP_DIR/artisan view:cache
+    - APP_DIR=$APP_DIR DOC_DIR=$DOC_DIR bash $APP_DIR/scripts/deploy-public.sh
