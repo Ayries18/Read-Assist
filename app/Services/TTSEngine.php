@@ -28,10 +28,20 @@ class TTSEngine
 
         $provider = config('tts.provider', 'google');
 
+        // Google Cloud TTS butuh kunci API. Tanpa kunci, jatuh ke endpoint
+        // Google Translate lama supaya generate audio lokal tidak langsung
+        // gagal. Peringatan ini sengaja keras agar suara laki-laki (fallback)
+        // tidak terlihat seolah-olah sudah pakai suara perempuan.
+        if ($provider === 'google_cloud' && blank(config('tts.google_cloud.key'))) {
+            Log::warning('TTS: TTS_PROVIDER=google_cloud tetapi GOOGLE_CLOUD_TTS_KEY kosong; memakai provider google (suara bawaan laki-laki).');
+            $provider = 'google';
+        }
+
         // Dispatch ke provider yang dikonfigurasi. Tambahkan case baru di sini
         // saat provider TTS lain ditambahkan (mis. openai, elevenlabs, dll).
         try {
             $result = match ($provider) {
+                'google_cloud' => $this->generateWithGoogleCloudTts($text, $outputPath),
                 'google' => $this->generateWithGoogleTts($text, $outputPath),
                 default => $this->generateWithGoogleTts($text, $outputPath),
             };
@@ -51,7 +61,38 @@ class TTSEngine
 
     protected function generateWithGoogleTts(string $text, string $outputPath): bool
     {
-        $maxLen = (int) config('tts.google.max_chars', 180);
+        return $this->generateWithChunks(
+            $text,
+            $outputPath,
+            (int) config('tts.google.max_chars', 180),
+            fn (string $part, string $partPath): bool => $this->downloadTts($part, $partPath)
+        );
+    }
+
+    /**
+     * Sintesis lewat Google Cloud Text-to-Speech (API resmi). Berbeda dengan
+     * endpoint translate_tts, provider ini mengizinkan pemilihan voice eksplisit
+     * mis. id-ID-Wavenet-A untuk suara perempuan Bahasa Indonesia.
+     */
+    protected function generateWithGoogleCloudTts(string $text, string $outputPath): bool
+    {
+        return $this->generateWithChunks(
+            $text,
+            $outputPath,
+            (int) config('tts.google_cloud.max_chars', 4500),
+            fn (string $part, string $partPath): bool => $this->downloadGoogleCloudTts($part, $partPath)
+        );
+    }
+
+    /**
+     * Memecah teks panjang, menyintesis tiap bagian lewat $download, lalu
+     * menggabungkan MP3-nya. Dipakai bersama semua provider supaya perilaku
+     * part file dan cleanup tetap identik.
+     *
+     * @param  callable(string, string): bool  $download
+     */
+    protected function generateWithChunks(string $text, string $outputPath, int $maxLen, callable $download): bool
+    {
         $text = trim($text);
         if ($text === '') {
             return false;
@@ -79,7 +120,7 @@ class TTSEngine
             $combined = '';
             foreach ($parts as $i => $part) {
                 $partPath = $this->partFilePath($outputPath, $i);
-                $success = $this->downloadTts($part, $partPath);
+                $success = $download($part, $partPath);
                 if (! $success) {
                     Log::warning("TTS: kalimat terpotong gagal pada bagian ke-{$i}; output dibatalkan.");
                     $this->cleanupPartFiles($outputPath);
@@ -96,7 +137,7 @@ class TTSEngine
             }
             file_put_contents($outputPath, $combined);
         } else {
-            $success = $this->downloadTts($text, $outputPath);
+            $success = $download($text, $outputPath);
             if (! $success) {
                 return false;
             }
@@ -135,6 +176,73 @@ class TTSEngine
                     return false;
                 }
                 // Exponential backoff sleep (0.5s, 1s)
+                usleep($attempt * 500000);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Memanggil REST API Google Cloud Text-to-Speech dan menyimpan MP3 hasil
+     * decode. Kunci dikirim lewat header x-goog-api-key agar tidak bocor ke URL
+     * atau access log server.
+     */
+    protected function downloadGoogleCloudTts(string $text, string $outputPath): bool
+    {
+        $config = config('tts.google_cloud');
+        $key = $config['key'] ?? null;
+
+        if (blank($key)) {
+            Log::error('TTS: Google Cloud TTS dipanggil tanpa kunci API.');
+
+            return false;
+        }
+
+        $payload = [
+            'input' => ['text' => $text],
+            'voice' => [
+                'languageCode' => $config['language_code'] ?? 'id-ID',
+                'name' => $config['voice_name'] ?? 'id-ID-Wavenet-A',
+                'ssmlGender' => $config['ssml_gender'] ?? 'FEMALE',
+            ],
+            'audioConfig' => [
+                'audioEncoding' => $config['audio_encoding'] ?? 'MP3',
+                'speakingRate' => (float) ($config['speaking_rate'] ?? 1.0),
+            ],
+        ];
+
+        $url = $config['url'] ?? 'https://texttospeech.googleapis.com/v1/text:synthesize';
+        $maxAttempts = 3;
+
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                $response = $this->http->post($url, [
+                    'headers' => ['x-goog-api-key' => $key],
+                    'json' => $payload,
+                ]);
+
+                if ($response->getStatusCode() === 200) {
+                    $body = json_decode($response->getBody()->getContents(), true);
+                    $encoded = is_array($body) ? ($body['audioContent'] ?? null) : null;
+
+                    if (is_string($encoded) && $encoded !== '') {
+                        $audio = base64_decode($encoded, true);
+                        if ($audio !== false && $audio !== '') {
+                            file_put_contents($outputPath, $audio);
+
+                            return true;
+                        }
+                    }
+
+                    Log::warning("TTS Cloud: audioContent tidak valid pada attempt {$attempt}.");
+                }
+            } catch (\Throwable $e) {
+                if ($attempt === $maxAttempts) {
+                    Log::warning("TTS Cloud attempt {$attempt} failed: {$e->getMessage()}");
+
+                    return false;
+                }
                 usleep($attempt * 500000);
             }
         }
